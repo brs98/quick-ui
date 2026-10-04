@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "components": {
+    "theme": { "file": "Theme.qml", "dependencies": [] },
+    "button": { "file": "Button.qml", "dependencies": ["theme"] },
+    "icon-button": { "file": "IconButton.qml", "dependencies": ["button"] },
+    "text-field": { "file": "TextField.qml", "dependencies": ["theme"] },
+    "switch": { "file": "Switch.qml", "dependencies": ["theme"] },
+    "checkbox": { "file": "CheckBox.qml", "dependencies": ["theme"] },
+    "slider": { "file": "Slider.qml", "dependencies": ["theme"] },
+    "select": { "file": "Select.qml", "dependencies": ["theme"] },
+    "card": { "file": "Card.qml", "dependencies": ["theme"] },
+    "badge": { "file": "Badge.qml", "dependencies": ["theme"] },
+    "separator": { "file": "Separator.qml", "dependencies": ["theme"] }
+  }
+}

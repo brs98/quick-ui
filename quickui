@@ -1,0 +1,190 @@
+#!/usr/bin/env python3
+"""Install editable QuickUI QML from the bundled, local registry."""
+
+import argparse
+import json
+from pathlib import Path, PurePosixPath
+import re
+import sys
+
+ROOT = Path(__file__).resolve().parent
+CONFIG_NAME = "quickui.json"
+
+
+class InstallError(Exception):
+    pass
+
+
+def unique_object(pairs):
+    result = {}
+    for key, value in pairs:
+        if key in result:
+            raise InstallError(f"Duplicate JSON key: {key}")
+        result[key] = value
+    return result
+
+
+def read_json(path):
+    try:
+        return json.loads(path.read_text(), object_pairs_hook=unique_object)
+    except (ValueError, UnicodeError) as error:
+        raise InstallError(f"Invalid JSON in {path}: {error}") from error
+
+
+def relative_path(value, label):
+    if (not isinstance(value, str) or not value or "\\" in value or ":" in value
+            or any(ord(char) < 32 for char in value)
+            or value.startswith("/") or any(part in ("", ".", "..") for part in value.split("/"))):
+        raise InstallError(f"{label} must be a relative path without traversal: {value!r}")
+    return PurePosixPath(value)
+
+
+def checked_path(root, relative, *, directory=False):
+    """Reject symlinks and non-directory ancestors, including dangling links."""
+    parts = relative.parts
+    current = root
+    for index, part in enumerate(parts):
+        current = current / part
+        if current.is_symlink():
+            raise InstallError(f"Refusing symlink: {current}")
+        if current.exists():
+            wants_directory = index < len(parts) - 1 or directory
+            if wants_directory and not current.is_dir():
+                raise InstallError(f"Expected a directory: {current}")
+            if not wants_directory and not current.is_file():
+                raise InstallError(f"Expected a regular file: {current}")
+    return current
+
+
+def read_registry():
+    path = checked_path(ROOT, PurePosixPath("registry.json"))
+    data = read_json(path)
+    if not isinstance(data, dict) or type(data.get("schemaVersion")) is not int or data["schemaVersion"] != 1:
+        raise InstallError("registry.json must use schemaVersion 1")
+    entries = data.get("components")
+    if not isinstance(entries, dict) or not entries:
+        raise InstallError("registry.json must contain a nonempty components object")
+    files = set()
+    for name, entry in entries.items():
+        if not re.fullmatch(r"[a-z][a-z0-9-]*", name) or not isinstance(entry, dict):
+            raise InstallError(f"Invalid registry entry: {name!r}")
+        filename = entry.get("file")
+        if not isinstance(filename, str) or not re.fullmatch(r"[A-Z][A-Za-z0-9]*\.qml", filename):
+            raise InstallError(f"Invalid QML filename for {name}")
+        if filename in files:
+            raise InstallError(f"Duplicate registry destination: {filename}")
+        files.add(filename)
+        dependencies = entry.get("dependencies")
+        if not isinstance(dependencies, list) or any(not isinstance(dep, str) for dep in dependencies):
+            raise InstallError(f"Invalid dependencies for {name}")
+        for dependency in dependencies:
+            if dependency not in entries:
+                raise InstallError(f"Unknown dependency {dependency!r} required by {name}")
+    # Validate the entire graph so a broken catalog cannot be partly installed.
+    resolve(entries, list(entries))
+    return entries
+
+
+def resolve(entries, requested):
+    ordered, visiting, visited = [], set(), set()
+
+    def visit(name):
+        if name not in entries:
+            raise InstallError(f"Unknown component {name!r}; run 'quickui list'")
+        if name in visiting:
+            raise InstallError(f"Dependency cycle involving {name}")
+        if name in visited:
+            return
+        visiting.add(name)
+        for dependency in entries[name]["dependencies"]:
+            visit(dependency)
+        visiting.remove(name)
+        visited.add(name)
+        ordered.append(name)
+
+    for name in requested:
+        visit(name)
+    return ordered
+
+
+def project_config(project, initialize):
+    path = checked_path(project, PurePosixPath(CONFIG_NAME))
+    if path.exists():
+        data = read_json(path)
+        if not isinstance(data, dict) or type(data.get("schemaVersion")) is not int or data["schemaVersion"] != 1:
+            raise InstallError("quickui.json must use schemaVersion 1")
+        relative = relative_path(data.get("componentsDir"), "componentsDir")
+        return relative, None
+    if not initialize:
+        raise InstallError("No quickui.json found; run 'quickui init' first")
+    data = {"schemaVersion": 1, "componentsDir": "ui"}
+    return PurePosixPath("ui"), (path, (json.dumps(data, indent=2) + "\n").encode())
+
+
+def install(entries, args):
+    # Resolving the explicitly selected project permits a symlink to the project
+    # itself; all paths inside that project must be ordinary files/directories.
+    project = Path(args.cwd).expanduser().resolve()
+    if not project.is_dir():
+        raise InstallError(f"Project directory does not exist: {project}")
+    components_dir, config_write = project_config(project, args.command == "init")
+    checked_path(project, components_dir, directory=True)
+    names = resolve(entries, ["theme"] if args.command == "init" else args.components)
+    planned = [config_write] if config_write else []
+    unchanged = []
+    for name in names:
+        filename = entries[name]["file"]
+        source = checked_path(ROOT, PurePosixPath("registry/quickui") / filename)
+        if not source.is_file():
+            raise InstallError(f"Bundled source is missing: {source}")
+        content = source.read_bytes()
+        target = checked_path(project, components_dir / filename)
+        if target.exists():
+            if target.read_bytes() != content:
+                raise InstallError(f"Refusing to overwrite {target}: contents differ from bundled source. "
+                                   "Review and merge changes manually, or choose a fresh destination.")
+            unchanged.append(target)
+        else:
+            planned.append((target, content))
+    # Nothing above this line mutates the project. Every conflict is checked first.
+    for target, content in planned:
+        if not args.dry_run:
+            target.parent.mkdir(parents=True, exist_ok=True)
+            # Exclusive creation also protects a file created after validation.
+            with target.open("xb") as stream:
+                stream.write(content)
+        print(f"{'Would create' if args.dry_run else 'Created'} {target.relative_to(project)}")
+    for target in unchanged:
+        print(f"Unchanged {target.relative_to(project)}")
+    if args.dry_run:
+        print("Dry run: no files changed.")
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    commands = parser.add_subparsers(dest="command", required=True)
+    commands.add_parser("list", help="list bundled components and their dependencies")
+    for command, help_text in (("init", "create quickui.json and install Theme.qml"),
+                               ("add", "copy components and their dependencies into your project")):
+        child = commands.add_parser(command, help=help_text)
+        if command == "add":
+            child.add_argument("components", nargs="+", help="registry names, e.g. button slider")
+        child.add_argument("--cwd", default=".", metavar="PROJECT", help="existing project directory (default: current)")
+        child.add_argument("--dry-run", action="store_true", help="validate and show changes without writing")
+    args = parser.parse_args()
+    try:
+        entries = read_registry()
+        if args.command == "list":
+            for name, entry in entries.items():
+                dependencies = ", ".join(entry["dependencies"]) or "none"
+                print(f"{name:14} {entry['file']:18} dependencies: {dependencies}")
+        else:
+            install(entries, args)
+    except (InstallError, OSError, RecursionError) as error:
+        print(f"quickui: {error}", file=sys.stderr)
+        return 1
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

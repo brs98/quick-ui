@@ -1,0 +1,119 @@
+# Installing QuickUI source
+
+QuickUI copies editable QML files from this checkout's bundled registry into your
+Quickshell project. The installer needs Python 3 and no Python packages or network
+access. Run it from this repository; the resulting QML files work independently
+of this checkout.
+
+## Start with an existing project directory
+
+```sh
+mkdir -p /tmp/my-quickshell
+./quickui list
+./quickui init --cwd /tmp/my-quickshell --dry-run
+./quickui init --cwd /tmp/my-quickshell
+./quickui add button slider icon-button --cwd /tmp/my-quickshell
+```
+
+`init` creates `quickui.json` and `ui/Theme.qml`. `add` copies the requested files
+and their transitive dependencies: adding `icon-button` also installs `button`
+and `theme`. Commands accept multiple component names, and `--cwd` defaults to
+the current directory. The project directory must already exist. The installer
+does not create or edit `shell.qml`.
+
+Available entries are `theme`, `button`, `icon-button`, `text-field`, `switch`,
+`checkbox`, `slider`, `select`, `card`, `badge`, and `separator`.
+
+Import the copied directory from your QML file and pass a shared theme:
+
+```qml
+import QtQuick
+import "ui" as UI
+
+Rectangle {
+    id: root
+    width: 400
+    height: 180
+    color: palette.background
+
+    UI.Theme {
+        id: palette
+        dark: false
+        accent: "#7152cf"
+    }
+
+    UI.Button {
+        anchors.centerIn: parent
+        theme: palette
+        text: "Hello, QuickUI"
+        onClicked: console.log("Clicked")
+    }
+}
+```
+
+This example is window content: put it in a Quickshell window or use your existing
+shell's composition. Controls use Qt Quick Controls behavior and have no Omarchy
+or desktop-service dependency. Pass state and handle signals in your own shell.
+
+## Local configuration and customization
+
+The project configuration is intentionally small:
+
+```json
+{
+  "schemaVersion": 1,
+  "componentsDir": "ui"
+}
+```
+
+To use a different directory, create this configuration before `init`, or edit
+`componentsDir` before installing components. Nested paths such as
+`components/ui` are supported; this changes the destination of future installs
+and does not move already installed files. Use the corresponding relative import
+in your QML.
+
+Customize theme properties on a shared `UI.Theme` instance, or edit the installed
+source. You own those files. There is no managed runtime module or updater.
+Re-adding byte-identical files is a no-op that preserves their modification times.
+If any requested component or dependency already contains different bytes,
+installation stops before writing anything. This also applies to an edited
+`Theme.qml`, even when you are adding a different component that depends on it.
+To bring in further files after editing shared dependencies, install into a fresh
+temporary project and review/merge the desired files manually. There is no force
+overwrite option.
+
+Both `init` and `add` support `--dry-run`. A dry run performs the same validation
+and conflict checks, reports planned copies, and creates no files or directories.
+All expected configuration, dependency, source, destination, and conflict checks
+happen before any write. An unexpected filesystem failure during writing can
+still leave a partial installation; fix the failure and rerun the same command.
+
+## Registry and path rules
+
+`registry.json` maps registry names to QML filenames and dependency lists. Source
+files live in `registry/quickui/`; installed files are exact copies. Registry
+filenames must be simple QML type filenames, destinations must be relative paths
+inside the selected project, and path traversal is rejected. Symlinked metadata,
+source files, destination files, and directories inside the project are rejected,
+including dangling links. An explicitly selected project directory itself may be
+a symlink; it is resolved to its real location before validation.
+
+The registry graph must contain only known dependencies and no cycles. Malformed
+JSON and duplicate JSON keys are rejected. The CLI uses only the bundled local
+registry; fetching, publishing, version selection, and automatic source merging
+are future work.
+
+Exit codes: `0` for success (including no-ops and valid dry runs), `1` for an
+installation/registry/filesystem error, and `2` for invalid command-line usage.
+Run `./quickui --help` or `./quickui add --help` for usage.
+
+## Installer checks
+
+```sh
+python3 -m unittest discover -s tests -p test_installer.py -v
+```
+
+The tests invoke the real executable against disposable projects and a disposable
+registry fixture. They verify source copying, dependency closure, repeat
+installation, dry runs, customized-file preservation, and malformed/path/symlink
+failures. QML behavior is covered by the project's separate Qt tests.
