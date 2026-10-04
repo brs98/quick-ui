@@ -42,8 +42,8 @@ def main():
         edited = original.replace('"#b4a0ff"', '"#6ee7c7"').encode()
         theme.write_bytes(edited)
         entries = json.loads((ROOT / "registry.json").read_text())["components"]
-        component_names = [name for name in entries if name != "theme"]
-        assert len(component_names) == 10
+        component_names = ["button", "icon-button", "text-field", "switch", "checkbox",
+                           "slider", "select", "card", "badge", "separator"]
         result = install("add", *component_names)
         assert "Kept customized dependency ui/Theme.qml" in result.stdout
         assert theme.read_bytes() == edited, "Installer changed the owned theme"

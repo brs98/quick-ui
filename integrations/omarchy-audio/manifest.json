@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 1,
+  "id": "brandon.audio",
+  "name": "QuickUI Audio",
+  "version": "1.0.0",
+  "author": "Omarchy",
+  "description": "Audio panel built from owned QuickUI source",
+  "kinds": [
+    "bar-widget"
+  ],
+  "entryPoints": {
+    "barWidget": "Panel.qml"
+  },
+  "barWidget": {
+    "displayName": "QuickUI Audio",
+    "description": "Volume slider, output picker, per-app mixer",
+    "category": "Audio",
+    "allowMultiple": false
+  },
+  "omarchy": {
+    "clonedFrom": "omarchy.audio"
+  }
+}
