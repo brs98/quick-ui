@@ -205,6 +205,34 @@ Item {
             compare(state.events[0].name, data.event);
         }
 
+        function test_narrowTiledWindow_data() {
+            return [{tag: "desktop-tile", width: 687}, {tag: "minimum", width: 640}];
+        }
+
+        function test_narrowTiledWindow(data) {
+            explorer.width = data.width;
+            explorer.height = 894;
+            verify(waitForRendering(explorer));
+            verify(explorer.preview.parent.width >= 300, "Narrow tiled windows must retain a usable canvas");
+            const navigation = button("Components");
+            verify(navigation.visible);
+            click(navigation);
+            const search = findChild(explorer, "compactStorySearch");
+            verify(search !== null);
+            tryCompare(search, "visible", true);
+            typeText(search, "volume");
+            let entry = null;
+            tryVerify(() => {
+                entry = descendant(search.parent, item => item.objectName === "compactStoryEntry" && item.visible);
+                return entry !== null;
+            });
+            click(entry);
+            compare(state.story.id, "volume-card");
+            verify(waitForRendering(explorer));
+            click(button("Mute", explorer.preview.item));
+            compare(state.events[0].name, "muteRequested");
+        }
+
         function test_invalidInputsDoNotMutateState() {
             const initial = JSON.stringify(state.args);
             verify(!state.select(-1));

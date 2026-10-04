@@ -12,7 +12,7 @@ ShellRoot {
         title: "Quickbook — Component Explorer"
         implicitWidth: 1320
         implicitHeight: 840
-        minimumSize: Qt.size(1060, 700)
+        minimumSize: Qt.size(640, 700)
         color: "#14151c"
         Explorer {
             id: explorer

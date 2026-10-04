@@ -9,6 +9,7 @@ Rectangle {
     required property var catalog
     property alias explorerState: modelState
     property alias preview: storyLoader
+    readonly property bool compact: width < 1050
     signal reloadRequested()
     color: colors.bg
     implicitWidth: 1320
@@ -16,9 +17,35 @@ Rectangle {
 
     Theme { id: colors; dark: modelState.dark }
     ExplorerState { id: modelState; entries: root.catalog }
-    Shortcut { sequence: "Ctrl+K"; onActivated: search.forceActiveFocus() }
+    function focusSearch() {
+        if (compact) {
+            browserPopup.open();
+            compactBrowser.focusSearch();
+        } else sidebar.focusSearch();
+    }
+    Shortcut { sequence: "Ctrl+K"; onActivated: root.focusSearch() }
     Shortcut { sequence: "Ctrl+R"; onActivated: root.reloadRequested() }
     Shortcut { sequence: "Ctrl+0"; onActivated: modelState.reset() }
+
+    Popup {
+        id: browserPopup
+        parent: root
+        x: 16; y: 74
+        width: Math.min(300, root.width - 32)
+        height: Math.min(480, root.height - 100)
+        padding: 1
+        modal: true
+        focus: true
+        closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside
+        background: Rectangle { color: colors.panel; border.color: colors.line; radius: 8 }
+        contentItem: StoryBrowser {
+            id: compactBrowser
+            theme: colors
+            modelState: root.explorerState
+            searchName: "compactStorySearch"
+            onSelected: browserPopup.close()
+        }
+    }
 
     ColumnLayout {
         anchors.fill: parent
@@ -37,10 +64,12 @@ Rectangle {
                     Text { anchors.centerIn: parent; text: "Q"; color: colors.bg; font.pixelSize: 21; font.bold: true }
                 }
                 Text { text: "Quickbook"; color: colors.text; font.pixelSize: 20; font.weight: Font.DemiBold }
-                Rectangle { implicitWidth: 1; implicitHeight: 20; color: colors.line; Layout.leftMargin: 10; Layout.rightMargin: 10 }
-                Text { text: "A little space for your components."; color: colors.muted; font.pixelSize: 12; Layout.fillWidth: true }
-                Rectangle { implicitWidth: 6; implicitHeight: 6; radius: 3; color: colors.green }
-                Text { text: "LIVE QML"; color: colors.muted; font.pixelSize: 10; font.letterSpacing: 1; Layout.rightMargin: 12 }
+                Rectangle { visible: !root.compact; implicitWidth: 1; implicitHeight: 20; color: colors.line; Layout.leftMargin: 10; Layout.rightMargin: 10 }
+                Text { visible: !root.compact; text: "A little space for your components."; color: colors.muted; font.pixelSize: 12; Layout.fillWidth: true }
+                UiButton { theme: colors; text: "Components"; visible: root.compact; onClicked: root.focusSearch() }
+                Item { visible: root.compact; Layout.fillWidth: true }
+                Rectangle { visible: !root.compact; implicitWidth: 6; implicitHeight: 6; radius: 3; color: colors.green }
+                Text { visible: !root.compact; text: "LIVE QML"; color: colors.muted; font.pixelSize: 10; font.letterSpacing: 1; Layout.rightMargin: 12 }
                 UiButton { theme: colors; text: modelState.dark ? "Light theme" : "Dark theme"; onClicked: modelState.dark = !modelState.dark }
                 UiButton { theme: colors; text: "Reload"; onClicked: root.reloadRequested(); ToolTip.visible: hovered; ToolTip.text: "Reload QML · Ctrl+R" }
             }
@@ -50,74 +79,15 @@ Rectangle {
             Layout.fillWidth: true
             Layout.fillHeight: true
             spacing: 0
-            Rectangle {
+            StoryBrowser {
+                id: sidebar
+                visible: !root.compact
                 Layout.preferredWidth: 224
                 Layout.fillHeight: true
-                color: colors.panel
-                ColumnLayout {
-                    anchors.fill: parent
-                    anchors.margins: 16
-                    spacing: 18
-                    UiField {
-                        id: search
-                        objectName: "storySearch"
-                        Layout.fillWidth: true
-                        theme: colors
-                        placeholderText: "Find a component…   Ctrl+K"
-                        text: modelState.query
-                        onTextEdited: modelState.query = text
-                    }
-                    RowLayout {
-                        Layout.fillWidth: true
-                        Text { text: "COMPONENTS"; color: colors.muted; font.pixelSize: 10; font.letterSpacing: 1.5; Layout.fillWidth: true }
-                        Text { text: modelState.entries.length; color: colors.muted; font.pixelSize: 11 }
-                    }
-                    ListView {
-                        id: storyList
-                        Layout.fillWidth: true
-                        Layout.fillHeight: true
-                        clip: true
-                        spacing: 5
-                        model: modelState.filtered
-                        delegate: ItemDelegate {
-                            id: entryDelegate
-                            required property var modelData
-                            width: storyList.width
-                            height: 65
-                            onClicked: modelState.select(modelData.index)
-                            background: Rectangle {
-                                radius: 8
-                                color: modelState.selectedIndex === entryDelegate.modelData.index ? colors.selected : entryDelegate.hovered ? colors.raised : "transparent"
-                                border.color: entryDelegate.activeFocus ? colors.accent : "transparent"
-                            }
-                            contentItem: Column {
-                                spacing: 5
-                                Text { text: entryDelegate.modelData.entry.group; color: colors.muted; font.pixelSize: 10 }
-                                Text {
-                                    text: entryDelegate.modelData.entry.title
-                                    color: modelState.selectedIndex === entryDelegate.modelData.index ? colors.accent : colors.text
-                                    font.pixelSize: 13
-                                    font.weight: Font.Medium
-                                }
-                            }
-                        }
-                        Text {
-                            anchors.top: parent.top
-                            width: parent.width
-                            visible: modelState.filtered.length === 0
-                            text: "No components found.\nTry a different search."
-                            wrapMode: Text.WordWrap
-                            lineHeight: 1.5
-                            color: colors.muted
-                            font.pixelSize: 12
-                        }
-                    }
-                    Rectangle { Layout.fillWidth: true; implicitHeight: 1; color: colors.line }
-                    Text { text: "YOUR COMPONENT WORKBENCH"; color: colors.muted; font.pixelSize: 9; font.letterSpacing: 0.8 }
-                    Text { text: "Edit. Explore. Make it yours.\nChanges reload as you save."; color: colors.muted; font.pixelSize: 11; lineHeight: 1.5 }
-                }
+                theme: colors
+                modelState: root.explorerState
             }
-            Rectangle { Layout.fillHeight: true; implicitWidth: 1; color: colors.line }
+            Rectangle { visible: !root.compact; Layout.fillHeight: true; implicitWidth: 1; color: colors.line }
             ColumnLayout {
                 Layout.fillWidth: true
                 Layout.fillHeight: true
@@ -132,7 +102,7 @@ Rectangle {
                         RowLayout {
                             Layout.fillWidth: true
                             Text { text: modelState.story ? modelState.story.group + "  /" : "LIBRARY"; color: colors.muted; font.pixelSize: 11 }
-                            Text { text: modelState.story ? modelState.story.title : "No stories yet"; color: colors.text; font.pixelSize: 18; font.weight: Font.DemiBold; Layout.fillWidth: true }
+                            Text { elide: Text.ElideRight; text: modelState.story ? modelState.story.title : "No stories yet"; color: colors.text; font.pixelSize: 18; font.weight: Font.DemiBold; Layout.fillWidth: true }
                         }
                         Text {
                             Layout.fillWidth: true
@@ -152,7 +122,7 @@ Rectangle {
                         anchors.leftMargin: 20
                         anchors.rightMargin: 20
                         spacing: 8
-                        Text { text: "CANVAS"; color: colors.muted; font.pixelSize: 10; font.letterSpacing: 1; Layout.fillWidth: true }
+                        Text { visible: !root.compact; text: "CANVAS"; color: colors.muted; font.pixelSize: 10; font.letterSpacing: 1; Layout.fillWidth: true }
                         UiSelect {
                             theme: colors
                             model: ["Fit to canvas", "Compact · 360", "Wide · 640"]
@@ -281,6 +251,9 @@ Rectangle {
                             Text {
                                 visible: !modelState.events.length
                                 anchors.centerIn: parent
+                                width: parent.width
+                                wrapMode: Text.WordWrap
+                                horizontalAlignment: Text.AlignHCenter
                                 text: "Interact with the component. Its events will appear here."
                                 color: colors.muted; font.pixelSize: 11
                             }
@@ -308,7 +281,7 @@ Rectangle {
             }
             Rectangle { Layout.fillHeight: true; implicitWidth: 1; color: colors.line }
             Rectangle {
-                Layout.preferredWidth: 276
+                Layout.preferredWidth: root.compact ? 240 : 276
                 Layout.fillHeight: true
                 color: colors.panel
                 ColumnLayout {
@@ -320,7 +293,7 @@ Rectangle {
                         Text { text: "Story controls"; color: colors.text; font.pixelSize: 14; font.weight: Font.DemiBold; Layout.fillWidth: true }
                         Rectangle { implicitWidth: 6; implicitHeight: 6; radius: 3; color: modelState.modified ? colors.accent : colors.green }
                     }
-                    Text { text: "Start with a state. Then make it your own."; color: colors.muted; font.pixelSize: 10 }
+                    Text { Layout.fillWidth: true; wrapMode: Text.WordWrap; text: "Start with a state. Then make it your own."; color: colors.muted; font.pixelSize: 10 }
                     Text { text: "PRESET"; color: colors.muted; font.pixelSize: 10; font.letterSpacing: 1 }
                     UiSelect {
                         theme: colors
