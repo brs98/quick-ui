@@ -25,20 +25,20 @@ ShellRoot {
     IpcHandler {
         target: "quickbook"
         function status(): string {
-            return JSON.stringify({story: explorer.state.story ? explorer.state.story.id : null,
-                preset: explorer.state.presetIndex, args: explorer.state.args,
-                dark: explorer.state.dark, events: explorer.state.events,
+            return JSON.stringify({story: explorer.explorerState.story ? explorer.explorerState.story.id : null,
+                preset: explorer.explorerState.presetIndex, args: explorer.explorerState.args,
+                dark: explorer.explorerState.dark, events: explorer.explorerState.events,
                 loaded: explorer.preview.status === Loader.Ready,
                 stories: catalog.entries.map(entry => entry.id)});
         }
-        function select(id: string): bool { return explorer.state.selectId(id); }
-        function preset(index: int): bool { return explorer.state.preset(index); }
+        function select(id: string): bool { return explorer.explorerState.selectId(id); }
+        function preset(index: int): bool { return explorer.explorerState.preset(index); }
         function control(key: string, json: string): bool {
-            try { return explorer.state.setArg(key, JSON.parse(json)); }
+            try { return explorer.explorerState.setArg(key, JSON.parse(json)); }
             catch (error) { return false; }
         }
-        function theme(dark: bool): void { explorer.state.dark = dark; }
-        function reset(): void { explorer.state.reset(); }
+        function theme(dark: bool): void { explorer.explorerState.dark = dark; }
+        function reset(): void { explorer.explorerState.reset(); }
         function capture(path: string): bool {
             return explorer.grabToImage(result => {
                 if (result.saveToFile(path)) console.log("Saved preview: " + path);

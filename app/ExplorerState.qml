@@ -17,6 +17,8 @@ QtObject {
     readonly property var filtered: entries.map((entry, index) => ({entry, index})).filter(row =>
         (row.entry.group + " " + row.entry.title).toLowerCase().includes(query.trim().toLowerCase()))
 
+    Component.onCompleted: reset()
+
     onEntriesChanged: {
         selectedIndex = 0;
         reset();

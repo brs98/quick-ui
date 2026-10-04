@@ -1,3 +1,5 @@
+pragma ComponentBehavior: Bound
+
 import QtQuick
 import QtQuick.Controls.Basic
 import QtQuick.Layouts
@@ -5,7 +7,7 @@ import QtQuick.Layouts
 Rectangle {
     id: root
     required property var catalog
-    property alias state: modelState
+    property alias explorerState: modelState
     property alias preview: storyLoader
     signal reloadRequested()
     color: colors.bg
@@ -31,19 +33,19 @@ Rectangle {
                 anchors.rightMargin: 24
                 spacing: 12
                 Rectangle {
-                    width: 32; height: 32; radius: 9; color: colors.accent
+                    implicitWidth: 32; implicitHeight: 32; radius: 9; color: colors.accent
                     Text { anchors.centerIn: parent; text: "Q"; color: colors.bg; font.pixelSize: 21; font.bold: true }
                 }
                 Text { text: "Quickbook"; color: colors.text; font.pixelSize: 20; font.weight: Font.DemiBold }
-                Rectangle { width: 1; height: 20; color: colors.line; Layout.leftMargin: 10; Layout.rightMargin: 10 }
+                Rectangle { implicitWidth: 1; implicitHeight: 20; color: colors.line; Layout.leftMargin: 10; Layout.rightMargin: 10 }
                 Text { text: "A little space for your components."; color: colors.muted; font.pixelSize: 12; Layout.fillWidth: true }
-                Rectangle { width: 6; height: 6; radius: 3; color: colors.green }
+                Rectangle { implicitWidth: 6; implicitHeight: 6; radius: 3; color: colors.green }
                 Text { text: "LIVE QML"; color: colors.muted; font.pixelSize: 10; font.letterSpacing: 1; Layout.rightMargin: 12 }
                 UiButton { theme: colors; text: modelState.dark ? "Light theme" : "Dark theme"; onClicked: modelState.dark = !modelState.dark }
                 UiButton { theme: colors; text: "Reload"; onClicked: root.reloadRequested(); ToolTip.visible: hovered; ToolTip.text: "Reload QML · Ctrl+R" }
             }
         }
-        Rectangle { Layout.fillWidth: true; height: 1; color: colors.line }
+        Rectangle { Layout.fillWidth: true; implicitHeight: 1; color: colors.line }
         RowLayout {
             Layout.fillWidth: true
             Layout.fillHeight: true
@@ -110,12 +112,12 @@ Rectangle {
                             font.pixelSize: 12
                         }
                     }
-                    Rectangle { Layout.fillWidth: true; height: 1; color: colors.line }
+                    Rectangle { Layout.fillWidth: true; implicitHeight: 1; color: colors.line }
                     Text { text: "YOUR COMPONENT WORKBENCH"; color: colors.muted; font.pixelSize: 9; font.letterSpacing: 0.8 }
                     Text { text: "Edit. Explore. Make it yours.\nChanges reload as you save."; color: colors.muted; font.pixelSize: 11; lineHeight: 1.5 }
                 }
             }
-            Rectangle { Layout.fillHeight: true; width: 1; color: colors.line }
+            Rectangle { Layout.fillHeight: true; implicitWidth: 1; color: colors.line }
             ColumnLayout {
                 Layout.fillWidth: true
                 Layout.fillHeight: true
@@ -141,7 +143,7 @@ Rectangle {
                         }
                     }
                 }
-                Rectangle { Layout.fillWidth: true; height: 1; color: colors.line }
+                Rectangle { Layout.fillWidth: true; implicitHeight: 1; color: colors.line }
                 Item {
                     Layout.fillWidth: true
                     Layout.preferredHeight: 56
@@ -168,7 +170,7 @@ Rectangle {
                         UiButton { theme: colors; text: "Grid"; selected: modelState.grid; onClicked: modelState.grid = !modelState.grid }
                     }
                 }
-                Rectangle { Layout.fillWidth: true; height: 1; color: colors.line }
+                Rectangle { Layout.fillWidth: true; implicitHeight: 1; color: colors.line }
                 Item {
                     id: stage
                     Layout.fillWidth: true
@@ -202,8 +204,8 @@ Rectangle {
                             id: storyLoader
                             objectName: "storyPreview"
                             anchors.centerIn: parent
-                            width: item ? Math.min(item.implicitWidth || frame.width - 32, frame.width - 32) : 0
-                            height: item ? Math.min(item.implicitHeight || frame.height - 32, frame.height - 32) : 0
+                            width: item ? Math.min((item as Item).implicitWidth || frame.width - 32, frame.width - 32) : 0
+                            height: item ? Math.min((item as Item).implicitHeight || frame.height - 32, frame.height - 32) : 0
                             function loadStory() {
                                 source = "";
                                 if (modelState.story) setSource(modelState.story.source, {args: modelState.args, dark: modelState.dark});
@@ -241,7 +243,7 @@ Rectangle {
                         color: colors.muted; font.pixelSize: 9; font.letterSpacing: 1
                     }
                 }
-                Rectangle { Layout.fillWidth: true; height: 1; color: colors.line }
+                Rectangle { Layout.fillWidth: true; implicitHeight: 1; color: colors.line }
                 Rectangle {
                     Layout.fillWidth: true
                     Layout.preferredHeight: 178
@@ -268,12 +270,13 @@ Rectangle {
                             spacing: 6
                             model: modelState.events
                             delegate: RowLayout {
+                                id: eventRow
                                 required property var modelData
                                 width: eventList.width
                                 spacing: 12
-                                Text { text: modelData.time; color: colors.muted; font.pixelSize: 10; font.family: "monospace" }
-                                Text { text: modelData.name; color: colors.accent; font.pixelSize: 11; font.family: "monospace" }
-                                Text { text: modelData.payload; color: colors.text; font.pixelSize: 11; font.family: "monospace"; Layout.fillWidth: true; elide: Text.ElideRight }
+                                Text { text: eventRow.modelData.time; color: colors.muted; font.pixelSize: 10; font.family: "monospace" }
+                                Text { text: eventRow.modelData.name; color: colors.accent; font.pixelSize: 11; font.family: "monospace" }
+                                Text { text: eventRow.modelData.payload; color: colors.text; font.pixelSize: 11; font.family: "monospace"; Layout.fillWidth: true; elide: Text.ElideRight }
                             }
                             Text {
                                 visible: !modelState.events.length
@@ -303,7 +306,7 @@ Rectangle {
                     }
                 }
             }
-            Rectangle { Layout.fillHeight: true; width: 1; color: colors.line }
+            Rectangle { Layout.fillHeight: true; implicitWidth: 1; color: colors.line }
             Rectangle {
                 Layout.preferredWidth: 276
                 Layout.fillHeight: true
@@ -315,7 +318,7 @@ Rectangle {
                     RowLayout {
                         Layout.fillWidth: true
                         Text { text: "Story controls"; color: colors.text; font.pixelSize: 14; font.weight: Font.DemiBold; Layout.fillWidth: true }
-                        Rectangle { width: 6; height: 6; radius: 3; color: modelState.modified ? colors.accent : colors.green }
+                        Rectangle { implicitWidth: 6; implicitHeight: 6; radius: 3; color: modelState.modified ? colors.accent : colors.green }
                     }
                     Text { text: "Start with a state. Then make it your own."; color: colors.muted; font.pixelSize: 10 }
                     Text { text: "PRESET"; color: colors.muted; font.pixelSize: 10; font.letterSpacing: 1 }
@@ -326,7 +329,7 @@ Rectangle {
                         currentIndex: modelState.presetIndex
                         onActivated: modelState.preset(currentIndex)
                     }
-                    Rectangle { Layout.fillWidth: true; height: 1; color: colors.line }
+                    Rectangle { Layout.fillWidth: true; implicitHeight: 1; color: colors.line }
                     ScrollView {
                         Layout.fillWidth: true
                         Layout.fillHeight: true
@@ -348,7 +351,7 @@ Rectangle {
                             }
                         }
                     }
-                    Rectangle { Layout.fillWidth: true; height: 1; color: colors.line }
+                    Rectangle { Layout.fillWidth: true; implicitHeight: 1; color: colors.line }
                     UiButton {
                         theme: colors
                         text: "Reset to preset"
@@ -361,7 +364,7 @@ Rectangle {
                 }
             }
         }
-        Rectangle { Layout.fillWidth: true; height: 1; color: colors.line }
+        Rectangle { Layout.fillWidth: true; implicitHeight: 1; color: colors.line }
         Item {
             Layout.fillWidth: true
             Layout.preferredHeight: 28
