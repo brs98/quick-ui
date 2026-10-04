@@ -1,9 +1,11 @@
 import QtQuick
 import "primitives" as Primitives
+import "audio" as Audio
 
 QtObject {
     property Primitives.Catalog primitives: Primitives.Catalog {}
-    readonly property var entries: primitives.entries.concat(demos)
+    property Audio.Catalog audio: Audio.Catalog {}
+    readonly property var entries: primitives.entries.concat(audio.entries, demos)
     readonly property var demos: [
         {
             id: "action-button",

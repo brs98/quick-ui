@@ -43,7 +43,7 @@ TestCase {
         Actions.selectDevice(input, false, service, execute);
         compare(service.preferredDefaultAudioSource, input);
         compare(commands[1][0], "omarchy-audio-input-set-default");
-        compare(Actions.nodeWithId([output, input], "4"), input);
+        compare(Actions.nodeWithId([null, output, null, input], "4"), input);
         compare(Actions.nodeWithId([output], "4"), null);
         Actions.selectDevice(null, false, service, execute);
         compare(commands.length, 2);

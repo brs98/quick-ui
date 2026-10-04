@@ -47,6 +47,8 @@ The clone command chooses `<username>.audio`; substitute your own username above
 Keep its generated manifest: `omarchy.clonedFrom: "omarchy.audio"` routes existing
 shell commands to the clone. Do not change the module/IPC id inside `Panel.qml`.
 Back up the stock clone and shell configuration before replacing the files.
+If the shell retains the previous QML component after rescan, run
+`omarchy restart shell` to clear its component cache.
 
 On this machine, the installed clone and its original baseline are tracked in a
 local Git repository. The adoption commit can be reverted to restore the original
@@ -63,6 +65,6 @@ omarchy-shell omarchy.audio close
 ```
 
 Diagnostics report counts and state, without application titles or device names.
-Capture renders only mixer content, not the desktop. Native window hosting and
+Capture renders only the audio card, not the desktop. Native window hosting and
 outside-click focus behavior remain the responsibility of Omarchy's KeyboardPanel;
 QuickUI's standalone mixer also supports ordinary Tab navigation.

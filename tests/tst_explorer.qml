@@ -134,7 +134,7 @@ Item {
 
         function test_searchAndSwitching() {
             const search = findChild(explorer, "storySearch");
-            typeText(search, "VOLUME");
+            typeText(search, "VOLUME CARD");
             compare(state.filtered.length, 1);
             compare(state.filtered[0].entry.id, "volume-card");
             verify(state.select(state.filtered[0].index));
@@ -221,7 +221,7 @@ Item {
             const search = findChild(explorer, "compactStorySearch");
             verify(search !== null);
             tryCompare(search, "visible", true);
-            typeText(search, "volume");
+            typeText(search, "volume card");
             let entry = null;
             tryVerify(() => {
                 entry = descendant(search.parent, item => item.objectName === "compactStoryEntry" && item.visible);

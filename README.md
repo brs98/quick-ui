@@ -75,6 +75,7 @@ a microphone level meter, application streams, and keyboard navigation. This dem
 uses mock data; the reusable components never access your audio services.
 See [mixer API](docs/audio-mixer.md), [audio controls](docs/audio-controls.md), and
 [Omarchy integration](integrations/omarchy-audio/README.md).
+[Milestone verification and rollback](docs/audio-milestone.md) records the installed result.
 
 Your installed `brandon.audio` plugin uses the same copied mixer source, with a
 separate adapter retaining PipeWire/MPRIS and Omarchy's native popup hosting.

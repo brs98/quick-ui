@@ -404,15 +404,15 @@ Panel {
       inputPeak: inputPeakMonitor.peak
       outputGlyph: root.outputIcon()
       statusText: root.outputVolumeName(liveOutputVolume, outputMuted)
-      outputs: root.displayAudioSinks.map(node => ({
+      outputs: root.displayAudioSinks.filter(node => !!node).map(node => ({
         id: String(node.id), label: root.nodeLabel(node), glyph: root.sinkGlyph(node),
         current: !!root.sink && node.id === root.sink.id
       }))
-      inputs: root.displayAudioSources.map(node => ({
+      inputs: root.displayAudioSources.filter(node => !!node).map(node => ({
         id: String(node.id), label: root.nodeLabel(node), glyph: root.sourceGlyph(node),
         current: !!root.source && node.id === root.source.id
       }))
-      streams: root.displayAudioStreams.map(node => ({
+      streams: root.displayAudioStreams.filter(node => !!node).map(node => ({
         id: String(node.id), label: root.streamLabel(node),
         volume: node.audio ? node.audio.volume : 0, muted: node.audio ? node.audio.muted : false,
         current: root.streamRepresentsPlayer(node, root.activeMediaPlayer)
@@ -441,11 +441,14 @@ Panel {
         outputMuted: root.outputMuted, inputMuted: root.inputMuted,
         outputs: mixer.outputs.length, inputs: mixer.inputs.length, streams: mixer.streams.length,
         focused: mixer.activeFocus, width: mixer.width, height: mixer.height,
+        cursorActive: mixer.cursorActive, focusSection: mixer.focusSection, selectedIndex: mixer.selectedIndex,
         resolvedPhysicalOutput: root.volumeSinkName !== ""})
     }
     function capture(path: string): bool {
       if (!root.opened) return false
-      return mixer.grabToImage(result => result.saveToFile(path))
+      // KeyboardPanel owns an opaque card around its content holder.
+      // Include that card so translucent theme fills retain their real contrast.
+      return mixer.parent.parent.grabToImage(result => result.saveToFile(path))
     }
   }
 }
