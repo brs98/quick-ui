@@ -2,10 +2,13 @@
 """Install editable QuickUI QML from the bundled, local registry."""
 
 import argparse
+import hashlib
+import os
 import json
 from pathlib import Path, PurePosixPath
 import re
 import sys
+import tempfile
 
 ROOT = Path(__file__).resolve().parent
 CONFIG_NAME = "quickui.json"
@@ -109,16 +112,46 @@ def resolve(entries, requested):
 
 def project_config(project, initialize):
     path = checked_path(project, PurePosixPath(CONFIG_NAME))
+    original = None
     if path.exists():
+        original = path.read_bytes()
         data = read_json(path)
         if not isinstance(data, dict) or type(data.get("schemaVersion")) is not int or data["schemaVersion"] != 1:
             raise InstallError("quickui.json must use schemaVersion 1")
-        relative = relative_path(data.get("componentsDir"), "componentsDir")
-        return relative, None
-    if not initialize:
+    elif initialize:
+        data = {"schemaVersion": 1, "componentsDir": "ui"}
+    else:
         raise InstallError("No quickui.json found; run 'quickui init' first")
-    data = {"schemaVersion": 1, "componentsDir": "ui"}
-    return PurePosixPath("ui"), (path, (json.dumps(data, indent=2) + "\n").encode())
+    relative = relative_path(data.get("componentsDir"), "componentsDir")
+    installed = data.setdefault("installed", {})
+    if not isinstance(installed, dict):
+        raise InstallError("quickui.json installed must be an object")
+    for name, record in installed.items():
+        if (not re.fullmatch(r"[a-z][a-z0-9-]*", name) or not isinstance(record, dict)
+                or not isinstance(record.get("sha256"), str)
+                or not re.fullmatch(r"[0-9a-f]{64}", record["sha256"])):
+            raise InstallError(f"Invalid installed origin record: {name!r}")
+        relative_path(record.get("path"), f"installed.{name}.path")
+    return relative, data, original
+
+
+def write_config(project, content, original):
+    """Replace managed metadata atomically; never follow a metadata symlink."""
+    path = checked_path(project, PurePosixPath(CONFIG_NAME))
+    if original is None:
+        with path.open("xb") as stream:
+            stream.write(content)
+        return
+    descriptor, temporary = tempfile.mkstemp(prefix=".quickui-", suffix=".tmp", dir=project)
+    try:
+        with os.fdopen(descriptor, "wb") as stream:
+            stream.write(content)
+        checked_path(project, PurePosixPath(CONFIG_NAME))
+        if path.read_bytes() != original:
+            raise InstallError("quickui.json changed during installation; rerun the command")
+        os.replace(temporary, path)
+    finally:
+        Path(temporary).unlink(missing_ok=True)
 
 
 def install(entries, args):
@@ -127,25 +160,38 @@ def install(entries, args):
     project = Path(args.cwd).expanduser().resolve()
     if not project.is_dir():
         raise InstallError(f"Project directory does not exist: {project}")
-    components_dir, config_write = project_config(project, args.command == "init")
+    components_dir, config, original_config = project_config(project, args.command == "init")
     checked_path(project, components_dir, directory=True)
-    names = resolve(entries, ["theme"] if args.command == "init" else args.components)
-    planned = [config_write] if config_write else []
-    unchanged = []
+    requested = ["theme"] if args.command == "init" else args.components
+    names = resolve(entries, requested)
+    planned, unchanged, kept = [], [], []
     for name in names:
         filename = entries[name]["file"]
         source = checked_path(ROOT, PurePosixPath("registry/quickui") / filename)
         if not source.is_file():
             raise InstallError(f"Bundled source is missing: {source}")
         content = source.read_bytes()
-        target = checked_path(project, components_dir / filename)
+        relative = components_dir / filename
+        target = checked_path(project, relative)
+        record = config["installed"].get(name)
         if target.exists():
             if target.read_bytes() != content:
+                if name not in requested and record and record["path"] == str(relative):
+                    # Source ownership includes edits to dependencies. Retain the
+                    # original source fingerprint and never replace the file.
+                    kept.append(target)
+                    continue
                 raise InstallError(f"Refusing to overwrite {target}: contents differ from bundled source. "
                                    "Review and merge changes manually, or choose a fresh destination.")
             unchanged.append(target)
         else:
             planned.append((target, content))
+        config["installed"][name] = {
+            "path": str(relative), "sha256": hashlib.sha256(content).hexdigest()
+        }
+    serialized = (json.dumps(config, indent=2) + "\n").encode()
+    # Preserve user formatting and timestamps if managed data did not change.
+    metadata_changed = original_config is None or json.loads(original_config) != config
     # Nothing above this line mutates the project. Every conflict is checked first.
     for target, content in planned:
         if not args.dry_run:
@@ -154,8 +200,15 @@ def install(entries, args):
             with target.open("xb") as stream:
                 stream.write(content)
         print(f"{'Would create' if args.dry_run else 'Created'} {target.relative_to(project)}")
+    if metadata_changed:
+        if not args.dry_run:
+            write_config(project, serialized, original_config)
+        verb = "create" if original_config is None else "update"
+        print(f"{'Would ' + verb if args.dry_run else verb.capitalize() + 'd'} {CONFIG_NAME}")
     for target in unchanged:
         print(f"Unchanged {target.relative_to(project)}")
+    for target in kept:
+        print(f"Kept customized dependency {target.relative_to(project)}")
     if args.dry_run:
         print("Dry run: no files changed.")
 

@@ -57,7 +57,7 @@ or desktop-service dependency. Pass state and handle signals in your own shell.
 
 ## Local configuration and customization
 
-The project configuration is intentionally small:
+The project configuration starts with:
 
 ```json
 {
@@ -72,15 +72,27 @@ To use a different directory, create this configuration before `init`, or edit
 and does not move already installed files. Use the corresponding relative import
 in your QML.
 
+The installer also maintains an `installed` object in this file, recording each
+component's project-relative destination and the SHA-256 fingerprint of the
+bundled source it copied. Keep that metadata so later installs can distinguish
+your installed dependencies from unrelated files. Other configuration fields are
+preserved.
+
 Customize theme properties on a shared `UI.Theme` instance, or edit the installed
 source. You own those files. There is no managed runtime module or updater.
 Re-adding byte-identical files is a no-op that preserves their modification times.
-If any requested component or dependency already contains different bytes,
-installation stops before writing anything. This also applies to an edited
-`Theme.qml`, even when you are adding a different component that depends on it.
-To bring in further files after editing shared dependencies, install into a fresh
-temporary project and review/merge the desired files manually. There is no force
-overwrite option.
+Previously installed dependencies are retained even after you customize them:
+editing `ui/Theme.qml` and then running `add slider` installs Slider while keeping
+your exact Theme bytes; editing Button and then adding IconButton likewise keeps
+Button. The CLI reports each retained customized dependency.
+
+An explicitly requested component with differing contents is refused, as is any
+conflicting dependency without a matching installed-origin record at its current
+path. All conflicts are checked before any write. For example, `add theme` refuses
+to replace your edited Theme. To update customized source, install into a fresh
+temporary project and review/merge the desired changes manually. The installer
+does not verify that your customized dependency still exposes the API expected by
+a new component. There is no force overwrite option.
 
 Both `init` and `add` support `--dry-run`. A dry run performs the same validation
 and conflict checks, reports planned copies, and creates no files or directories.
@@ -115,5 +127,6 @@ python3 -m unittest discover -s tests -p test_installer.py -v
 
 The tests invoke the real executable against disposable projects and a disposable
 registry fixture. They verify source copying, dependency closure, repeat
-installation, dry runs, customized-file preservation, and malformed/path/symlink
+installation, dry runs, retained customized dependencies, unrelated-file
+preservation, and malformed/path/symlink
 failures. QML behavior is covered by the project's separate Qt tests.

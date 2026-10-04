@@ -1,4 +1,5 @@
 """Exercise the real CLI against temporary projects and a local registry fixture."""
+import hashlib
 import json
 from pathlib import Path
 import shutil
@@ -50,7 +51,8 @@ class InstallerTests(unittest.TestCase):
     def test_init_installs_theme_without_changing_shell(self):
         self.init()
         self.assertEqual(json.loads((self.project / "quickui.json").read_text()),
-                         {"schemaVersion": 1, "componentsDir": "ui"})
+                         {"schemaVersion": 1, "componentsDir": "ui", "installed": {"theme": {
+                             "path": "ui/Theme.qml", "sha256": hashlib.sha256((self.sources / "Theme.qml").read_bytes()).hexdigest()}}})
         self.assertEqual((self.project / "ui/Theme.qml").read_bytes(),
                          (self.sources / "Theme.qml").read_bytes())
         self.assertEqual((self.project / "shell.qml").read_text(), "// user's shell\n")
@@ -119,11 +121,80 @@ class InstallerTests(unittest.TestCase):
             self.assertIn("Refusing to overwrite", result.stderr)
             self.assertEqual(before, self.snapshot())
 
-    def test_edited_dependency_blocks_install(self):
+    def test_edited_theme_dependency_is_preserved(self):
         self.init()
-        (self.project / "ui/Theme.qml").write_text("// customized theme")
+        theme = self.project / "ui/Theme.qml"
+        original_record = json.loads((self.project / "quickui.json").read_text())["installed"]["theme"]
+        theme.write_text("// customized theme\n")
+        timestamp = theme.stat().st_mtime_ns
+        result = self.run_cli("add", "slider")
+        self.assertIn("Kept customized dependency ui/Theme.qml", result.stdout)
+        self.assertEqual(theme.read_bytes(), b"// customized theme\n")
+        self.assertEqual(theme.stat().st_mtime_ns, timestamp)
+        self.assertTrue((self.project / "ui/Slider.qml").is_file())
+        self.assertEqual(original_record, json.loads((self.project / "quickui.json").read_text())["installed"]["theme"])
+
+    def test_edited_button_dependency_is_preserved(self):
+        self.init()
+        self.run_cli("add", "button")
+        button = self.project / "ui/Button.qml"
+        button.write_bytes(b"// customized button\n")
+        self.run_cli("add", "icon-button")
+        self.assertEqual(button.read_bytes(), b"// customized button\n")
+        self.assertTrue((self.project / "ui/IconButton.qml").is_file())
+
+    def test_customized_dependency_dry_run_preserves_metadata_and_source(self):
+        self.init()
+        (self.project / "ui/Theme.qml").write_bytes(b"// customized theme")
+        before = self.snapshot()
+        result = self.run_cli("add", "slider", "--dry-run")
+        self.assertIn("Kept customized dependency", result.stdout)
+        self.assertEqual(before, self.snapshot())
+
+    def test_metadata_update_preserves_other_configuration_fields(self):
+        self.init()
+        config_path = self.project / "quickui.json"
+        config = json.loads(config_path.read_text())
+        config["notes"] = {"hello": "user settings"}
+        config_path.write_text(json.dumps(config))
+        self.run_cli("add", "button")
+        self.assertEqual(json.loads(config_path.read_text())["notes"], config["notes"])
+        self.assertEqual(list(self.project.glob(".quickui-*.tmp")), [])
+
+    def test_explicit_customized_target_is_not_replaced(self):
+        self.init()
+        self.run_cli("add", "button")
+        (self.project / "ui/Button.qml").write_bytes(b"// customized button")
+        before = self.snapshot()
+        self.run_cli("add", "button", "slider", success=False)
+        self.assertEqual(before, self.snapshot())
+
+    def test_unrecorded_dependency_conflict_still_blocks(self):
+        self.init()
+        (self.project / "ui/Button.qml").write_bytes(b"// unrelated button")
+        before = self.snapshot()
         self.run_cli("add", "icon-button", success=False)
-        self.assertFalse((self.project / "ui/Button.qml").exists())
+        self.assertEqual(before, self.snapshot())
+
+    def test_origin_record_does_not_authorize_different_directory(self):
+        self.init()
+        config_path = self.project / "quickui.json"
+        config = json.loads(config_path.read_text())
+        config["componentsDir"] = "different"
+        config_path.write_text(json.dumps(config))
+        (self.project / "different").mkdir()
+        (self.project / "different/Theme.qml").write_text("// unrelated")
+        before = self.snapshot()
+        self.run_cli("add", "slider", success=False)
+        self.assertEqual(before, self.snapshot())
+
+    def test_malformed_origin_records_rejected(self):
+        for installed in ([], {"theme": {}}, {"theme": {"path": "../Theme.qml", "sha256": "a" * 64}},
+                          {"theme": {"path": "ui/Theme.qml", "sha256": "invalid"}}):
+            (self.project / "quickui.json").write_text(json.dumps({
+                "schemaVersion": 1, "componentsDir": "ui", "installed": installed}))
+            self.run_cli("init", success=False)
+            self.assertFalse((self.project / "ui").exists())
 
     def test_init_conflict_does_not_write_metadata(self):
         (self.project / "ui").mkdir()
