@@ -2,11 +2,14 @@ import QtQuick
 import QtTest
 import "../app"
 import "../stories"
+import "../examples" as Examples
 
 Item {
     width: 1320
     height: 840
     Catalog { id: storyCatalog }
+    Component { id: standaloneVolume; Examples.VolumeCard {} }
+    SignalSpy { id: exampleRequests }
     Component {
         id: explorerComponent
         Explorer { width: 1320; height: 840; catalog: storyCatalog.entries }
@@ -290,6 +293,54 @@ Item {
             click(button("Reset to preset"));
             compare(explorer.preview.item.localVolume, 64);
             compare(explorer.preview.item.localMuted, false);
+        }
+
+        function test_exampleVolumeControlledRejectionAndBounds() {
+            const card = createTemporaryObject(standaloneVolume, parent, {volume: 64});
+            verify(card !== null);
+            const slider = findChild(card, "exampleVolumeSlider");
+            const mute = findChild(card, "exampleMuteButton");
+            verify(slider !== null && mute !== null);
+            exampleRequests.target = card;
+            exampleRequests.signalName = "volumeRequested";
+            exampleRequests.clear();
+            slider.forceActiveFocus(Qt.TabFocusReason);
+            keyClick(Qt.Key_Right);
+            compare(exampleRequests.count, 1);
+            compare(exampleRequests.signalArguments[0][0], 65);
+            compare(card.volume, 64);
+            compare(slider.value, 64, "A rejected request restores the owner's confirmed volume");
+            mousePress(slider, slider.width / 2, slider.height / 2);
+            mouseMove(slider, slider.width - slider.rightPadding, slider.height / 2, 10);
+            verify(slider.value > 90);
+            mouseRelease(slider, slider.width - slider.rightPadding, slider.height / 2);
+            compare(slider.value, 64);
+            card.volume = 150; compare(slider.value, 100);
+            card.volume = -4; compare(slider.value, 0);
+            card.volume = 31; compare(slider.value, 31);
+            exampleRequests.signalName = "muteRequested";
+            exampleRequests.clear();
+            click(mute);
+            compare(exampleRequests.count, 1);
+            compare(exampleRequests.signalArguments[0][0], true);
+            compare(card.muted, false);
+            card.muted = true;
+            compare(mute.text, "Unmute");
+            card.dark = false;
+            compare(card.theme.dark, false);
+            exampleRequests.target = null;
+        }
+
+        function test_notificationDismissKeyboard() {
+            verify(state.selectId("notification-card"));
+            tryCompare(explorer.preview, "status", Loader.Ready);
+            const dismiss = findChild(explorer.preview.item, "exampleDismissButton");
+            verify(dismiss !== null);
+            compare(dismiss.Accessible.name, "Dismiss notification");
+            dismiss.forceActiveFocus(Qt.TabFocusReason);
+            keyClick(Qt.Key_Space);
+            compare(state.events[0].name, "dismissRequested");
+            compare(JSON.parse(state.events[0].payload).title, state.args.title);
         }
 
         function test_notificationAction() {
