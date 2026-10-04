@@ -15,7 +15,11 @@ Item {
         dark: root.dark
         accent: root.args.palette === "Ocean" ? (dark ? "#72dce8" : "#096c83") : root.args.palette === "Rose" ? (dark ? "#f4a2bf" : "#aa335d") : (dark ? "#b4a0ff" : "#7152cf")
         radius: root.args.radius ?? 8
-        controlHeight: root.args.height ?? 36
+        density: root.args.density ?? "default"
+        fontScale: root.args.fontScale ?? 1
+        controlHeight: root.args.height ?? (density === "compact" ? 30 : density === "comfortable" ? 44 : 36)
+        selection: root.args.subduedSelection === true ? surfaceHover : accent
+        selectionForeground: root.args.subduedSelection === true ? foreground : accentForeground
         motionDuration: root.args.reduceMotion === true ? 0 : 120
     }
     UI.Card {

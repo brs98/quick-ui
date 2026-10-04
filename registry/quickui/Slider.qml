@@ -5,9 +5,9 @@ Controls.Slider {
     id: control
     property Theme theme: Theme {}
 
-    padding: 8
-    implicitWidth: horizontal ? 200 : theme.controlHeight
-    implicitHeight: horizontal ? theme.controlHeight : 200
+    padding: theme.spacing
+    implicitWidth: horizontal ? 200 : Math.max(theme.controlHeight, theme.handleSize + leftPadding + rightPadding)
+    implicitHeight: horizontal ? Math.max(theme.controlHeight, theme.handleSize + topPadding + bottomPadding) : 200
     opacity: enabled ? 1 : theme.disabledOpacity
 
     background: Rectangle {
@@ -24,13 +24,14 @@ Controls.Slider {
             width: control.horizontal ? control.position * parent.width : parent.width
             height: control.horizontal ? parent.height : control.position * parent.height
             radius: 2
-            color: control.theme.accent
+            color: control.theme.primary
         }
     }
 
     handle: Rectangle {
-        implicitWidth: 18
-        implicitHeight: 18
+        id: thumb
+        implicitWidth: control.theme.handleSize
+        implicitHeight: implicitWidth
         x: control.leftPadding + (control.horizontal
             ? control.visualPosition * (control.availableWidth - width)
             : (control.availableWidth - width) / 2)
@@ -38,8 +39,17 @@ Controls.Slider {
             ? (control.availableHeight - height) / 2
             : control.visualPosition * (control.availableHeight - height))
         radius: width / 2
-        color: control.pressed ? control.theme.accent : control.theme.surface
+        color: control.pressed ? control.theme.primary : control.theme.surface
         border.width: control.visualFocus ? control.theme.focusWidth : control.theme.borderWidth
-        border.color: control.visualFocus ? control.theme.focus : control.theme.accent
+        border.color: control.visualFocus ? control.theme.focus : control.theme.primary
+        Rectangle {
+            anchors.fill: parent
+            anchors.margins: -3
+            radius: width / 2
+            color: "transparent"
+            border.width: control.theme.focusWidth
+            border.color: control.theme.focus
+            visible: control.visualFocus
+        }
     }
 }

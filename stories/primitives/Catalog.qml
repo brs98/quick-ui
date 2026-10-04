@@ -125,7 +125,7 @@ QtObject {
             {
                 "name": "Close",
                 "args": {
-                    "icon": "×",
+                    "icon": "\u00d7",
                     "label": "Close panel",
                     "variant": "ghost",
                     "disabled": false
@@ -345,6 +345,34 @@ QtObject {
                 "key": "disabled",
                 "label": "Disabled",
                 "type": "boolean"
+            },
+            {
+                "key": "vertical",
+                "label": "Vertical",
+                "type": "boolean"
+            },
+            {
+                "key": "rtl",
+                "label": "Right to left",
+                "type": "boolean"
+            },
+            {
+                "key": "snap",
+                "label": "Snap to steps",
+                "type": "boolean"
+            },
+            {
+                "key": "releaseOnly",
+                "label": "Commit on release",
+                "type": "boolean"
+            },
+            {
+                "key": "step",
+                "label": "Step",
+                "type": "number",
+                "min": 1,
+                "max": 25,
+                "step": 1
             }
         ],
         "presets": [
@@ -374,6 +402,35 @@ QtObject {
                 "args": {
                     "value": 60,
                     "disabled": true
+                }
+            },
+            {
+                "name": "Vertical",
+                "args": {
+                    "value": 60,
+                    "vertical": true
+                }
+            },
+            {
+                "name": "Right to left",
+                "args": {
+                    "value": 60,
+                    "rtl": true
+                }
+            },
+            {
+                "name": "Snapped steps",
+                "args": {
+                    "value": 50,
+                    "step": 10,
+                    "snap": true
+                }
+            },
+            {
+                "name": "Release updates",
+                "args": {
+                    "value": 60,
+                    "releaseOnly": true
                 }
             }
         ]
@@ -542,6 +599,149 @@ QtObject {
         ]
     },
     {
+        "id": "ui-field",
+        "installName": "field",
+        "usage": "./quickui init --cwd ~/my-shell\n./quickui add field text-field --cwd ~/my-shell\n\n// In your shell.qml (inside a window):\nimport \"ui\" as UI\n\nUI.Theme { id: tokens; dark: true; accent: \"#72dce8\" }\nUI.Field { theme: tokens; label: \"Workspace\"; UI.TextField { theme: tokens } }\n\nSource: registry/quickui/Field.qml\nInstalled source is yours to edit.",
+        "group": "QuickUI",
+        "title": "Field",
+        "description": "Persistent labels, descriptions, required indication, and consumer-owned errors.",
+        "source": Qt.resolvedUrl("FieldStory.qml"),
+        "controls": [
+            {
+                "key": "label",
+                "label": "Label",
+                "type": "text"
+            },
+            {
+                "key": "description",
+                "label": "Description",
+                "type": "text"
+            },
+            {
+                "key": "error",
+                "label": "Error",
+                "type": "text"
+            },
+            {
+                "key": "required",
+                "label": "Required",
+                "type": "boolean"
+            },
+            {
+                "key": "largeText",
+                "label": "Large text",
+                "type": "boolean"
+            },
+            {
+                "key": "disabled",
+                "label": "Disabled",
+                "type": "boolean"
+            }
+        ],
+        "presets": [
+            {
+                "name": "Labeled input",
+                "args": {}
+            },
+            {
+                "name": "Validation error",
+                "args": {
+                    "error": "This workspace name is already in use.",
+                    "required": true
+                }
+            },
+            {
+                "name": "Large text",
+                "args": {
+                    "largeText": true,
+                    "required": true
+                }
+            }
+        ]
+    },
+    {
+        "id": "ui-range-slider",
+        "installName": "range-slider",
+        "usage": "./quickui init --cwd ~/my-shell\n./quickui add range-slider --cwd ~/my-shell\n\n// In your shell.qml (inside a window):\nimport \"ui\" as UI\n\nUI.Theme { id: tokens; dark: true; accent: \"#72dce8\" }\nUI.RangeSlider { theme: tokens; from: 0; to: 100; first.value: 25; second.value: 75; firstAccessibleName: \"Minimum brightness\"; secondAccessibleName: \"Maximum brightness\" }\n\nSource: registry/quickui/RangeSlider.qml\nInstalled source is yours to edit.",
+        "group": "QuickUI",
+        "title": "Range slider",
+        "description": "Two native handles with individual keyboard focus and accessible names.",
+        "source": Qt.resolvedUrl("RangeSliderStory.qml"),
+        "controls": [
+            {
+                "key": "minimum",
+                "label": "Minimum",
+                "type": "number",
+                "min": 0,
+                "max": 100,
+                "step": 5
+            },
+            {
+                "key": "maximum",
+                "label": "Maximum",
+                "type": "number",
+                "min": 0,
+                "max": 100,
+                "step": 5
+            },
+            {
+                "key": "vertical",
+                "label": "Vertical",
+                "type": "boolean"
+            },
+            {
+                "key": "rtl",
+                "label": "Right to left",
+                "type": "boolean"
+            },
+            {
+                "key": "disabled",
+                "label": "Disabled",
+                "type": "boolean"
+            }
+        ],
+        "presets": [
+            {
+                "name": "Brightness range",
+                "args": {
+                    "minimum": 25,
+                    "maximum": 75
+                }
+            },
+            {
+                "name": "Vertical",
+                "args": {
+                    "minimum": 25,
+                    "maximum": 75,
+                    "vertical": true
+                }
+            },
+            {
+                "name": "Right to left",
+                "args": {
+                    "minimum": 25,
+                    "maximum": 75,
+                    "rtl": true
+                }
+            },
+            {
+                "name": "Coincident handles",
+                "args": {
+                    "minimum": 50,
+                    "maximum": 50
+                }
+            },
+            {
+                "name": "Disabled",
+                "args": {
+                    "minimum": 25,
+                    "maximum": 75,
+                    "disabled": true
+                }
+            }
+        ]
+    },
+    {
         "id": "ui-theme",
         "installName": "theme",
         "usage": "./quickui init --cwd ~/my-shell\n./quickui add theme --cwd ~/my-shell\n\n// In your shell.qml (inside a window):\nimport \"ui\" as UI\n\nUI.Theme { id: tokens; dark: true; accent: \"#72dce8\" }\n\nSource: registry/quickui/Theme.qml\nInstalled source is yours to edit. Shared dependencies are preserved.",
@@ -580,6 +780,29 @@ QtObject {
                 "key": "reduceMotion",
                 "label": "Reduce motion",
                 "type": "boolean"
+            },
+            {
+                "key": "density",
+                "label": "Density",
+                "type": "select",
+                "options": [
+                    "compact",
+                    "default",
+                    "comfortable"
+                ]
+            },
+            {
+                "key": "fontScale",
+                "label": "Text scale",
+                "type": "number",
+                "min": 1,
+                "max": 2,
+                "step": 0.25
+            },
+            {
+                "key": "subduedSelection",
+                "label": "Subdued selection",
+                "type": "boolean"
             }
         ],
         "presets": [
@@ -608,6 +831,28 @@ QtObject {
                     "radius": 0,
                     "height": 36,
                     "reduceMotion": true
+                }
+            },
+            {
+                "name": "Compact",
+                "args": {
+                    "density": "compact",
+                    "radius": 6
+                }
+            },
+            {
+                "name": "Large text",
+                "args": {
+                    "fontScale": 2,
+                    "density": "comfortable",
+                    "reduceMotion": true
+                }
+            },
+            {
+                "name": "Independent selection",
+                "args": {
+                    "palette": "Ocean",
+                    "subduedSelection": true
                 }
             }
         ]

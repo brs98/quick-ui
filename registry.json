@@ -101,6 +101,18 @@
         "separator",
         "tooltip"
       ]
+    },
+    "field": {
+      "file": "Field.qml",
+      "dependencies": [
+        "theme"
+      ]
+    },
+    "range-slider": {
+      "file": "RangeSlider.qml",
+      "dependencies": [
+        "theme"
+      ]
     }
   }
 }

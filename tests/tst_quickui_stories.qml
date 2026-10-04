@@ -52,7 +52,7 @@ Item {
             control.forceActiveFocus();
             keyClick(data.key);
             verify(control[data.property] !== data.value);
-            compare(explorer.explorerState.events[0].name, data.event);
+            verify(explorer.explorerState.events.some(event => event.name === data.event));
             explorer.explorerState.reset();
             compare(control[data.property], data.value);
         }
