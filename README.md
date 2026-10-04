@@ -1,8 +1,73 @@
-# Quickbook
+# QuickUI + Quickbook
 
-A native component workbench for Quickshell. Browse QML stories, change their inputs, try presets, and inspect emitted events without running an entire desktop shell.
+QuickUI is an editable-source component library for Quickshell. Quickbook is its
+native workbench: browse the real components, change inputs and themes, try presets,
+and inspect events.
 
-## Run
+## Install components into your shell
+
+Requires Python 3 for the CLI, and Quickshell with Qt 6 Quick Controls at runtime.
+From this repository:
+
+```sh
+mkdir -p ~/my-shell
+./quickui init --cwd ~/my-shell
+./quickui add button text-field switch --cwd ~/my-shell
+```
+
+This copies QML into `~/my-shell/ui/` and records installed components in
+`quickui.json`. The files belong to your project; edit them freely. No Quickbook,
+Omarchy, build step, network service, or registry is needed to run the installed UI.
+
+Inside your own window, use ordinary QML imports and share a theme:
+
+```qml
+import QtQuick
+import "ui" as UI
+
+Item {
+    UI.Theme { id: tokens; dark: true; accent: "#72dce8"; radius: 10 }
+    UI.Button {
+        theme: tokens
+        text: "Save changes"
+        onClicked: console.log("Save requested")
+    }
+}
+```
+
+The first library contains **10 primitives**: `button`, `icon-button`, `text-field`,
+`switch`, `checkbox`, `slider`, `select`, `card`, `badge`, and `separator`, plus
+`theme`. `./quickui list` shows their source files and dependencies.
+
+`add` preserves recorded, customized dependencies and refuses to overwrite edited
+explicit targets or unrelated files. `--dry-run` previews installation. This is a
+local bundled registry; remote publishing and automated upgrades are future work.
+See [installer behavior](docs/installer.md), [component APIs](docs/components.md),
+and [the library contract](docs/library-contract.md).
+
+## Try a standalone shell
+
+A ready-to-run installation lives at `~/personal/quickui-demo` on this machine:
+
+```sh
+WAYLAND_DISPLAY=wayland-1 quickshell -p ~/personal/quickui-demo
+```
+
+Alternatively, run `quickshell -p ~/personal/quickui-demo` from a graphical terminal.
+To reproduce the installation elsewhere, create a directory, run `quickui init`,
+add all ten components, and copy `templates/starter.qml` to that directory as
+`shell.qml`. The starter uses mock data and has no desktop service side effects.
+
+## First real-shell adoption
+
+The user-owned Omarchy News plugin at `~/src/omarchy-news` now imports its footer
+button and divider from its own installed `ui/` sources. Its local Theme adapter
+maps Omarchy colors and sizing into QuickUI without putting Omarchy dependencies
+in the component library. Adoption commit: `7aa2961` (revert that commit in the
+plugin repository to restore the previous widgets).
+
+
+## Run the workbench
 
 Requires **Quickshell 0.3.1** and **Qt 6 with Qt Quick Controls**. These are already installed on the machine where this project was built. No Node dependencies or build step.
 
@@ -17,15 +82,16 @@ Explicit display and Qt platform settings are preserved, including `QT_QPA_PLATF
 
 ## What’s included
 
-- Searchable catalog with action button, volume card, and notification examples.
+- Direct previews for all ten QuickUI primitives, a shared-theme playground, and three clearly labeled example blocks.
 - Compact layout for narrow tiled windows; use **Components** or `Ctrl+K` to browse.
-- Twelve named presets and explicit text, boolean, number, and select controls.
+- Light/dark presets and explicit text, boolean, number, and select controls.
+- A Usage tab with install commands and QML snippets for every library entry.
 - Dark/light themes, canvas grid, compact/wide widths, and height presets.
 - A live event log (latest 100 events) and selectable JSON arguments.
 - Reset to the selected preset, automatic QML reload, and a manual reload button.
 - IPC for selecting stories, setting controls, and exporting native PNG screenshots.
 
-The examples use mock data. Volume and notification interactions never change your desktop services.
+The previews use the exact QML files distributed by the installer. The examples use mock data. Volume and notification interactions never change your desktop services.
 
 | Shortcut | Action |
 | --- | --- |
@@ -42,7 +108,7 @@ Create a wrapper in `stories/`. A story is a normal Qt Quick `Item` with this sm
 ```qml
 // stories/SaveButtonStory.qml
 import QtQuick
-import "../examples" // Replace with your component library's import.
+import "../registry/quickui" as UI
 
 Item {
     id: root
@@ -52,11 +118,11 @@ Item {
     implicitWidth: button.implicitWidth
     implicitHeight: button.implicitHeight
 
-    ActionButton {
+    UI.Button {
         id: button
         anchors.fill: parent
         text: root.args.label ?? "Save"
-        dark: root.dark
+        theme: UI.Theme { dark: root.dark }
         enabled: root.args.disabled !== true
         onClicked: root.eventRaised("clicked", {label: text})
     }
@@ -124,17 +190,21 @@ Qt 6 development tools and Python 3 are needed for the checks. On Arch, Qt 5 too
 ```sh
 ./scripts/test
 python3 scripts/smoke.py
+python3 scripts/installed_smoke.py
 ```
 
-The first command runs launcher regression tests, QML lint, and Qt Quick interaction tests. The launcher tests use temporary sockets and a stub executable to verify display discovery and command forwarding without starting Qt. The smoke check starts a separate Quickshell process using the software offscreen renderer, exercises IPC and hot reload in a temporary config, and writes `artifacts/quickbook-dark.png` and `artifacts/quickbook-light.png`. It does not need an active desktop and does not affect any running Quickbook instance.
+The first command runs launcher and installer regressions, QML lint, and Qt Quick interaction tests, including all primitive presets and both themes. The launcher tests use temporary sockets and a stub executable to verify display discovery and command forwarding without starting Qt. The smoke check starts a separate Quickshell process using the software offscreen renderer, exercises IPC and hot reload in a temporary config, and writes `artifacts/quickbook-dark.png` and `artifacts/quickbook-light.png`. It does not need an active desktop and does not affect any running Quickbook instance. The installed-source smoke test independently copies all ten primitives into a fresh project, edits its Theme, launches the standalone starter, and captures `artifacts/quickui-starter.png`.
 
 ## Project map
 
-- `shell.qml`: native window and IPC bridge.
+- `registry/quickui/`: canonical distributable QML source.
+- `registry.json` and `quickui`: dependency registry and source installer.
+- `templates/starter.qml`: standalone consumer using all ten primitives.
+- `shell.qml`: native workbench window and IPC bridge.
 - `app/Explorer.qml`: browser, canvas, controls, and event inspector.
 - `app/ExplorerState.qml`: selection, presets, input validation, and event history.
 - `app/ControlEditor.qml`: editors generated from control metadata.
-- `stories/Catalog.qml`: explicit story registration.
+- `stories/Catalog.qml` and `stories/primitives/`: explicit story registration and direct primitive previews.
 - `stories/*Story.qml`: adapters between real components and story inputs/events.
 - `examples/`: independent reusable QML components with no desktop service dependencies.
 

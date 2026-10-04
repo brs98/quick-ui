@@ -5,6 +5,7 @@ Controls.Label {
     id: control
     property Theme theme: Theme {}
     property string variant: "neutral"
+    textFormat: Text.PlainText
     leftPadding: theme.spacing
     rightPadding: theme.spacing
     topPadding: 3

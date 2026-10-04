@@ -24,6 +24,7 @@ Item {
             verify(explorer !== null);
             state = explorer.explorerState;
             verify(state !== undefined);
+            verify(state.selectId("action-button"));
             tryCompare(explorer.preview, "status", Loader.Ready);
             waitForRendering(explorer);
         }
@@ -73,7 +74,7 @@ Item {
 
         function test_everyPresetAndTheme_data() {
             const rows = [];
-            storyCatalog.entries.forEach((entry, storyIndex) => {
+            storyCatalog.demos.forEach((entry, storyIndex) => {
                 entry.presets.forEach((preset, presetIndex) => {
                     [true, false].forEach(dark => rows.push({
                         tag: entry.id + "/" + preset.name + "/" + (dark ? "dark" : "light"),
@@ -85,7 +86,7 @@ Item {
         }
 
         function test_everyPresetAndTheme(data) {
-            verify(state.select(data.storyIndex));
+            verify(state.selectId(storyCatalog.demos[data.storyIndex].id));
             verify(state.preset(data.presetIndex));
             state.dark = data.dark;
             tryCompare(explorer.preview, "status", Loader.Ready);

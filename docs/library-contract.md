@@ -37,8 +37,8 @@ Pane with padded default content. Badge has `text` and `variant` (`neutral`,
 `accent`, `destructive`). Separator has `vertical` (default false).
 
 The installer must resolve dependencies before writing, reject unknown entries,
-keep paths inside the target project, and refuse to overwrite edited or unrelated
-files. Re-adding identical sources is a no-op. Local customization is expected;
+keep paths inside the target project, and refuse to overwrite edited explicit targets or unrelated
+files. Previously installed, customized dependencies are kept as owned source. Re-adding identical sources is a no-op. Local customization is expected;
 updates require a reviewed diff, not an unconditional overwrite. The first release
 uses a bundled local registry; publishing and fetching remote registries are later
 work.

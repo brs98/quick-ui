@@ -1,0 +1,34 @@
+import QtQuick
+import QtQuick.Layouts
+import "../../registry/quickui" as UI
+
+Item {
+    id: root
+    property var args: ({})
+    property bool dark: true
+    signal eventRaised(string name, var payload)
+    implicitWidth: 320
+    implicitHeight: card.implicitHeight
+    UI.Theme {
+        id: tokens
+        dark: root.dark
+        accent: root.args.palette === "Ocean" ? (dark ? "#72dce8" : "#096c83") : root.args.palette === "Rose" ? (dark ? "#f4a2bf" : "#aa335d") : (dark ? "#b4a0ff" : "#7152cf")
+        radius: root.args.radius ?? 8
+        controlHeight: root.args.height ?? 36
+        motionDuration: root.args.reduceMotion === true ? 0 : 120
+    }
+    UI.Card {
+        id: card
+        anchors.fill: parent
+        theme: tokens
+        ColumnLayout {
+            width: card.availableWidth
+            spacing: tokens.spacing * 2
+            Text { text: "One theme. Every component."; color: tokens.foreground; font.pixelSize: tokens.fontSize; font.bold: true }
+            UI.Badge { theme: tokens; text: root.args.palette ?? "Lavender"; variant: "accent" }
+            UI.TextField { Layout.fillWidth: true; theme: tokens; placeholderText: "Workspace name"; Accessible.name: "Workspace name" }
+            UI.Switch { theme: tokens; text: "Notifications"; checked: true; onToggled: root.eventRaised("toggled", {checked: checked}) }
+            UI.Button { Layout.fillWidth: true; theme: tokens; text: "Save preferences"; onClicked: root.eventRaised("clicked", {}) }
+        }
+    }
+}

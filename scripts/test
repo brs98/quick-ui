@@ -2,7 +2,7 @@
 set -euo pipefail
 
 root=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)
-python3 "$root/tests/test_launcher.py"
+python3 -m unittest discover -s "$root/tests" -p 'test_*.py'
 linter=${QMLLINT:-/usr/lib/qt6/bin/qmllint}
 if [[ ! -x "$linter" ]]; then
     linter=$(command -v qmllint6 || command -v qmllint || true)
@@ -11,7 +11,7 @@ if [[ -z "$linter" || ! -x "$linter" ]]; then
     echo "Qt 6 qmllint is required. Set QMLLINT to its path." >&2
     exit 1
 fi
-"$linter" "$root"/app/*.qml "$root"/examples/*.qml "$root"/stories/*.qml "$root/shell.qml"
+"$linter" "$root"/app/*.qml "$root"/examples/*.qml "$root"/stories/*.qml "$root/shell.qml" "$root"/registry/quickui/*.qml "$root"/stories/primitives/*.qml
 
 runner=${QMLTESTRUNNER:-/usr/lib/qt6/bin/qmltestrunner}
 if [[ ! -x "$runner" ]]; then

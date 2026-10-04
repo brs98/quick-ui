@@ -228,6 +228,7 @@ Rectangle {
                             Layout.fillWidth: true
                             UiButton { theme: colors; text: "Events  ·  " + modelState.events.length; selected: inspector.tab === 0; onClicked: inspector.tab = 0 }
                             UiButton { theme: colors; text: "Arguments"; selected: inspector.tab === 1; onClicked: inspector.tab = 1 }
+                            UiButton { theme: colors; text: "Usage"; visible: !!(modelState.story && modelState.story.usage); selected: inspector.tab === 2; onClicked: inspector.tab = 2 }
                             Item { Layout.fillWidth: true }
                             UiButton { theme: colors; text: "Clear"; visible: inspector.tab === 0; enabled: modelState.events.length > 0; onClicked: modelState.events = [] }
                         }
@@ -260,12 +261,12 @@ Rectangle {
                             ScrollBar.vertical: ScrollBar { }
                         }
                         ScrollView {
-                            visible: inspector.tab === 1
+                            visible: inspector.tab !== 0
                             Layout.fillWidth: true
                             Layout.fillHeight: true
                             clip: true
                             TextArea {
-                                text: JSON.stringify(modelState.args, null, 2)
+                                text: inspector.tab === 2 ? (modelState.story.usage ?? "This example has no installation guide.") : JSON.stringify(modelState.args, null, 2)
                                 readOnly: true
                                 selectByMouse: true
                                 color: colors.text

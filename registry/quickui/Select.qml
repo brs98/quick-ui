@@ -56,6 +56,7 @@ Controls.ComboBox {
         font: control.font
         contentItem: Text {
             text: option.text
+            textFormat: Text.PlainText
             font.family: option.font.family
             font.pixelSize: option.font.pixelSize
             font.weight: option.index === control.currentIndex ? Font.DemiBold : Font.Normal

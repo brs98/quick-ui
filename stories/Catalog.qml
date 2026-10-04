@@ -1,10 +1,13 @@
 import QtQuick
+import "primitives" as Primitives
 
 QtObject {
-    readonly property var entries: [
+    property Primitives.Catalog primitives: Primitives.Catalog {}
+    readonly property var entries: primitives.entries.concat(demos)
+    readonly property var demos: [
         {
             id: "action-button",
-            group: "Primitives",
+            group: "Example blocks",
             title: "Action button",
             description: "A focused action with three visual tones, keyboard support, and a busy state.",
             source: Qt.resolvedUrl("ButtonStory.qml"),
@@ -23,7 +26,7 @@ QtObject {
         },
         {
             id: "volume-card",
-            group: "Widgets",
+            group: "Example blocks",
             title: "Volume card",
             description: "An interactive output control with local preview state. Drag the slider or toggle mute to inspect emitted events.",
             source: Qt.resolvedUrl("VolumeStory.qml"),
@@ -41,7 +44,7 @@ QtObject {
         },
         {
             id: "notification-card",
-            group: "Feedback",
+            group: "Example blocks",
             title: "Notification card",
             description: "A desktop notification with optional action, severity styling, and dismiss events. The preview stays visible after dismissal.",
             source: Qt.resolvedUrl("NotificationStory.qml"),

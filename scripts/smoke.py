@@ -62,13 +62,13 @@ def main():
 
                 eventually(lambda: status()["loaded"], "initial story")
                 initial = status()
-                assert initial["story"] == "action-button"
-                assert initial["args"]["label"] == "Create workspace"
+                assert initial["story"] == "ui-button"
+                assert initial["args"]["text"] == "Save changes"
                 assert ipc("select", "does-not-exist") == "false"
                 assert status()["story"] == initial["story"]
-                assert ipc("control", "label", "not-json") == "false"
-                assert ipc("control", "label", json.dumps("From IPC")) == "true"
-                assert status()["args"]["label"] == "From IPC"
+                assert ipc("control", "text", "not-json") == "false"
+                assert ipc("control", "text", json.dumps("From IPC")) == "true"
+                assert status()["args"]["text"] == "From IPC"
                 ipc("reset")
                 assert status()["args"] == initial["args"]
                 assert ipc("select", "volume-card") == "true"
@@ -97,7 +97,7 @@ def main():
                 capture("quickbook-light.png")
                 with (config / "shell.qml").open("a") as shell:
                     shell.write("\n// Trigger smoke-test hot reload.\n")
-                eventually(lambda: status()["story"] == "action-button" and status()["loaded"], "hot reload")
+                eventually(lambda: status()["story"] == "ui-button" and status()["loaded"], "hot reload")
                 assert status()["args"] == initial["args"]
                 log.flush()
                 content = log_path.read_text()
