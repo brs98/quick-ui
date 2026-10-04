@@ -18,6 +18,7 @@ Item {
         theme: tokens
         text: "Hover or focus me"
         variant: "secondary"
+        Accessible.description: tip.text
         onClicked: root.eventRaised("clicked", {})
         UI.ToolTip {
             id: tip
@@ -28,9 +29,9 @@ Item {
             timeout: root.args.show === true ? -1 : 4000
             closePolicy: root.args.show === true ? Controls.Popup.NoAutoClose
                 : Controls.Popup.CloseOnEscape | Controls.Popup.CloseOnPressOutsideParent | Controls.Popup.CloseOnReleaseOutsideParent
-            x: (trigger.width - width) / 2
-            y: trigger.height + 8
-            width: Math.min(implicitWidth, root.width)
+            placement: root.args.placement ?? "bottom"
+            offset: 8
+            maximumWidth: Math.min(root.args.maximumWidth ?? 320, root.width)
         }
     }
 }

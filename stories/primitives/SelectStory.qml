@@ -14,7 +14,17 @@ Item {
         id: control
         anchors.fill: parent
         theme: tokens
-        model: ["Speakers", "Headphones", "HDMI output"]
+        model: [
+            {label: "Speakers", available: true},
+            {label: "Headphones", available: root.args.unavailable !== true},
+            {label: "HDMI output", available: true}
+        ]
+        textRole: "label"
+        enabledRole: "available"
+        placeholderText: root.args.placeholder ?? "Choose an output"
+        invalid: root.args.invalid === true
+        editable: root.args.editable === true
+        size: root.args.size ?? "default"
         currentIndex: root.localIndex
         enabled: root.args.disabled !== true
         Accessible.name: "Audio output"

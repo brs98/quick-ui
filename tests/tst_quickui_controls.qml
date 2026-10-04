@@ -176,8 +176,8 @@ Item {
             scene.theme.dark = data.dark;
             scene.button.variant = data.variant;
             compare(scene.field.color, scene.theme.foreground);
-            compare(scene.toggle.contentItem.color, scene.theme.foreground);
-            compare(scene.check.contentItem.color, scene.theme.foreground);
+            compare(findChild(scene.toggle, "toggleLabel").color, scene.theme.foreground);
+            compare(findChild(scene.check, "toggleLabel").color, scene.theme.foreground);
             if (data.variant === "primary") compare(scene.button.background.color, scene.theme.accent);
             if (data.variant === "destructive") compare(scene.button.background.color, scene.theme.destructive);
             if (data.variant === "secondary") compare(scene.button.background.color, scene.theme.surface);

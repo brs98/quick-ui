@@ -10,6 +10,7 @@ Item {
     implicitWidth: 300
     implicitHeight: control.implicitHeight
     UI.Theme { id: tokens; dark: root.dark }
+    IntValidator { id: numericValidator; bottom: 0; top: 100 }
     UI.TextField {
         id: control
         anchors.fill: parent
@@ -17,6 +18,11 @@ Item {
         text: root.localText
         placeholderText: root.args.placeholder ?? "Name your workspace"
         enabled: root.args.disabled !== true
+        invalid: root.args.invalid === true
+        size: root.args.size ?? "default"
+        validator: root.args.numeric === true ? numericValidator : null
+        inputMethodHints: root.args.numeric === true ? Qt.ImhDigitsOnly : Qt.ImhNone
+        echoMode: root.args.password === true ? TextInput.Password : TextInput.Normal
         readOnly: root.args.readOnly === true
         Accessible.name: root.args.label ?? "Workspace name"
         onTextEdited: { root.localText = text; root.eventRaised("textEdited", {text: text}); }
