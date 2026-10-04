@@ -2,6 +2,16 @@
 set -euo pipefail
 
 root=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)
+linter=${QMLLINT:-/usr/lib/qt6/bin/qmllint}
+if [[ ! -x "$linter" ]]; then
+    linter=$(command -v qmllint6 || command -v qmllint || true)
+fi
+if [[ -z "$linter" || ! -x "$linter" ]]; then
+    echo "Qt 6 qmllint is required. Set QMLLINT to its path." >&2
+    exit 1
+fi
+"$linter" "$root"/app/*.qml "$root"/examples/*.qml "$root"/stories/*.qml "$root/shell.qml"
+
 runner=${QMLTESTRUNNER:-/usr/lib/qt6/bin/qmltestrunner}
 if [[ ! -x "$runner" ]]; then
     runner=$(command -v qmltestrunner6 || command -v qmltestrunner || true)

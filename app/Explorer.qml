@@ -246,7 +246,7 @@ Rectangle {
                 Rectangle { Layout.fillWidth: true; implicitHeight: 1; color: colors.line }
                 Rectangle {
                     Layout.fillWidth: true
-                    Layout.preferredHeight: 178
+                    Layout.preferredHeight: root.height < 780 ? 120 : 178
                     color: colors.panel
                     property int tab: 0
                     id: inspector
