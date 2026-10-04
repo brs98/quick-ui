@@ -1,4 +1,5 @@
 import QtQuick
+import QtQuick.Controls.Basic as Controls
 import "../../registry/quickui" as UI
 
 Item {
@@ -22,9 +23,12 @@ Item {
             id: tip
             theme: tokens
             text: root.args.text ?? "Mute output"
-            visible: root.args.show !== false || trigger.hovered || trigger.activeFocus
-            delay: 0
-            timeout: -1
+            visible: trigger.hovered || trigger.visualFocus || root.args.show === true
+            delay: root.args.show === true ? 0 : 600
+            timeout: root.args.show === true ? -1 : 4000
+            closePolicy: root.args.show === true ? Controls.Popup.NoAutoClose
+                : Controls.Popup.CloseOnEscape | Controls.Popup.CloseOnPressOutsideParent | Controls.Popup.CloseOnReleaseOutsideParent
+            x: (trigger.width - width) / 2
             y: trigger.height + 8
             width: Math.min(implicitWidth, root.width)
         }

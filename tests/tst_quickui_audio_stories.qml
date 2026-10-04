@@ -42,6 +42,37 @@ Item {
             verify(shot.width > 0 && shot.height > 0);
             verify(explorer.preview.item.width <= explorer.width);
         }
+        function test_tooltipHoverFocusAndDismissal() {
+            mouseMove(explorer, 5, 5);
+            const story = select("ui-tooltip");
+            const tip = story.control;
+            compare(tip.visible, false);
+            mouseMove(tip.parent, tip.parent.width / 2, tip.parent.height / 2);
+            tryCompare(tip.parent, "hovered", true);
+            wait(100);
+            compare(tip.opened, false, "Hover should respect the tooltip delay");
+            tryCompare(tip, "opened", true, 1200);
+            verify(tip.contentItem.paintedWidth > 0);
+            mouseMove(explorer, 5, 5);
+            tryCompare(tip, "opened", false);
+            tip.parent.forceActiveFocus(Qt.TabFocusReason);
+            tryCompare(tip, "opened", true, 1200);
+            keyClick(Qt.Key_Escape);
+            tryCompare(tip, "opened", false);
+            mouseClick(explorer, 5, 5);
+            mouseMove(tip.parent, tip.parent.width / 2, tip.parent.height / 2);
+            tryCompare(tip, "opened", true, 1200);
+        }
+        function test_tooltipPinnedPreviewSurvivesOutsideClick() {
+            const story = select("ui-tooltip");
+            explorer.explorerState.setArg("show", true);
+            const tip = story.control;
+            tryCompare(tip, "opened", true);
+            mouseClick(explorer, 20, 20);
+            compare(tip.opened, true);
+            explorer.explorerState.setArg("show", false);
+            tryCompare(tip, "opened", false);
+        }
         function test_volumeInteractionAndReset() {
             const story = select("ui-volume-control");
             compare(story.control.value, 0.6);

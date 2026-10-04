@@ -394,7 +394,7 @@ QtObject {
             },
             {
                 "key": "show",
-                "label": "Show preview",
+                "label": "Pin preview",
                 "type": "boolean"
             }
         ],
@@ -403,21 +403,21 @@ QtObject {
                 "name": "Short",
                 "args": {
                     "text": "Mute output",
-                    "show": true
+                    "show": false
                 }
             },
             {
                 "name": "Long label",
                 "args": {
                     "text": "This control adjusts the selected output device. Right-click to toggle mute.",
-                    "show": true
+                    "show": false
                 }
             },
             {
-                "name": "Hover or focus",
+                "name": "Pinned preview",
                 "args": {
                     "text": "Mute output",
-                    "show": false
+                    "show": true
                 }
             }
         ]
