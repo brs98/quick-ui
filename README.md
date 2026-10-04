@@ -11,7 +11,9 @@ cd ~/personal/quickbook
 ./quickbook
 ```
 
-Or run `quickshell -p /path/to/quickbook`. Launch from a terminal in your graphical desktop session. Closing the window exits the app.
+Closing the window exits the app. The launcher also works from a Herdr or other multiplexer session that did not inherit the desktop environment: when `DISPLAY`, `WAYLAND_DISPLAY`, and `QT_QPA_PLATFORM` are unset, it selects the single Wayland socket owned by your user in `XDG_RUNTIME_DIR` (or `/run/user/$(id -u)`). If none or several are found, it prints an actionable error. Select a session explicitly with, for example, `WAYLAND_DISPLAY=wayland-1 ./quickbook`.
+
+Explicit display and Qt platform settings are preserved, including `QT_QPA_PLATFORM=offscreen` for automation. Help, version, and Quickshell inspection commands work without a display. You can also run `quickshell -p /path/to/quickbook` directly from a terminal that already has the graphical session's environment.
 
 ## What’s included
 
@@ -120,10 +122,11 @@ Qt 6 development tools and Python 3 are needed for the checks. On Arch, Qt 5 too
 
 ```sh
 ./scripts/test
+python3 -m unittest discover -s tests -p test_launcher.py
 python3 scripts/smoke.py
 ```
 
-The first command runs QML lint and Qt Quick interaction tests. The smoke check starts a separate Quickshell process using the software offscreen renderer, exercises IPC and hot reload in a temporary config, and writes `artifacts/quickbook-dark.png` and `artifacts/quickbook-light.png`. It does not need an active desktop and does not affect any running Quickbook instance.
+The first command runs QML lint and Qt Quick interaction tests. The launcher tests use temporary sockets and a stub executable to verify display discovery and command forwarding without starting Qt. The smoke check starts a separate Quickshell process using the software offscreen renderer, exercises IPC and hot reload in a temporary config, and writes `artifacts/quickbook-dark.png` and `artifacts/quickbook-light.png`. It does not need an active desktop and does not affect any running Quickbook instance.
 
 ## Project map
 

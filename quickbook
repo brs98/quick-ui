@@ -1,6 +1,41 @@
 #!/usr/bin/env bash
 set -euo pipefail
 project_dir="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+
+# Quickshell's inspection commands never create a GUI.
+needs_display=true
+skip_value=false
+for argument in "$@"; do
+    if $skip_value; then
+        skip_value=false
+        continue
+    fi
+    case "$argument" in
+        -h|--help|-V|--version|ipc|msg|list|kill|log) needs_display=false; break ;;
+        -p|--path|-c|--config|-m|--manifest|--log-rules|--debug) skip_value=true ;;
+        --) break ;;
+    esac
+done
+
+# Multiplexer sessions may not inherit the graphical session's environment.
+if $needs_display && [[ -z ${DISPLAY:-} && -z ${WAYLAND_DISPLAY:-} && -z ${QT_QPA_PLATFORM:-} ]]; then
+    runtime_dir="${XDG_RUNTIME_DIR:-/run/user/$(id -u)}"
+    sockets=()
+    for candidate in "$runtime_dir"/wayland-*; do
+        if [[ -S $candidate && -O $candidate ]]; then
+            sockets+=("$candidate")
+        fi
+    done
+    if (( ${#sockets[@]} == 1 )); then
+        export XDG_RUNTIME_DIR="$runtime_dir"
+        export WAYLAND_DISPLAY="${sockets[0]##*/}"
+    else
+        printf 'Quickbook: found %s owned Wayland sockets in %s; cannot choose a display.\n' "${#sockets[@]}" "$runtime_dir" >&2
+        printf 'Launch from a desktop terminal, or set WAYLAND_DISPLAY (and XDG_RUNTIME_DIR) or DISPLAY explicitly.\n' >&2
+        exit 1
+    fi
+fi
+
 # The explorer has its own window; desktop reload popups are unnecessary.
 export QS_NO_RELOAD_POPUP=1
 exec quickshell -p "$project_dir/shell.qml" "$@"
