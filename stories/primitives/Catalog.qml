@@ -85,7 +85,12 @@ QtObject {
                 "args": {
                     "text": "Save changes",
                     "variant": "primary",
-                    "disabled": false
+                    "disabled": false,
+                    "size": "default",
+                    "iconKind": "none",
+                    "iconPosition": "leading",
+                    "display": "beside",
+                    "loading": false
                 }
             },
             {
@@ -93,7 +98,12 @@ QtObject {
                 "args": {
                     "text": "Save changes",
                     "variant": "secondary",
-                    "disabled": false
+                    "disabled": false,
+                    "size": "default",
+                    "iconKind": "none",
+                    "iconPosition": "leading",
+                    "display": "beside",
+                    "loading": false
                 }
             },
             {
@@ -101,7 +111,12 @@ QtObject {
                 "args": {
                     "text": "Save changes",
                     "variant": "ghost",
-                    "disabled": false
+                    "disabled": false,
+                    "size": "default",
+                    "iconKind": "none",
+                    "iconPosition": "leading",
+                    "display": "beside",
+                    "loading": false
                 }
             },
             {
@@ -109,7 +124,12 @@ QtObject {
                 "args": {
                     "text": "Delete workspace",
                     "variant": "destructive",
-                    "disabled": false
+                    "disabled": false,
+                    "size": "default",
+                    "iconKind": "none",
+                    "iconPosition": "leading",
+                    "display": "beside",
+                    "loading": false
                 }
             },
             {
@@ -117,42 +137,76 @@ QtObject {
                 "args": {
                     "text": "Save changes",
                     "variant": "primary",
-                    "disabled": true
+                    "disabled": true,
+                    "size": "default",
+                    "iconKind": "none",
+                    "iconPosition": "leading",
+                    "display": "beside",
+                    "loading": false
                 }
             },
             {
                 "name": "Outline",
                 "args": {
                     "text": "View details",
-                    "variant": "outline"
+                    "variant": "outline",
+                    "disabled": false,
+                    "size": "default",
+                    "iconKind": "none",
+                    "iconPosition": "leading",
+                    "display": "beside",
+                    "loading": false
                 }
             },
             {
                 "name": "Leading icon",
                 "args": {
                     "text": "Add workspace",
-                    "iconKind": "source"
+                    "variant": "primary",
+                    "disabled": false,
+                    "size": "default",
+                    "iconKind": "source",
+                    "iconPosition": "leading",
+                    "display": "beside",
+                    "loading": false
                 }
             },
             {
                 "name": "Trailing icon",
                 "args": {
                     "text": "Add workspace",
+                    "variant": "primary",
+                    "disabled": false,
+                    "size": "default",
                     "iconKind": "source",
-                    "iconPosition": "trailing"
+                    "iconPosition": "trailing",
+                    "display": "beside",
+                    "loading": false
                 }
             },
             {
                 "name": "Theme icon",
                 "args": {
                     "text": "Add workspace",
-                    "iconKind": "theme"
+                    "variant": "primary",
+                    "disabled": false,
+                    "size": "default",
+                    "iconKind": "theme",
+                    "iconPosition": "leading",
+                    "display": "beside",
+                    "loading": false
                 }
             },
             {
                 "name": "Loading",
                 "args": {
                     "text": "Save changes",
+                    "variant": "primary",
+                    "disabled": false,
+                    "size": "default",
+                    "iconKind": "none",
+                    "iconPosition": "leading",
+                    "display": "beside",
                     "loading": true
                 }
             },
@@ -160,7 +214,13 @@ QtObject {
                 "name": "Compact",
                 "args": {
                     "text": "Save",
-                    "size": "sm"
+                    "variant": "primary",
+                    "disabled": false,
+                    "size": "sm",
+                    "iconKind": "none",
+                    "iconPosition": "leading",
+                    "display": "beside",
+                    "loading": false
                 }
             }
         ]
@@ -229,7 +289,9 @@ QtObject {
                     "icon": "+",
                     "label": "Add workspace",
                     "variant": "secondary",
-                    "disabled": false
+                    "disabled": false,
+                    "size": "default",
+                    "iconKind": "glyph"
                 }
             },
             {
@@ -238,7 +300,9 @@ QtObject {
                     "icon": "\u00d7",
                     "label": "Close panel",
                     "variant": "ghost",
-                    "disabled": false
+                    "disabled": false,
+                    "size": "default",
+                    "iconKind": "glyph"
                 }
             },
             {
@@ -247,21 +311,31 @@ QtObject {
                     "icon": "+",
                     "label": "Add workspace",
                     "variant": "secondary",
-                    "disabled": true
+                    "disabled": true,
+                    "size": "default",
+                    "iconKind": "glyph"
                 }
             },
             {
                 "name": "Source icon",
                 "args": {
-                    "iconKind": "source",
-                    "label": "Add workspace"
+                    "icon": "+",
+                    "label": "Add workspace",
+                    "variant": "secondary",
+                    "disabled": false,
+                    "size": "default",
+                    "iconKind": "source"
                 }
             },
             {
                 "name": "Theme icon",
                 "args": {
-                    "iconKind": "theme",
-                    "label": "Add workspace"
+                    "icon": "+",
+                    "label": "Add workspace",
+                    "variant": "secondary",
+                    "disabled": false,
+                    "size": "default",
+                    "iconKind": "theme"
                 }
             },
             {
@@ -269,7 +343,10 @@ QtObject {
                 "args": {
                     "icon": "+",
                     "label": "Add workspace",
-                    "size": "lg"
+                    "variant": "secondary",
+                    "disabled": false,
+                    "size": "lg",
+                    "iconKind": "glyph"
                 }
             }
         ]
@@ -342,7 +419,11 @@ QtObject {
                     "placeholder": "Name your workspace",
                     "label": "Workspace name",
                     "readOnly": false,
-                    "disabled": false
+                    "disabled": false,
+                    "size": "default",
+                    "invalid": false,
+                    "password": false,
+                    "numeric": false
                 }
             },
             {
@@ -352,7 +433,11 @@ QtObject {
                     "placeholder": "Name your workspace",
                     "label": "Workspace name",
                     "readOnly": false,
-                    "disabled": false
+                    "disabled": false,
+                    "size": "default",
+                    "invalid": false,
+                    "password": false,
+                    "numeric": false
                 }
             },
             {
@@ -362,7 +447,11 @@ QtObject {
                     "placeholder": "Name your workspace",
                     "label": "Workspace name",
                     "readOnly": true,
-                    "disabled": false
+                    "disabled": false,
+                    "size": "default",
+                    "invalid": false,
+                    "password": false,
+                    "numeric": false
                 }
             },
             {
@@ -372,37 +461,67 @@ QtObject {
                     "placeholder": "Name your workspace",
                     "label": "Workspace name",
                     "readOnly": false,
-                    "disabled": true
+                    "disabled": true,
+                    "size": "default",
+                    "invalid": false,
+                    "password": false,
+                    "numeric": false
                 }
             },
             {
                 "name": "Invalid",
                 "args": {
                     "text": "Already taken",
-                    "invalid": true
+                    "placeholder": "Name your workspace",
+                    "label": "Workspace name",
+                    "readOnly": false,
+                    "disabled": false,
+                    "size": "default",
+                    "invalid": true,
+                    "password": false,
+                    "numeric": false
                 }
             },
             {
                 "name": "Password",
                 "args": {
                     "text": "secret-example",
+                    "placeholder": "Name your workspace",
+                    "label": "Password",
+                    "readOnly": false,
+                    "disabled": false,
+                    "size": "default",
+                    "invalid": false,
                     "password": true,
-                    "label": "Password"
+                    "numeric": false
                 }
             },
             {
                 "name": "Compact",
                 "args": {
-                    "size": "sm"
+                    "text": "",
+                    "placeholder": "Name your workspace",
+                    "label": "Workspace name",
+                    "readOnly": false,
+                    "disabled": false,
+                    "size": "sm",
+                    "invalid": false,
+                    "password": false,
+                    "numeric": false
                 }
             },
             {
                 "name": "Validated number",
                 "args": {
-                    "numeric": true,
                     "text": "42",
+                    "placeholder": "1\u2013999",
                     "label": "Workspace number",
-                    "placeholder": "1\u2013999"
+                    "readOnly": false,
+                    "disabled": false,
+                    "size": "default",
+                    "invalid": false,
+                    "password": false,
+                    "numeric": true
                 }
             }
         ]
@@ -463,7 +582,11 @@ QtObject {
                 "args": {
                     "text": "Do not disturb",
                     "checked": false,
-                    "disabled": false
+                    "disabled": false,
+                    "size": "default",
+                    "invalid": false,
+                    "description": "",
+                    "multiline": false
                 }
             },
             {
@@ -471,7 +594,11 @@ QtObject {
                 "args": {
                     "text": "Do not disturb",
                     "checked": true,
-                    "disabled": false
+                    "disabled": false,
+                    "size": "default",
+                    "invalid": false,
+                    "description": "",
+                    "multiline": false
                 }
             },
             {
@@ -479,13 +606,21 @@ QtObject {
                 "args": {
                     "text": "Do not disturb",
                     "checked": true,
-                    "disabled": true
+                    "disabled": true,
+                    "size": "default",
+                    "invalid": false,
+                    "description": "",
+                    "multiline": false
                 }
             },
             {
                 "name": "Description",
                 "args": {
                     "text": "Background updates",
+                    "checked": false,
+                    "disabled": false,
+                    "size": "default",
+                    "invalid": false,
                     "description": "Keep this workspace up to date when the panel is closed.",
                     "multiline": true
                 }
@@ -494,14 +629,24 @@ QtObject {
                 "name": "Compact",
                 "args": {
                     "text": "Notifications",
-                    "size": "sm"
+                    "checked": false,
+                    "disabled": false,
+                    "size": "sm",
+                    "invalid": false,
+                    "description": "",
+                    "multiline": false
                 }
             },
             {
                 "name": "Invalid",
                 "args": {
                     "text": "Accept the terms",
-                    "invalid": true
+                    "checked": false,
+                    "disabled": false,
+                    "size": "default",
+                    "invalid": true,
+                    "description": "",
+                    "multiline": false
                 }
             }
         ]
@@ -577,7 +722,14 @@ QtObject {
                 "args": {
                     "text": "Start on login",
                     "checked": false,
-                    "disabled": false
+                    "disabled": false,
+                    "size": "default",
+                    "invalid": false,
+                    "description": "",
+                    "multiline": false,
+                    "tristate": false,
+                    "partial": false,
+                    "selectAll": false
                 }
             },
             {
@@ -585,7 +737,14 @@ QtObject {
                 "args": {
                     "text": "Start on login",
                     "checked": true,
-                    "disabled": false
+                    "disabled": false,
+                    "size": "default",
+                    "invalid": false,
+                    "description": "",
+                    "multiline": false,
+                    "tristate": false,
+                    "partial": false,
+                    "selectAll": false
                 }
             },
             {
@@ -593,43 +752,88 @@ QtObject {
                 "args": {
                     "text": "Start on login",
                     "checked": true,
-                    "disabled": true
+                    "disabled": true,
+                    "size": "default",
+                    "invalid": false,
+                    "description": "",
+                    "multiline": false,
+                    "tristate": false,
+                    "partial": false,
+                    "selectAll": false
                 }
             },
             {
                 "name": "Description",
                 "args": {
                     "text": "Background updates",
+                    "checked": false,
+                    "disabled": false,
+                    "size": "default",
+                    "invalid": false,
                     "description": "Keep this workspace up to date when the panel is closed.",
-                    "multiline": true
+                    "multiline": true,
+                    "tristate": false,
+                    "partial": false,
+                    "selectAll": false
                 }
             },
             {
                 "name": "Compact",
                 "args": {
                     "text": "Notifications",
-                    "size": "sm"
+                    "checked": false,
+                    "disabled": false,
+                    "size": "sm",
+                    "invalid": false,
+                    "description": "",
+                    "multiline": false,
+                    "tristate": false,
+                    "partial": false,
+                    "selectAll": false
                 }
             },
             {
                 "name": "Invalid",
                 "args": {
                     "text": "Accept the terms",
-                    "invalid": true
+                    "checked": false,
+                    "disabled": false,
+                    "size": "default",
+                    "invalid": true,
+                    "description": "",
+                    "multiline": false,
+                    "tristate": false,
+                    "partial": false,
+                    "selectAll": false
                 }
             },
             {
                 "name": "Indeterminate",
                 "args": {
                     "text": "Select notifications",
+                    "checked": false,
+                    "disabled": false,
+                    "size": "default",
+                    "invalid": false,
+                    "description": "",
+                    "multiline": false,
                     "tristate": true,
-                    "partial": true
+                    "partial": true,
+                    "selectAll": false
                 }
             },
             {
                 "name": "Select all",
                 "args": {
                     "text": "Select all channels",
+                    "checked": false,
+                    "disabled": false,
+                    "size": "default",
+                    "invalid": false,
+                    "description": "",
+                    "multiline": false,
+                    "tristate": false,
+                    "partial": false,
                     "selectAll": true
                 }
             }
@@ -691,57 +895,96 @@ QtObject {
                 "name": "Listening",
                 "args": {
                     "value": 60,
-                    "disabled": false
+                    "disabled": false,
+                    "vertical": false,
+                    "rtl": false,
+                    "snap": false,
+                    "releaseOnly": false,
+                    "step": 1
                 }
             },
             {
                 "name": "Minimum",
                 "args": {
                     "value": 0,
-                    "disabled": false
+                    "disabled": false,
+                    "vertical": false,
+                    "rtl": false,
+                    "snap": false,
+                    "releaseOnly": false,
+                    "step": 1
                 }
             },
             {
                 "name": "Maximum",
                 "args": {
                     "value": 100,
-                    "disabled": false
+                    "disabled": false,
+                    "vertical": false,
+                    "rtl": false,
+                    "snap": false,
+                    "releaseOnly": false,
+                    "step": 1
                 }
             },
             {
                 "name": "Disabled",
                 "args": {
                     "value": 60,
-                    "disabled": true
+                    "disabled": true,
+                    "vertical": false,
+                    "rtl": false,
+                    "snap": false,
+                    "releaseOnly": false,
+                    "step": 1
                 }
             },
             {
                 "name": "Vertical",
                 "args": {
                     "value": 60,
-                    "vertical": true
+                    "disabled": false,
+                    "vertical": true,
+                    "rtl": false,
+                    "snap": false,
+                    "releaseOnly": false,
+                    "step": 1
                 }
             },
             {
                 "name": "Right to left",
                 "args": {
                     "value": 60,
-                    "rtl": true
+                    "disabled": false,
+                    "vertical": false,
+                    "rtl": true,
+                    "snap": false,
+                    "releaseOnly": false,
+                    "step": 1
                 }
             },
             {
                 "name": "Snapped steps",
                 "args": {
                     "value": 50,
-                    "step": 10,
-                    "snap": true
+                    "disabled": false,
+                    "vertical": false,
+                    "rtl": false,
+                    "snap": true,
+                    "releaseOnly": false,
+                    "step": 10
                 }
             },
             {
                 "name": "Release updates",
                 "args": {
                     "value": 60,
-                    "releaseOnly": true
+                    "disabled": false,
+                    "vertical": false,
+                    "rtl": false,
+                    "snap": false,
+                    "releaseOnly": true,
+                    "step": 1
                 }
             }
         ]
@@ -804,42 +1047,71 @@ QtObject {
                 "name": "Speakers",
                 "args": {
                     "index": 0,
-                    "disabled": false
+                    "disabled": false,
+                    "size": "default",
+                    "placeholder": "Choose an output",
+                    "invalid": false,
+                    "editable": false,
+                    "unavailable": false
                 }
             },
             {
                 "name": "Headphones",
                 "args": {
                     "index": 1,
-                    "disabled": false
+                    "disabled": false,
+                    "size": "default",
+                    "placeholder": "Choose an output",
+                    "invalid": false,
+                    "editable": false,
+                    "unavailable": false
                 }
             },
             {
                 "name": "Disabled",
                 "args": {
                     "index": 0,
-                    "disabled": true
+                    "disabled": true,
+                    "size": "default",
+                    "placeholder": "Choose an output",
+                    "invalid": false,
+                    "editable": false,
+                    "unavailable": false
                 }
             },
             {
                 "name": "Placeholder",
                 "args": {
                     "index": -1,
-                    "placeholder": "Choose an output"
+                    "disabled": false,
+                    "size": "default",
+                    "placeholder": "Choose an output",
+                    "invalid": false,
+                    "editable": false,
+                    "unavailable": false
                 }
             },
             {
                 "name": "Invalid",
                 "args": {
                     "index": -1,
+                    "disabled": false,
+                    "size": "default",
                     "placeholder": "Choose an output",
-                    "invalid": true
+                    "invalid": true,
+                    "editable": false,
+                    "unavailable": false
                 }
             },
             {
                 "name": "Unavailable option",
                 "args": {
                     "index": 0,
+                    "disabled": false,
+                    "size": "default",
+                    "placeholder": "Choose an output",
+                    "invalid": false,
+                    "editable": false,
                     "unavailable": true
                 }
             },
@@ -847,7 +1119,12 @@ QtObject {
                 "name": "Editable",
                 "args": {
                     "index": 0,
-                    "editable": true
+                    "disabled": false,
+                    "size": "default",
+                    "placeholder": "Choose an output",
+                    "invalid": false,
+                    "editable": true,
+                    "unavailable": false
                 }
             }
         ]
@@ -892,14 +1169,18 @@ QtObject {
                 "name": "Welcome",
                 "args": {
                     "title": "Your workspace",
-                    "description": "Build a shell that feels like yours."
+                    "description": "Build a shell that feels like yours.",
+                    "size": "default",
+                    "footer": true
                 }
             },
             {
                 "name": "Long content",
                 "args": {
                     "title": "A place for everything",
-                    "description": "Cards resize around their content. Compose labels, controls, and layouts while keeping the same shared theme."
+                    "description": "Cards resize around their content. Compose labels, controls, and layouts while keeping the same shared theme.",
+                    "size": "default",
+                    "footer": true
                 }
             },
             {
@@ -955,28 +1236,32 @@ QtObject {
                 "name": "Neutral",
                 "args": {
                     "text": "Draft",
-                    "variant": "neutral"
+                    "variant": "neutral",
+                    "decoration": "none"
                 }
             },
             {
                 "name": "Accent",
                 "args": {
                     "text": "Connected",
-                    "variant": "accent"
+                    "variant": "accent",
+                    "decoration": "none"
                 }
             },
             {
                 "name": "Destructive",
                 "args": {
                     "text": "Offline",
-                    "variant": "destructive"
+                    "variant": "destructive",
+                    "decoration": "none"
                 }
             },
             {
                 "name": "Outline",
                 "args": {
                     "text": "Metadata",
-                    "variant": "outline"
+                    "variant": "outline",
+                    "decoration": "none"
                 }
             },
             {
@@ -991,6 +1276,7 @@ QtObject {
                 "name": "With icon",
                 "args": {
                     "text": "New workspace",
+                    "variant": "neutral",
                     "decoration": "icon"
                 }
             },
@@ -998,13 +1284,16 @@ QtObject {
                 "name": "Syncing",
                 "args": {
                     "text": "Syncing",
+                    "variant": "neutral",
                     "decoration": "busy"
                 }
             },
             {
                 "name": "Long label",
                 "args": {
-                    "text": "A long status label remains inside its available space"
+                    "text": "A long status label remains inside its available space",
+                    "variant": "neutral",
+                    "decoration": "none"
                 }
             }
         ]
@@ -1033,18 +1322,21 @@ QtObject {
             {
                 "name": "Horizontal",
                 "args": {
-                    "vertical": false
+                    "vertical": false,
+                    "semantic": false
                 }
             },
             {
                 "name": "Vertical",
                 "args": {
-                    "vertical": true
+                    "vertical": true,
+                    "semantic": false
                 }
             },
             {
                 "name": "Semantic",
                 "args": {
+                    "vertical": false,
                     "semantic": true
                 }
             }
@@ -1093,20 +1385,35 @@ QtObject {
         "presets": [
             {
                 "name": "Labeled input",
-                "args": {}
+                "args": {
+                    "label": "Workspace name",
+                    "description": "Use a name you can recognize in the switcher.",
+                    "error": "",
+                    "required": false,
+                    "largeText": false,
+                    "disabled": false
+                }
             },
             {
                 "name": "Validation error",
                 "args": {
+                    "label": "Workspace name",
+                    "description": "Use a name you can recognize in the switcher.",
                     "error": "This workspace name is already in use.",
-                    "required": true
+                    "required": true,
+                    "largeText": false,
+                    "disabled": false
                 }
             },
             {
                 "name": "Large text",
                 "args": {
+                    "label": "Workspace name",
+                    "description": "Use a name you can recognize in the switcher.",
+                    "error": "",
+                    "required": true,
                     "largeText": true,
-                    "required": true
+                    "disabled": false
                 }
             }
         ]
@@ -1157,7 +1464,10 @@ QtObject {
                 "name": "Brightness range",
                 "args": {
                     "minimum": 25,
-                    "maximum": 75
+                    "maximum": 75,
+                    "vertical": false,
+                    "rtl": false,
+                    "disabled": false
                 }
             },
             {
@@ -1165,7 +1475,9 @@ QtObject {
                 "args": {
                     "minimum": 25,
                     "maximum": 75,
-                    "vertical": true
+                    "vertical": true,
+                    "rtl": false,
+                    "disabled": false
                 }
             },
             {
@@ -1173,14 +1485,19 @@ QtObject {
                 "args": {
                     "minimum": 25,
                     "maximum": 75,
-                    "rtl": true
+                    "vertical": false,
+                    "rtl": true,
+                    "disabled": false
                 }
             },
             {
                 "name": "Coincident handles",
                 "args": {
                     "minimum": 50,
-                    "maximum": 50
+                    "maximum": 50,
+                    "vertical": false,
+                    "rtl": false,
+                    "disabled": false
                 }
             },
             {
@@ -1188,6 +1505,8 @@ QtObject {
                 "args": {
                     "minimum": 25,
                     "maximum": 75,
+                    "vertical": false,
+                    "rtl": false,
                     "disabled": true
                 }
             }
@@ -1264,7 +1583,10 @@ QtObject {
                     "palette": "Lavender",
                     "radius": 8,
                     "height": 36,
-                    "reduceMotion": false
+                    "reduceMotion": false,
+                    "density": "default",
+                    "fontScale": 1,
+                    "subduedSelection": false
                 }
             },
             {
@@ -1273,7 +1595,10 @@ QtObject {
                     "palette": "Ocean",
                     "radius": 12,
                     "height": 40,
-                    "reduceMotion": false
+                    "reduceMotion": false,
+                    "density": "default",
+                    "fontScale": 1,
+                    "subduedSelection": false
                 }
             },
             {
@@ -1282,28 +1607,45 @@ QtObject {
                     "palette": "Rose",
                     "radius": 0,
                     "height": 36,
-                    "reduceMotion": true
+                    "reduceMotion": true,
+                    "density": "default",
+                    "fontScale": 1,
+                    "subduedSelection": false
                 }
             },
             {
                 "name": "Compact",
                 "args": {
+                    "palette": "Lavender",
+                    "radius": 6,
+                    "height": 30,
+                    "reduceMotion": false,
                     "density": "compact",
-                    "radius": 6
+                    "fontScale": 1,
+                    "subduedSelection": false
                 }
             },
             {
                 "name": "Large text",
                 "args": {
-                    "fontScale": 2,
+                    "palette": "Lavender",
+                    "radius": 8,
+                    "height": 44,
+                    "reduceMotion": true,
                     "density": "comfortable",
-                    "reduceMotion": true
+                    "fontScale": 2,
+                    "subduedSelection": false
                 }
             },
             {
                 "name": "Independent selection",
                 "args": {
                     "palette": "Ocean",
+                    "radius": 8,
+                    "height": 36,
+                    "reduceMotion": false,
+                    "density": "default",
+                    "fontScale": 1,
                     "subduedSelection": true
                 }
             }

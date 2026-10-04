@@ -18,7 +18,7 @@ Foundation registry entries:
 | Registry name | QML type | Dependencies |
 | --- | --- | --- |
 | theme | Theme | — |
-| button | Button | theme |
+| button | Button | theme, icon-graphic |
 | icon-button | IconButton | button |
 | text-field | TextField | theme |
 | field | Field | theme |
@@ -28,7 +28,7 @@ Foundation registry entries:
 | range-slider | RangeSlider | theme |
 | select | Select | theme |
 | card | Card | theme |
-| badge | Badge | theme |
+| badge | Badge | theme, icon-graphic |
 | separator | Separator | theme |
 
 Button variants: `primary`, `secondary`, `ghost`, `outline`, `destructive`. IconButton extends

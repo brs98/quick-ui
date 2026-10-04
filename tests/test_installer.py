@@ -61,7 +61,7 @@ class InstallerTests(unittest.TestCase):
         self.init()
         self.run_cli("add", "icon-button", "slider", "--cwd", str(self.project))
         self.assertEqual({path.name for path in (self.project / "ui").iterdir()},
-                         {"Theme.qml", "Button.qml", "IconButton.qml", "Slider.qml"})
+                         {"Theme.qml", "IconGraphic.qml", "Button.qml", "IconButton.qml", "Slider.qml"})
         for target in (self.project / "ui").iterdir():
             self.assertEqual(target.read_bytes(), (self.sources / target.name).read_bytes())
 

@@ -21,7 +21,8 @@ AudioMixer {
 ```
 
 The snippet assumes the installed directory is imported and the consumer defines
-`appearance` and `app`. Device snapshots have `id`, `label`, `glyph`, and `current`.
+`appearance` and `app`. Device snapshots have `id`, `label`, optional `glyph` and
+`description`, and `current`.
 Streams have `id`, `label`, `volume`, `muted`, and `current`. The current device and
 active application are visual state supplied by the consumer; selecting a row
 only emits a request.
@@ -61,6 +62,13 @@ the list ends. Pointer hover updates the same cursor. Focused rows scroll into
 view, and model changes repair a cursor that would otherwise point outside its
 section. The public `focusSection`, `selectedIndex`, and `cursorActive` properties
 can be inspected for announcements or testing.
+
+`cursorLabel` describes the current channel/device, value, and mute state. In panel
+navigation mode the focused keyboard item exposes this name and key instructions
+through Qt accessibility. Native mode scrolls the actual focused child into view
+when a row is taller than the viewport, including after resizing or model changes.
+The Input heading stays visible when input choices exist without a default source.
+Master-switch tooltips support hover, native keyboard focus, and the panel cursor.
 
 Call `reset()` when a shell panel opens. It returns the cursor to the output row,
 hides the cursor, resets scroll to the top, and focuses panel keyboard handling

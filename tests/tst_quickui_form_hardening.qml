@@ -97,6 +97,17 @@ Item {
             compare(selected.background.color,"#334455"); compare(selected.contentItem.color,"#ddeeff");
             select.popup.close();
         }
+        function test_selectLargeFontOptionsFit() {
+            const select=make(selectFactory);
+            select.theme.fontSize=40;
+            select.popup.open();
+            const list=select.popup.contentItem;
+            tryVerify(()=>list.itemAtIndex(0)!==null);
+            const row=list.itemAtIndex(0);
+            verify(row.height >= row.contentItem.implicitHeight + row.topPadding + row.bottomPadding);
+            verify(row.contentItem.height >= row.contentItem.implicitHeight);
+            select.popup.close();
+        }
         function test_selectAllDisabledAndLiveListModel() {
             const select=make(selectFactory);
             const model=createTemporaryObject(modelFactory,parent);

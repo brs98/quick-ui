@@ -36,10 +36,10 @@ def main():
             assert len(matches) == 1, (name, matches)
             return matches[0]
 
-        for name, value, maximum in [("Clamped level", 1, 1), ("Invalid level", 0, 1),
-                                     ("Lower limit", 20, 100), ("Upper limit", 80, 100)]:
+        for name, value, minimum, maximum in [("Clamped level", 1, 0, 1), ("Invalid level", 0, 0, 1),
+                                             ("Lower limit", 20, 0, 80), ("Upper limit", 80, 20, 100)]:
             node = named(name)
-            assert (node["value"], node["minimum"], node["maximum"]) == (value, 0, maximum), node
+            assert (node["value"], node["minimum"], node["maximum"]) == (value, minimum, maximum), node
         device = named("Speakers")
         assert device["selected"] and device["selectable"], device
         assert "Press" in device["actions"], device

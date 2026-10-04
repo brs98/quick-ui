@@ -43,7 +43,7 @@ def main():
         theme.write_bytes(edited)
         entries = json.loads((ROOT / "registry.json").read_text())["components"]
         component_names = ["button", "icon-button", "text-field", "switch", "checkbox",
-                           "slider", "select", "card", "badge", "separator"]
+                           "slider", "select", "card", "badge", "separator", "field", "range-slider"]
         result = install("add", *component_names)
         assert "Kept customized dependency ui/Theme.qml" in result.stdout
         assert theme.read_bytes() == edited, "Installer changed the owned theme"
@@ -88,7 +88,9 @@ def main():
 
                 eventually(lambda: status()["width"] == 720, "starter scene")
                 initial = status()
-                assert initial["height"] == 700
+                assert initial["height"] == 800
+                assert initial["rangeMinimum"] == 25 and initial["rangeMaximum"] == 75
+                assert initial["fieldName"] == "Workspace name"
                 assert initial["dark"] is True
                 assert initial["accent"] == "#6ee7c7", "Installed theme edit did not reach the scene"
                 assert initial["buttonAccent"] == initial["accent"]
@@ -114,13 +116,13 @@ def main():
                 eventually(lambda: screenshot.exists() and screenshot.stat().st_size > 1000, "native PNG capture")
                 header = screenshot.read_bytes()[:24]
                 assert header[:8] == b"\x89PNG\r\n\x1a\n"
-                assert struct.unpack(">II", header[16:24]) == (720, 700)
+                assert struct.unpack(">II", header[16:24]) == (720, 800)
                 log.flush()
                 errors = [line for line in log_path.read_text().splitlines() if any(token in line for token in
                           ("ERROR", "WARN scene", "TypeError:", "ReferenceError:", "Binding loop"))]
                 assert not errors, "\n".join(errors)
                 assert theme.read_bytes() == edited
-                print("PASS: clean source install, customized dependency, ten primitives, themes, mock action, native PNG")
+                print("PASS: clean source install, customized dependency, twelve components, themes, mock action, native PNG")
                 print("Screenshot:", screenshot)
             except Exception:
                 log.flush()

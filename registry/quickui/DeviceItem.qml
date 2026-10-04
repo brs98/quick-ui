@@ -52,6 +52,7 @@ Controls.ItemDelegate {
                 Accessible.ignored: true
             }
             Text {
+                objectName: "deviceDescription"
                 width: parent.width
                 visible: text.length > 0
                 text: control.description
@@ -60,7 +61,7 @@ Controls.ItemDelegate {
                 font.pixelSize: control.theme.smallFontSize
                 color: control.theme.mutedForeground
                 horizontalAlignment: control.mirrored ? Text.AlignRight : Text.AlignLeft
-                wrapMode: Text.WordWrap
+                wrapMode: Text.Wrap
                 Accessible.ignored: true
             }
         }

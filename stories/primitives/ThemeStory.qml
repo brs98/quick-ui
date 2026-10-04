@@ -29,10 +29,10 @@ Item {
         ColumnLayout {
             width: card.availableWidth
             spacing: tokens.spacing * 2
-            Text { text: "One theme. Every component."; color: tokens.foreground; font.pixelSize: tokens.fontSize; font.bold: true }
+            Text { objectName: "themeHeading"; Layout.fillWidth: true; wrapMode: Text.Wrap; text: "One theme. Every component."; color: tokens.foreground; font.pixelSize: tokens.fontSize; font.bold: true }
             UI.Badge { theme: tokens; text: root.args.palette ?? "Lavender"; variant: "accent" }
             UI.TextField { id: workspaceName; objectName: "themeWorkspaceName"; Layout.fillWidth: true; theme: tokens; placeholderText: "Workspace name"; Accessible.name: "Workspace name" }
-            UI.Switch { id: notifications; objectName: "themeNotifications"; theme: tokens; text: "Notifications"; checked: true; onToggled: root.eventRaised("toggled", {checked: checked}) }
+            UI.Switch { id: notifications; objectName: "themeNotifications"; Layout.fillWidth: true; multiline: true; theme: tokens; text: "Notifications"; checked: true; onToggled: root.eventRaised("toggled", {checked: checked}) }
             UI.Button { Layout.fillWidth: true; theme: tokens; text: "Save preferences"; onClicked: root.eventRaised("clicked", {}) }
         }
     }

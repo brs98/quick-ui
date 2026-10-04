@@ -19,9 +19,9 @@ Item {
         ColumnLayout {
             width: card.availableWidth
             spacing: tokens.spacing
-            Text { text: root.args.title ?? "Your workspace"; color: tokens.cardForeground; font.pixelSize: tokens.fontSize + 3; font.bold: true; textFormat: Text.PlainText; Layout.fillWidth: true; wrapMode: Text.WordWrap }
+            Text { objectName: "cardTitle"; text: root.args.title ?? "Your workspace"; color: tokens.cardForeground; font.pixelSize: tokens.fontSize + 3; font.bold: true; textFormat: Text.PlainText; Layout.fillWidth: true; wrapMode: Text.Wrap }
             UI.Separator { theme: tokens; Layout.fillWidth: true; visible: root.args.footer !== false }
-            Text { text: root.args.description ?? "Build a shell that feels like yours."; color: tokens.mutedForeground; font.pixelSize: tokens.fontSize; textFormat: Text.PlainText; Layout.fillWidth: true; wrapMode: Text.WordWrap }
+            Text { objectName: "cardDescription"; text: root.args.description ?? "Build a shell that feels like yours."; color: tokens.mutedForeground; font.pixelSize: tokens.fontSize; textFormat: Text.PlainText; Layout.fillWidth: true; wrapMode: Text.Wrap }
             GridLayout {
                 visible: root.args.footer !== false
                 Layout.fillWidth: true

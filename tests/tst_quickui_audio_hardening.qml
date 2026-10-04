@@ -56,6 +56,7 @@ Item {
             volume.LayoutMirroring.childrenInherit = true;
             const title = child(volume, "volumeTitle");
             const percent = child(volume, "volumeValue");
+            compare(title.effectiveHorizontalAlignment, Text.AlignRight);
             verify(percent.x + percent.width <= title.x, "RTL value must not overlap title");
             verify(volume.slider.x + volume.slider.width <= volume.muteButton.x, "Mute action belongs at RTL leading edge");
         }
@@ -91,6 +92,15 @@ Item {
             const glyph = child(device, "deviceGlyph");
             const mark = child(device, "deviceCurrentMark");
             verify(glyph.x > mark.x, "RTL keeps glyph at leading edge");
+        }
+        function test_deviceLongIdentifierWraps() {
+            const device = make(deviceFactory);
+            device.width = 180;
+            device.description = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".repeat(3);
+            const description = child(device, "deviceDescription");
+            tryVerify(() => description.contentWidth <= description.width + 1);
+            verify(description.lineCount > 1);
+            tryVerify(() => description.mapToItem(device, 0, description.height).y <= device.height);
         }
         function test_selectionRecipeKeepsExactlyOneCurrent() {
             const story = make(selectionFactory);

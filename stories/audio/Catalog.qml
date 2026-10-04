@@ -81,7 +81,9 @@ QtObject {
                     "inputVolume": 0.75,
                     "peak": 0.35,
                     "muted": false,
-                    "panelNavigation": false
+                    "panelNavigation": false,
+                    "rtl": false,
+                    "fontScale": 1
                 }
             },
             {
@@ -92,7 +94,9 @@ QtObject {
                     "inputVolume": 0.75,
                     "peak": 0,
                     "muted": true,
-                    "panelNavigation": false
+                    "panelNavigation": false,
+                    "rtl": false,
+                    "fontScale": 1
                 }
             },
             {
@@ -103,7 +107,9 @@ QtObject {
                     "inputVolume": 0,
                     "peak": 0,
                     "muted": false,
-                    "panelNavigation": false
+                    "panelNavigation": false,
+                    "rtl": false,
+                    "fontScale": 1
                 }
             },
             {
@@ -114,7 +120,9 @@ QtObject {
                     "inputVolume": 0,
                     "peak": 0,
                     "muted": false,
-                    "panelNavigation": false
+                    "panelNavigation": false,
+                    "rtl": false,
+                    "fontScale": 1
                 }
             },
             {
@@ -125,7 +133,9 @@ QtObject {
                     "inputVolume": 0.75,
                     "peak": 0.35,
                     "muted": false,
-                    "panelNavigation": false
+                    "panelNavigation": false,
+                    "rtl": false,
+                    "fontScale": 1
                 }
             },
             {
@@ -136,7 +146,9 @@ QtObject {
                     "inputVolume": 0.75,
                     "peak": 0.35,
                     "muted": false,
-                    "panelNavigation": false
+                    "panelNavigation": false,
+                    "rtl": false,
+                    "fontScale": 1
                 }
             },
             {
@@ -147,25 +159,48 @@ QtObject {
                     "inputVolume": 0.75,
                     "peak": 0.35,
                     "muted": false,
-                    "panelNavigation": true
+                    "panelNavigation": true,
+                    "rtl": false,
+                    "fontScale": 1
                 }
             },
             {
                 "name": "Right to left",
                 "args": {
-                    "rtl": true
+                    "scenario": "Desktop",
+                    "outputVolume": 0.6,
+                    "inputVolume": 0.75,
+                    "peak": 0.35,
+                    "muted": false,
+                    "panelNavigation": false,
+                    "rtl": true,
+                    "fontScale": 1
                 }
             },
             {
                 "name": "Large text",
                 "args": {
+                    "scenario": "Desktop",
+                    "outputVolume": 0.6,
+                    "inputVolume": 0.75,
+                    "peak": 0.35,
+                    "muted": false,
+                    "panelNavigation": false,
+                    "rtl": false,
                     "fontScale": 3
                 }
             },
             {
                 "name": "Choose input",
                 "args": {
-                    "scenario": "No default input"
+                    "scenario": "No default input",
+                    "outputVolume": 0.6,
+                    "inputVolume": 0.75,
+                    "peak": 0.35,
+                    "muted": false,
+                    "panelNavigation": false,
+                    "rtl": false,
+                    "fontScale": 1
                 }
             }
         ]
@@ -247,7 +282,9 @@ QtObject {
                     "muted": false,
                     "available": true,
                     "showMeter": false,
-                    "peak": 0
+                    "peak": 0,
+                    "rtl": false,
+                    "fontScale": 1
                 }
             },
             {
@@ -259,7 +296,9 @@ QtObject {
                     "muted": false,
                     "available": true,
                     "showMeter": true,
-                    "peak": 0.4
+                    "peak": 0.4,
+                    "rtl": false,
+                    "fontScale": 1
                 }
             },
             {
@@ -271,7 +310,9 @@ QtObject {
                     "muted": true,
                     "available": true,
                     "showMeter": false,
-                    "peak": 0
+                    "peak": 0,
+                    "rtl": false,
+                    "fontScale": 1
                 }
             },
             {
@@ -283,7 +324,9 @@ QtObject {
                     "muted": false,
                     "available": false,
                     "showMeter": false,
-                    "peak": 0
+                    "peak": 0,
+                    "rtl": false,
+                    "fontScale": 1
                 }
             },
             {
@@ -295,18 +338,36 @@ QtObject {
                     "muted": false,
                     "available": true,
                     "showMeter": false,
-                    "peak": 0
+                    "peak": 0,
+                    "rtl": false,
+                    "fontScale": 1
                 }
             },
             {
                 "name": "Right to left",
                 "args": {
-                    "rtl": true
+                    "title": "Output",
+                    "value": 0.6,
+                    "maximum": 1,
+                    "muted": false,
+                    "available": true,
+                    "showMeter": false,
+                    "peak": 0,
+                    "rtl": true,
+                    "fontScale": 1
                 }
             },
             {
                 "name": "Large text",
                 "args": {
+                    "title": "Output",
+                    "value": 0.6,
+                    "maximum": 1,
+                    "muted": false,
+                    "available": true,
+                    "showMeter": false,
+                    "peak": 0,
+                    "rtl": false,
                     "fontScale": 3
                 }
             }
@@ -372,7 +433,11 @@ QtObject {
                     "text": "Headphones",
                     "glyph": "\u266a",
                     "current": false,
-                    "disabled": false
+                    "disabled": false,
+                    "description": "",
+                    "selectionList": false,
+                    "rtl": false,
+                    "fontScale": 1
                 }
             },
             {
@@ -381,7 +446,11 @@ QtObject {
                     "text": "Speakers",
                     "glyph": "\u266b",
                     "current": true,
-                    "disabled": false
+                    "disabled": false,
+                    "description": "",
+                    "selectionList": false,
+                    "rtl": false,
+                    "fontScale": 1
                 }
             },
             {
@@ -390,7 +459,11 @@ QtObject {
                     "text": "Studio monitor speakers connected through the external USB audio interface",
                     "glyph": "\u266b",
                     "current": true,
-                    "disabled": false
+                    "disabled": false,
+                    "description": "",
+                    "selectionList": false,
+                    "rtl": false,
+                    "fontScale": 1
                 }
             },
             {
@@ -399,32 +472,63 @@ QtObject {
                     "text": "Disconnected headset",
                     "glyph": "\u266a",
                     "current": false,
-                    "disabled": true
+                    "disabled": true,
+                    "description": "",
+                    "selectionList": false,
+                    "rtl": false,
+                    "fontScale": 1
                 }
             },
             {
                 "name": "Right to left",
                 "args": {
-                    "rtl": true
+                    "text": "Headphones",
+                    "glyph": "\u266a",
+                    "current": false,
+                    "disabled": false,
+                    "description": "",
+                    "selectionList": false,
+                    "rtl": true,
+                    "fontScale": 1
                 }
             },
             {
                 "name": "Large text",
                 "args": {
+                    "text": "Headphones",
+                    "glyph": "\u266a",
+                    "current": false,
+                    "disabled": false,
+                    "description": "",
+                    "selectionList": false,
+                    "rtl": false,
                     "fontScale": 3
                 }
             },
             {
                 "name": "Device details",
                 "args": {
-                    "label": "USB Audio",
-                    "description": "USB-C dock \u00b7 stereo output"
+                    "text": "USB Audio",
+                    "glyph": "\u266a",
+                    "current": false,
+                    "disabled": false,
+                    "description": "USB-C dock \u00b7 stereo output",
+                    "selectionList": false,
+                    "rtl": false,
+                    "fontScale": 1
                 }
             },
             {
                 "name": "Exclusive selection",
                 "args": {
-                    "selectionList": true
+                    "text": "Headphones",
+                    "glyph": "\u266a",
+                    "current": false,
+                    "disabled": false,
+                    "description": "",
+                    "selectionList": true,
+                    "rtl": false,
+                    "fontScale": 1
                 }
             }
         ]
@@ -484,19 +588,22 @@ QtObject {
             {
                 "name": "Low level",
                 "args": {
-                    "value": 0.01
+                    "value": 0.01,
+                    "muted": false
                 }
             },
             {
                 "name": "Clamped high",
                 "args": {
-                    "value": 2
+                    "value": 2,
+                    "muted": false
                 }
             },
             {
                 "name": "Clamped low",
                 "args": {
-                    "value": -1
+                    "value": -1,
+                    "muted": false
                 }
             }
         ]
@@ -543,27 +650,34 @@ QtObject {
                 "name": "Short",
                 "args": {
                     "text": "Mute output",
-                    "show": false
+                    "show": false,
+                    "placement": "bottom",
+                    "maximumWidth": 320
                 }
             },
             {
                 "name": "Long label",
                 "args": {
                     "text": "This control adjusts the selected output device. Right-click to toggle mute.",
-                    "show": false
+                    "show": false,
+                    "placement": "bottom",
+                    "maximumWidth": 320
                 }
             },
             {
                 "name": "Pinned preview",
                 "args": {
                     "text": "Mute output",
-                    "show": true
+                    "show": true,
+                    "placement": "bottom",
+                    "maximumWidth": 320
                 }
             },
             {
                 "name": "Narrow above",
                 "args": {
                     "text": "Supplemental information wraps to a readable width.",
+                    "show": false,
                     "placement": "top",
                     "maximumWidth": 160
                 }

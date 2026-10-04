@@ -58,7 +58,7 @@ WAYLAND_DISPLAY=wayland-1 quickshell -p ~/personal/quickui-demo
 
 Alternatively, run `quickshell -p ~/personal/quickui-demo` from a graphical terminal.
 To reproduce the installation elsewhere, create a directory, run `quickui init`,
-add all ten components, and copy `templates/starter.qml` to that directory as
+add all twelve foundation components, and copy `templates/starter.qml` to that directory as
 `shell.qml`. The starter uses mock data and has no desktop service side effects.
 
 ## Build an audio panel
@@ -215,20 +215,27 @@ Qt 6 development tools and Python 3 are needed for the checks. On Arch, Qt 5 too
 python3 scripts/smoke.py
 python3 scripts/installed_smoke.py
 python3 scripts/audio_smoke.py
+python3 scripts/accessibility_smoke.py
 ```
 
-The first command runs launcher and installer regressions, QML lint, and Qt Quick interaction tests, including all primitive presets and both themes. The launcher tests use temporary sockets and a stub executable to verify display discovery and command forwarding without starting Qt. The smoke check starts a separate Quickshell process using the software offscreen renderer, exercises IPC and hot reload in a temporary config, and writes `artifacts/quickbook-dark.png` and `artifacts/quickbook-light.png`. It does not need an active desktop and does not affect any running Quickbook instance. The installed-source smoke test independently copies all ten primitives into a fresh project, edits its Theme, launches the standalone starter, and captures `artifacts/quickui-starter.png`.
+The first command runs launcher and installer regressions, QML lint, and Qt Quick interaction tests, including all primitive presets and both themes. The launcher tests use temporary sockets and a stub executable to verify display discovery and command forwarding without starting Qt. The smoke check starts a separate Quickshell process using the software offscreen renderer, exercises IPC and hot reload in a temporary config, and writes `artifacts/quickbook-dark.png` and `artifacts/quickbook-light.png`. It does not need an active desktop and does not affect any running Quickbook instance. The installed-source smoke test independently copies all twelve foundation components into a fresh project, edits its Theme, launches the standalone starter, and captures `artifacts/quickui-starter.png`.
 
 The audio smoke test installs the mixer and its dependency closure in an isolated
 project, exercises mock actions and both themes through native Quickshell, and
 exports audio demo screenshots. Qt tests cover keyboard navigation, focus,
 controlled requests, bounds, dynamic device lists, and adapter actions.
 
+The accessibility smoke builds a small native probe (C++ compiler, `pkg-config`,
+and Qt 6 development headers required), then checks the actual QAccessible tree:
+bounded meter values, each range handle's accepted bounds, selected devices, and
+the focused panel cursor. The Quickbook smoke also captures the new composition
+stories, including icons, Field feedback, RangeSlider, and RTL audio controls.
+
 ## Project map
 
 - `registry/quickui/`: canonical distributable QML source.
 - `registry.json` and `quickui`: dependency registry and source installer.
-- `templates/starter.qml`: standalone consumer using all ten foundation primitives.
+- `templates/starter.qml`: standalone consumer using all twelve foundation components.
 - `templates/audio.qml`: standalone mock audio panel.
 - `integrations/omarchy-audio/`: real audio service adapter and installation notes.
 - `shell.qml`: native workbench window and IPC bridge.

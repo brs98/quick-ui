@@ -16,8 +16,8 @@ ShellRoot {
         id: window
         title: "QuickUI — Your shell, your source"
         implicitWidth: 720
-        implicitHeight: 700
-        minimumSize: Qt.size(640, 700)
+        implicitHeight: 800
+        minimumSize: Qt.size(640, 800)
         color: libraryTheme.background
 
         Rectangle {
@@ -51,7 +51,7 @@ ShellRoot {
                             font.weight: Font.DemiBold
                         }
                         Text {
-                            text: "Ten native primitives. One shared theme. Entirely yours."
+                            text: "Twelve native components. One shared theme. Entirely yours."
                             color: libraryTheme.mutedForeground
                             font.family: libraryTheme.fontFamily
                             font.pixelSize: 13
@@ -139,13 +139,17 @@ ShellRoot {
                             }
                             UI.Badge { theme: libraryTheme; text: "Mock data" }
                         }
-                        UI.TextField {
-                            id: workspaceName
+                        UI.Field {
                             theme: libraryTheme
                             Layout.fillWidth: true
-                            placeholderText: "Workspace name"
-                            text: "Creative space"
-                            Accessible.name: "Workspace name"
+                            label: "Workspace name"
+                            UI.TextField {
+                                id: workspaceName
+                                theme: libraryTheme
+                                Layout.fillWidth: true
+                                placeholderText: "Workspace name"
+                                text: "Creative space"
+                            }
                         }
                         RowLayout {
                             Layout.fillWidth: true
@@ -193,6 +197,22 @@ ShellRoot {
                                 Layout.preferredWidth: 36
                             }
                         }
+                        RowLayout {
+                            Layout.fillWidth: true
+                            spacing: 16
+                            Text { text: "Brightness range"; color: libraryTheme.mutedForeground; font.pixelSize: libraryTheme.fontSize }
+                            UI.RangeSlider {
+                                id: brightness
+                                theme: libraryTheme
+                                Layout.fillWidth: true
+                                from: 0; to: 100; stepSize: 5
+                                first.value: 25; second.value: 75
+                                firstAccessibleName: "Minimum brightness"
+                                secondAccessibleName: "Maximum brightness"
+                                first.onMoved: root.lastAction = "Minimum brightness: " + Math.round(first.value) + "% (mock)"
+                                second.onMoved: root.lastAction = "Maximum brightness: " + Math.round(second.value) + "% (mock)"
+                            }
+                        }
                         UI.Separator { theme: libraryTheme; Layout.fillWidth: true }
                         UI.CheckBox {
                             id: notifications
@@ -220,13 +240,14 @@ ShellRoot {
                         onClicked: {
                             workspaceName.text = "Creative space"
                             volume.value = 64
+                            brightness.setValues(25, 75)
                             output.currentIndex = 0
                             notifications.checked = true
                             root.lastAction = "Mock preferences reset"
                         }
                     }
                     Item { Layout.fillWidth: true }
-                    UI.Badge { theme: libraryTheme; text: "10 primitives" }
+                    UI.Badge { theme: libraryTheme; text: "12 components" }
                 }
 
                 Item { Layout.fillHeight: true; Layout.minimumHeight: 0 }
@@ -250,6 +271,8 @@ ShellRoot {
             return JSON.stringify({dark: libraryTheme.dark, accent: libraryTheme.accent.toString(),
                 buttonAccent: applyButton.theme.accent.toString(), volume: volume.value,
                 output: output.currentText, notifications: notifications.checked,
+                rangeMinimum: brightness.first.value, rangeMaximum: brightness.second.value,
+                fieldName: workspaceName.Accessible.name,
                 message: root.lastAction, width: page.width, height: page.height});
         }
         function theme(dark: bool): void { libraryTheme.dark = dark; }

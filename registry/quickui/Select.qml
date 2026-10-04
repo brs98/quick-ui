@@ -190,13 +190,13 @@ Controls.ComboBox {
         required property int index
         required property var model
         width: control.popup.availableWidth
-        implicitHeight: control.theme.heightFor(control.size)
+        implicitHeight: Math.max(control.theme.heightFor(control.size), implicitContentHeight + topPadding + bottomPadding)
         text: model[control.textRole]
         enabled: control.roleEnabled(model)
         opacity: enabled ? 1 : control.theme.disabledOpacity
         highlighted: control.highlightedIndex === index
         hoverEnabled: control.hoverEnabled
-        padding: control.theme.padding
+        padding: control.theme.paddingFor(control.size)
         font: control.font
         contentItem: Text {
             text: option.text

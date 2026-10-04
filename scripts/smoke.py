@@ -22,7 +22,9 @@ def main():
         config = temp / "config"
         config.mkdir()
         # Test reload in a disposable config, isolated from any running explorer.
-        for source in ROOT.rglob("*.qml"):
+        for source in ROOT.rglob("*"):
+            if not source.is_file() or source.suffix not in (".qml", ".svg"):
+                continue
             if any(part.startswith(".") for part in source.relative_to(ROOT).parts):
                 continue
             destination = config / source.relative_to(ROOT)
@@ -95,6 +97,24 @@ def main():
                 eventually(lambda: status()["loaded"] and not status()["dark"], "light story")
                 time.sleep(0.2)
                 capture("quickbook-light.png")
+                # Render real catalog compositions, including copied SVG assets.
+                cases = [
+                    ("ui-button", {"iconKind": "source", "iconPosition": "trailing"}, False, "quickui-button-icons.png"),
+                    ("ui-field", {"error": "This workspace name is already in use.", "required": True}, False, "quickui-field.png"),
+                    ("ui-range-slider", {"minimum": 25, "maximum": 75}, True, "quickui-range.png"),
+                    ("ui-checkbox", {"selectAll": True}, True, "quickui-checkbox-group.png"),
+                    ("ui-card", {"title": "Notification preferences", "size": "sm"}, False, "quickui-card.png"),
+                    ("ui-volume-control", {"rtl": True, "fontScale": 2}, True, "quickui-volume-rtl.png"),
+                    ("audio-mixer", {"scenario": "No default input", "panelNavigation": True}, False, "quickui-mixer-input.png"),
+                ]
+                for story, controls, dark, filename in cases:
+                    assert ipc("select", story) == "true"
+                    ipc("theme", str(dark).lower())
+                    for key, value in controls.items():
+                        assert ipc("control", key, json.dumps(value)) == "true", (story, key)
+                    eventually(lambda: status()["loaded"], story)
+                    time.sleep(0.1)
+                    capture(filename)
                 with (config / "shell.qml").open("a") as shell:
                     shell.write("\n// Trigger smoke-test hot reload.\n")
                 eventually(lambda: status()["story"] == "ui-button" and status()["loaded"], "hot reload")

@@ -37,6 +37,7 @@ Controls.Button {
     icon.color: labelColor
     contentItem: Item {
         id: content
+        clip: true
         // Keep the familiar inspection property while rendering only plain text.
         property string text: control.text
         readonly property bool showIcon: control.display !== Controls.Button.TextOnly && (control.icon.name.length > 0 || control.icon.source.toString().length > 0)

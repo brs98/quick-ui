@@ -40,8 +40,8 @@ Controls.RangeSlider {
     first.handle: Rectangle {
         id: firstHandle
         property alias value: control.first.value
-        readonly property real from: Math.min(control.from, control.to)
-        readonly property real to: Math.max(control.from, control.to)
+        readonly property real from: Math.min(control.from, control.second.value)
+        readonly property real to: Math.max(control.from, control.second.value)
         readonly property real stepSize: control.stepSize
         implicitWidth: control.theme.handleSize
         implicitHeight: implicitWidth
@@ -68,8 +68,8 @@ Controls.RangeSlider {
     second.handle: Rectangle {
         id: secondHandle
         property alias value: control.second.value
-        readonly property real from: Math.min(control.from, control.to)
-        readonly property real to: Math.max(control.from, control.to)
+        readonly property real from: Math.min(control.first.value, control.to)
+        readonly property real to: Math.max(control.first.value, control.to)
         readonly property real stepSize: control.stepSize
         implicitWidth: control.theme.handleSize
         implicitHeight: implicitWidth

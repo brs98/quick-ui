@@ -68,9 +68,19 @@ Item {
             compare(image.enabled, false);
             compare(image.focusPolicy, Qt.NoFocus);
             compare(image.Accessible.ignored, true);
-            spy.target = button; spy.signalName = "clicked";
+            spy.signalName = "clicked"; spy.target = button;
             mouseClick(image, image.width / 2, image.height / 2);
             compare(spy.count, 1, "Decorative icon must not intercept activation");
+        }
+        function test_constrainedIconDoesNotPaintOutsideButton() {
+            const button = make(buttonFactory, {width: 26});
+            button.icon.source = Qt.resolvedUrl("fixtures/presentation-icon.svg");
+            button.icon.color = "#ff0000";
+            button.display = Controls.Button.IconOnly;
+            wait(30);
+            const shot = grabImage(scene);
+            const point = button.mapToItem(scene, button.width + 2, button.height / 2);
+            verify(shot.green(Math.floor(point.x), Math.floor(point.y)) > 200, "Icon must not paint outside its button");
         }
 
         function test_displayPlainTextAndMirroring() {
@@ -115,7 +125,7 @@ Item {
             compare(icon.display, Controls.Button.IconOnly);
             verify(!label(icon).visible);
             compare(icon.Accessible.name, "Add workspace");
-            spy.target = icon; spy.signalName = "clicked";
+            spy.signalName = "clicked"; spy.target = icon;
             icon.forceActiveFocus(Qt.TabFocusReason);
             keyClick(Qt.Key_Space);
             compare(spy.count, 1);
@@ -129,7 +139,7 @@ Item {
         function test_loadingOwnerPolicyAndStableDimensions() {
             const story = make(buttonStoryFactory, {args: {iconKind: "source"}});
             const button = child(story, item => item.loading !== undefined);
-            spy.target = story; spy.signalName = "eventRaised";
+            spy.signalName = "eventRaised"; spy.target = story;
             button.forceActiveFocus(Qt.TabFocusReason);
             keyClick(Qt.Key_Space);
             compare(spy.count, 1);
@@ -190,9 +200,18 @@ Item {
             card.theme.card = "#123456";
             compare(card.background.color, "#123456");
             const action = child(card, item => item.text === "Continue");
-            spy.target = story; spy.signalName = "eventRaised";
+            spy.signalName = "eventRaised"; spy.target = story;
             mouseClick(action, action.width / 2, action.height / 2);
             compare(spy.count, 1);
+        }
+        function test_cardLongIdentifiersWrap() {
+            const text = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".repeat(3);
+            const story = make(cardStoryFactory, {width: 190, args: {title: text, description: text}});
+            for (const name of ["cardTitle", "cardDescription"]) {
+                const label = findChild(story, name);
+                tryVerify(() => label.contentWidth <= label.width + 1);
+                tryVerify(() => label.lineCount > 1);
+            }
         }
 
         function test_separatorSemantics() {

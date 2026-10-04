@@ -87,7 +87,7 @@ Item {
             compare(range.first.handle.Accessible.role, Accessible.Slider);
             compare(range.first.handle.value, range.first.value);
             compare(range.first.handle.from, 0);
-            compare(range.first.handle.to, 100);
+            compare(range.first.handle.to, 50);
             range.first.handle.value = 40;
             compare(range.first.value, 40);
             range.first.value = 45;
@@ -120,6 +120,21 @@ Item {
             range.accessibleStep(true, true);
             compare(range.first.value, 25);
             compare(moved.count, 1);
+        }
+        function test_rangeAccessibleBoundsFollowOtherThumb() {
+            const range = createTemporaryObject(rangeFactory, parent);
+            compare(range.first.handle.from, 0);
+            compare(range.first.handle.to, 80);
+            compare(range.second.handle.from, 20);
+            compare(range.second.handle.to, 100);
+            range.from = 100; range.to = 0;
+            range.setValues(80, 20);
+            compare(range.first.handle.from, 20);
+            compare(range.first.handle.to, 100);
+            compare(range.second.handle.from, 0);
+            compare(range.second.handle.to, 80);
+            range.second.value = 10;
+            compare(range.first.handle.from, 10);
         }
         function test_defaultMutedTextContrast() {
             const theme = createTemporaryObject(themeFactory, parent);

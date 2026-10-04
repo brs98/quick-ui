@@ -48,6 +48,8 @@ Item {
     Text {
         id: titleLabel
         objectName: "volumeTitle"
+        // Alignment below already follows the root's effective direction.
+        LayoutMirroring.enabled: false
         x: root.mirrored ? percentLabel.x + percentLabel.width + root.theme.spacing : root.theme.padding
         y: root.theme.padding
         width: Math.max(0, root.width - root.theme.padding * 2 - percentLabel.width - root.theme.spacing)
