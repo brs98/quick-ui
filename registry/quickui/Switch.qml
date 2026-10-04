@@ -33,7 +33,8 @@ Controls.Switch {
             y: (track.height - height) / 2
             width: height
             height: track.height - inset * 2
-            radius: Math.min(height / 2, control.theme.radius)
+            // Offset the outer contour so the track and thumb corners are concentric.
+            radius: Math.max(0, Math.min(height / 2, track.radius - inset))
             color: control.checked ? control.theme.accentForeground : control.theme.foreground
             Behavior on x {
                 enabled: !control.down
