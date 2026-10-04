@@ -37,6 +37,22 @@ FocusScope {
     property string focusSection: "output"
     property int selectedIndex: -1
     property bool cursorActive: false
+    readonly property string cursorLabel: {
+        if (!cursorActive) return qsTr("Audio mixer");
+        if (focusSection === "header") return anyAudible ? qsTr("Mute all audio") : qsTr("Unmute all audio");
+        if (selectedIndex >= 0 && focusSection !== "streams") {
+            const device = (focusSection === "input" ? inputs : outputs)[selectedIndex];
+            return device ? String(device.label) + (device.current ? ", " + qsTr("Current device") : "") : qsTr("Audio mixer");
+        }
+        if (focusSection === "streams") {
+            const stream = streams[selectedIndex];
+            return stream ? String(stream.label) + ", " + Math.round(bounded(stream.volume, 1.5) * 100) + "%" + (stream.muted ? ", " + qsTr("Muted") : "") : qsTr("Audio mixer");
+        }
+        const input = focusSection === "input";
+        return (input ? qsTr("Input") : qsTr("Output")) + ", " + ((input ? hasInput : hasOutput)
+            ? Math.round(bounded(input ? inputVolume : outputVolume, 1) * 100) + "%" + ((input ? inputMuted : outputMuted) ? ", " + qsTr("Muted") : "")
+            : qsTr("Unavailable"));
+    }
     readonly property bool anyAudible: (hasOutput && !outputMuted) || (hasInput && !inputMuted)
     readonly property bool inputVisible: hasInput || inputs.length > 0
     readonly property var cursorRows: {
@@ -65,7 +81,7 @@ FocusScope {
         for (const row of rows) {
             const key = String(row.id);
             const data = {key: key, label: String(row.label || ""), glyph: String(row.glyph || ""),
-                current: row.current === true, volume: bounded(Number(row.volume), 1.5), muted: row.muted === true};
+                description: String(row.description || ""), current: row.current === true, volume: bounded(Number(row.volume), 1.5), muted: row.muted === true};
             let existing = -1;
             for (let index = destination; index < model.count; ++index) {
                 if (model.get(index).key === key) { existing = index; break; }
@@ -84,6 +100,7 @@ FocusScope {
             }
         }
         repairCursor();
+        scheduleReveal(true);
     }
     onOutputsChanged: reconcile(outputModel, outputs, "output")
     onInputsChanged: reconcile(inputModel, inputs, "input")
@@ -113,7 +130,7 @@ FocusScope {
         const sameSection = cursorRows.filter(row => row.section === focusSection);
         if (!sameSection.length) { focusSection = "output"; selectedIndex = -1; }
         else selectedIndex = Math.max(sameSection[0].index, Math.min(sameSection[sameSection.length - 1].index, selectedIndex));
-        Qt.callLater(revealCursor);
+        scheduleReveal();
     }
     function cursorItem() {
         if (focusSection === "header") return hero;
@@ -131,7 +148,40 @@ FocusScope {
         else if (bottom > scroll.contentY + scroll.height)
             scroll.contentY = Math.max(0, Math.min(maximum, bottom - scroll.height));
     }
+    // An owned timer is cancelled when a story/panel is destroyed. Bare
+    // callLater callbacks can outlive the QML context during Loader changes.
+    Timer {
+        id: revealTimer
+        property bool repairFocus: false
+        interval: 0
+        onTriggered: {
+            const repair = repairFocus;
+            repairFocus = false;
+            if (repair) root.revealFocusOrCursor(); else root.revealCursor();
+        }
+    }
+    function scheduleReveal(repairFocus = false) {
+        if (!revealTimer) return;
+        revealTimer.repairFocus = revealTimer.repairFocus || repairFocus;
+        revealTimer.restart();
+    }
     function revealCursor() { if (cursorActive) ensureVisible(cursorItem()); }
+    function ensureControlVisible(control, row) {
+        ensureVisible(row && row.height <= scroll.height ? row : control);
+    }
+    function revealFocusOrCursor() {
+        if (!panelNavigation) {
+            const focused = root.Window.window ? root.Window.window.activeFocusItem : null;
+            let ancestor = focused;
+            let row = focused;
+            while (ancestor && ancestor !== contentColumn) {
+                if (ancestor instanceof VolumeControl) row = ancestor;
+                ancestor = ancestor.parent;
+            }
+            if (ancestor === contentColumn) { ensureControlVisible(focused, row); return; }
+        }
+        revealCursor();
+    }
     function moveCursor(direction) {
         const current = cursorRows.findIndex(row => row.section === focusSection && row.index === selectedIndex);
         const next = cursorRows[Math.max(0, Math.min(cursorRows.length - 1, current + direction))];
@@ -178,11 +228,20 @@ FocusScope {
     Keys.priority: Keys.BeforeItem
     Keys.onPressed: event => handleKey(event)
     onCursorRowsChanged: repairCursor()
-    onFocusSectionChanged: Qt.callLater(revealCursor)
-    onSelectedIndexChanged: Qt.callLater(revealCursor)
-    onCursorActiveChanged: Qt.callLater(revealCursor)
+    onFocusSectionChanged: scheduleReveal()
+    onSelectedIndexChanged: scheduleReveal()
+    onCursorActiveChanged: scheduleReveal()
     onPanelNavigationChanged: if (panelNavigation) panelKeys.forceActiveFocus()
-    Item { id: panelKeys; focus: root.panelNavigation }
+    Item {
+        id: panelKeys
+        objectName: "audioPanelKeys"
+        focus: root.panelNavigation
+        Accessible.role: Accessible.Pane
+        Accessible.ignored: !root.panelNavigation
+        Accessible.focusable: root.panelNavigation
+        Accessible.name: root.cursorLabel
+        Accessible.description: qsTr("Up and Down select a row. Left and Right adjust volume. Enter activates. M toggles mute. Escape closes.")
+    }
 
     Flickable {
         id: scroll
@@ -194,8 +253,8 @@ FocusScope {
         boundsBehavior: Flickable.StopAtBounds
         flickableDirection: Flickable.VerticalFlick
         interactive: contentHeight > height
-        onHeightChanged: Qt.callLater(root.revealCursor)
-        onContentHeightChanged: Qt.callLater(root.revealCursor)
+        onHeightChanged: root.scheduleReveal(true)
+        onContentHeightChanged: root.scheduleReveal(true)
         Controls.ScrollBar.vertical: Controls.ScrollBar {
             id: bar
             policy: Controls.ScrollBar.AsNeeded
@@ -216,7 +275,7 @@ FocusScope {
                 id: hero
                 objectName: "audioHeader"
                 width: parent.width
-                implicitHeight: Math.max(root.theme.controlHeight, heroLabels.implicitHeight)
+                implicitHeight: Math.max(root.theme.controlHeight, heroLabels.implicitHeight, heroGlyph.implicitHeight, masterSwitch.implicitHeight)
                 Rectangle {
                     anchors.fill: parent
                     radius: root.theme.radius
@@ -278,8 +337,13 @@ FocusScope {
                         checked = Qt.binding(function() { return root.anyAudible; });
                     }
                     onHoveredChanged: if (hovered) root.setCursor("header", -1)
-                    onActiveFocusChanged: if (activeFocus) root.ensureVisible(hero)
-                    ToolTip { theme: root.theme; visible: masterSwitch.hovered; text: masterSwitch.Accessible.name }
+                    onActiveFocusChanged: if (activeFocus) root.ensureVisible(masterSwitch)
+                    ToolTip {
+                        objectName: "audioMasterTooltip"
+                        theme: root.theme
+                        visible: masterSwitch.enabled && (masterSwitch.hovered || masterSwitch.visualFocus || (root.panelNavigation && panelKeys.activeFocus && root.hasCursor("header", -1)))
+                        text: masterSwitch.Accessible.name
+                    }
                 }
             }
             Separator { width: parent.width; theme: root.theme }
@@ -310,6 +374,7 @@ FocusScope {
                     width: contentColumn.width
                     theme: root.theme
                     text: model.label
+                    description: model.description
                     glyph: model.glyph || "♪"
                     current: model.current === true
                     cursorHighlighted: root.hasCursor("output", index)
@@ -329,6 +394,18 @@ FocusScope {
                 wrapMode: Text.WordWrap
             }
             Separator { width: parent.width; theme: root.theme; visible: root.inputVisible }
+            Text {
+                objectName: "audioInputHeading"
+                width: parent.width
+                visible: root.inputVisible
+                text: qsTr("Input")
+                color: root.theme.mutedForeground
+                font.family: root.theme.fontFamily
+                font.pixelSize: root.theme.smallFontSize
+                font.bold: true
+                Accessible.role: Accessible.Heading
+                Accessible.name: text
+            }
             VolumeControl {
                 id: inputControl
                 objectName: "audioInput"
@@ -359,6 +436,7 @@ FocusScope {
                     width: contentColumn.width
                     theme: root.theme
                     text: model.label
+                    description: model.description
                     glyph: model.glyph || "●"
                     current: model.current === true
                     cursorHighlighted: root.hasCursor("input", index)
@@ -400,14 +478,14 @@ FocusScope {
                     onVolumeRequested: value => root.streamVolumeRequested(model.key, root.bounded(value, 1.5))
                     onMuteRequested: root.streamMuteRequested(model.key)
                     onHovered: root.setCursor("streams", index)
-                    Connections { target: streamControl.slider; function onActiveFocusChanged() { if (streamControl.slider.activeFocus) root.ensureVisible(streamControl); } }
-                    Connections { target: streamControl.muteButton; function onActiveFocusChanged() { if (streamControl.muteButton.activeFocus) root.ensureVisible(streamControl); } }
+                    Connections { target: streamControl.slider; function onActiveFocusChanged() { if (streamControl.slider.activeFocus) root.ensureControlVisible(streamControl.slider, streamControl); } }
+                    Connections { target: streamControl.muteButton; function onActiveFocusChanged() { if (streamControl.muteButton.activeFocus) root.ensureControlVisible(streamControl.muteButton, streamControl); } }
                 }
             }
         }
     }
-    Connections { target: outputControl.slider; function onActiveFocusChanged() { if (outputControl.slider.activeFocus) root.ensureVisible(outputControl); } }
-    Connections { target: outputControl.muteButton; function onActiveFocusChanged() { if (outputControl.muteButton.activeFocus) root.ensureVisible(outputControl); } }
-    Connections { target: inputControl.slider; function onActiveFocusChanged() { if (inputControl.slider.activeFocus) root.ensureVisible(inputControl); } }
-    Connections { target: inputControl.muteButton; function onActiveFocusChanged() { if (inputControl.muteButton.activeFocus) root.ensureVisible(inputControl); } }
+    Connections { target: outputControl.slider; function onActiveFocusChanged() { if (outputControl.slider.activeFocus) root.ensureControlVisible(outputControl.slider, outputControl); } }
+    Connections { target: outputControl.muteButton; function onActiveFocusChanged() { if (outputControl.muteButton.activeFocus) root.ensureControlVisible(outputControl.muteButton, outputControl); } }
+    Connections { target: inputControl.slider; function onActiveFocusChanged() { if (inputControl.slider.activeFocus) root.ensureControlVisible(inputControl.slider, inputControl); } }
+    Connections { target: inputControl.muteButton; function onActiveFocusChanged() { if (inputControl.muteButton.activeFocus) root.ensureControlVisible(inputControl.muteButton, inputControl); } }
 }

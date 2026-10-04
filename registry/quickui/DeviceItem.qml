@@ -5,6 +5,7 @@ Controls.ItemDelegate {
     id: control
     property Theme theme: Theme {}
     property string glyph: ""
+    property string description: ""
     property bool current: false
     property bool cursorHighlighted: false
     implicitWidth: 280
@@ -15,32 +16,62 @@ Controls.ItemDelegate {
     opacity: enabled ? 1 : theme.disabledOpacity
     font.family: theme.fontFamily
     font.pixelSize: theme.fontSize
+    Accessible.role: Accessible.ListItem
+    Accessible.selectable: true
+    Accessible.focusable: enabled && focusPolicy !== Qt.NoFocus
+    Accessible.onPressAction: control.click()
+    Accessible.selected: current
     Accessible.name: text
-    Accessible.description: current ? qsTr("Current device") : ""
+    Accessible.description: [description, current ? qsTr("Current device") : ""].filter(part => part.length > 0).join(". ")
     contentItem: Row {
+        // Control.mirrored already includes inherited LayoutMirroring.
+        LayoutMirroring.enabled: false
+        layoutDirection: control.mirrored ? Qt.RightToLeft : Qt.LeftToRight
         spacing: control.spacing
         Text {
+            objectName: "deviceGlyph"
             width: visible ? control.font.pixelSize * 1.5 : 0
             visible: control.glyph.length > 0
             text: control.glyph
             textFormat: Text.PlainText
             font: control.font
             color: control.theme.mutedForeground
+            Accessible.ignored: true
         }
-        Text {
+        Column {
+            spacing: Math.max(2, control.theme.spacing / 2)
             width: Math.max(0, control.availableWidth - (control.glyph.length ? control.font.pixelSize * 1.5 + control.spacing : 0) - indicator.width - control.spacing)
-            text: control.text
-            textFormat: Text.PlainText
-            font: control.font
-            color: control.theme.foreground
-            elide: Text.ElideRight
+            Text {
+                width: parent.width
+                text: control.text
+                textFormat: Text.PlainText
+                font: control.font
+                color: control.theme.foreground
+                horizontalAlignment: control.mirrored ? Text.AlignRight : Text.AlignLeft
+                elide: Text.ElideRight
+                Accessible.ignored: true
+            }
+            Text {
+                width: parent.width
+                visible: text.length > 0
+                text: control.description
+                textFormat: Text.PlainText
+                font.family: control.font.family
+                font.pixelSize: control.theme.smallFontSize
+                color: control.theme.mutedForeground
+                horizontalAlignment: control.mirrored ? Text.AlignRight : Text.AlignLeft
+                wrapMode: Text.WordWrap
+                Accessible.ignored: true
+            }
         }
         Text {
             id: indicator
+            objectName: "deviceCurrentMark"
             width: control.font.pixelSize * 1.5
             text: control.current ? "✓" : ""
             font: control.font
             color: control.theme.accent
+            Accessible.ignored: true
         }
     }
     background: Rectangle {

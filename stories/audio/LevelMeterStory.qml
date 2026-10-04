@@ -12,7 +12,7 @@ Item {
     UI.Theme { id: tokens; dark: root.dark }
     Text {
         anchors.top: parent.top
-        text: "Input level · " + Math.round((root.args.value ?? 0.35) * 100) + "%"
+        text: "Input level · " + Math.round(meter.boundedValue * 100) + "%"
         color: tokens.foreground
         font.family: tokens.fontFamily
         font.pixelSize: tokens.fontSize

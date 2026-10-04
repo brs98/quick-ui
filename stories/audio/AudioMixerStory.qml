@@ -15,6 +15,8 @@ Item {
     property var localInputs: []
     property var localStreams: []
     signal eventRaised(string name, var payload)
+    LayoutMirroring.enabled: args.rtl === true
+    LayoutMirroring.childrenInherit: true
     implicitWidth: 400
     implicitHeight: 600
 
@@ -52,7 +54,7 @@ Item {
     }
     onArgsChanged: if (initialized) resetState()
     Component.onCompleted: { initialized = true; resetState(); }
-    UI.Theme { id: tokens; dark: root.dark }
+    UI.Theme { id: tokens; dark: root.dark; fontScale: root.args.fontScale ?? 1 }
     UI.AudioMixer {
         id: mixer
         anchors.fill: parent
@@ -62,7 +64,7 @@ Item {
         inputs: root.localInputs
         streams: root.localStreams
         hasOutput: root.localOutputs.length > 0
-        hasInput: root.localInputs.length > 0
+        hasInput: root.localInputs.length > 0 && root.args.scenario !== "No default input"
         outputVolume: root.localOutputVolume
         inputVolume: root.localInputVolume
         outputMuted: root.localOutputMuted
