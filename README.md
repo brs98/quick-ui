@@ -35,10 +35,11 @@ Item {
 }
 ```
 
-The foundation contains **10 primitives**: `button`, `icon-button`, `text-field`,
-`switch`, `checkbox`, `slider`, `select`, `card`, `badge`, and `separator`, plus
-`theme`. The audio milestone adds **five entries**: `tooltip`, `level-meter`,
-`device-item`, `volume-control`, and `audio-mixer` — **15 components plus Theme**.
+The foundation contains **12 components**: `button`, `icon-button`, `text-field`,
+`field`, `switch`, `checkbox`, `slider`, `range-slider`, `select`, `card`, `badge`,
+and `separator`. Audio adds **five components**: `tooltip`, `level-meter`,
+`device-item`, `volume-control`, and `audio-mixer` — **17 public components plus
+Theme**, with an internal `icon-graphic` rendering dependency.
 `./quickui list` shows their source files and dependencies.
 
 `add` preserves recorded, customized dependencies and refuses to overwrite edited

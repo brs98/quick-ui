@@ -21,20 +21,27 @@ Foundation registry entries:
 | button | Button | theme |
 | icon-button | IconButton | button |
 | text-field | TextField | theme |
+| field | Field | theme |
 | switch | Switch | theme |
 | checkbox | CheckBox | theme |
 | slider | Slider | theme |
+| range-slider | RangeSlider | theme |
 | select | Select | theme |
 | card | Card | theme |
 | badge | Badge | theme |
 | separator | Separator | theme |
 
-Button variants: `primary`, `secondary`, `ghost`, `destructive`. IconButton extends
+Button variants: `primary`, `secondary`, `ghost`, `outline`, `destructive`. IconButton extends
 Button and accepts `accessibleLabel` for its nonvisual name. TextField, Switch,
 CheckBox, Slider, and Select follow Qt Quick Controls APIs (`text`, `checked`,
 `value`, `model`, `currentIndex`, and their native interaction signals). Card is a
-Pane with padded default content. Badge has `text` and `variant` (`neutral`,
-`accent`, `destructive`). Separator has `vertical` (default false).
+Pane with one padded layout child. Badge has `text` and `variant` (`neutral`,
+`accent`, `outline`, `destructive`), icons, status dots, and busy presentation.
+Separator has `vertical` and opt-in `semantic` (both default false).
+Button and Badge additionally depend on internal `icon-graphic` for native Qt
+icon lookup/tint/fallback without importing private Qt implementation modules.
+Field composes a labeled control with consumer-owned errors. RangeSlider retains
+Qt's native two-handle API; each handle has its own accessible name and value.
 
 The installer must resolve dependencies before writing, reject unknown entries,
 keep paths inside the target project, and refuse to overwrite edited explicit targets or unrelated

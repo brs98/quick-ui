@@ -18,22 +18,30 @@ UI.Switch { theme: appearance; text: "Notifications" }
 
 | Registry entry / QML type | Main API | User interaction |
 | --- | --- | --- |
-| `button` / `UI.Button` | `text`, `variant`, `enabled`, `checkable`, `checked` | Native `clicked`, `toggled`; Space activation and Tab focus |
+| `button` / `UI.Button` | Native `text`, `icon`, `display`; `variant`, `size`, `iconPosition`, `loading` | Native `clicked`, `toggled`; Space activation and Tab focus |
 | `icon-button` / `UI.IconButton` | Button API; text glyph and `accessibleLabel` | Native button behavior with a nonvisual label |
-| `text-field` / `UI.TextField` | `text`, `placeholderText`, `readOnly`, `validator`, `echoMode` | `textEdited`, `accepted`; native editing and selection |
-| `switch` / `UI.Switch` | `text`, `checked`, `enabled` | `toggled`; Space and pointer activation |
-| `checkbox` / `UI.CheckBox` | `text`, `checked`, `tristate`, `checkState` | `toggled`, native tristate and keyboard behavior |
+| `text-field` / `UI.TextField` | `text`, `placeholderText`, `readOnly`, `validator`, `echoMode`, `invalid`, `size` | `textEdited`, `accepted`; native editing and selection |
+| `field` / `UI.Field` | `label`, `description`, `errorText`, `requiredIndicator`, `invalid`, `control` | Label focuses its control; associates accessible name and feedback |
+| `switch` / `UI.Switch` | `text`, `checked`, `description`, `multiline`, `invalid`, `size` | `toggled`; Space and pointer activation |
+| `checkbox` / `UI.CheckBox` | Switch presentation API; `tristate`, `checkState` | `toggled`, native tristate and keyboard behavior |
 | `slider` / `UI.Slider` | `from`, `to`, `stepSize`, `value`, `orientation` | `moved`; keyboard, drag, and track click |
-| `select` / `UI.Select` | `model`, `textRole`, `currentIndex`, `currentText`, `editable` | `activated`; popup, keyboard selection, scrolling |
-| `card` / `UI.Card` | Native Pane, `padding`, default QML content | Compose ordinary items/layouts inside it |
-| `badge` / `UI.Badge` | `text`, `variant` | Status display |
-| `separator` / `UI.Separator` | `vertical`; set width/height for your layout | Decorative divider |
+| `range-slider` / `UI.RangeSlider` | `first.value`, `second.value`, `from`, `to`, `orientation`, `stepSize`, per-handle accessible names | Native independent handle focus, `first.moved`, `second.moved` |
+| `select` / `UI.Select` | Native ComboBox API; `placeholderText`, `invalid`, `size`, `enabledRole` | `activated`; popup, available-option navigation, scrolling |
+| `card` / `UI.Card` | Native Pane, `padding`, `size`, one layout child | Compose header, body, and footer in the layout |
+| `badge` / `UI.Badge` | `text`, `variant`, `icon`, `statusDot`, `busy` | Noninteractive status label; constrained text elides |
+| `separator` / `UI.Separator` | `vertical`, `semantic`; set width/height for your layout | Decorative by default; optional accessible separator |
 
-Button variants are `primary`, `secondary`, `ghost`, and `destructive`. Badge
-variants are `neutral`, `accent`, and `destructive`. Labels render plain text.
-Button and IconButton render text/glyphs in this version; Qt's `icon.name` and
-`icon.source` properties are inherited but not rendered. A dedicated image/icon
-system is deferred.
+Button variants are `primary`, `secondary`, `ghost`, `outline`, and `destructive`.
+Badge variants are `neutral`, `accent`, `outline`, and `destructive`. Labels render
+plain text. Button, IconButton, and Badge render Qt theme icons and source images,
+including native fallback from `icon.name` to `icon.source`. `icon.color:
+"transparent"` preserves source colors; otherwise icons use their themed tint.
+The installer includes the internal `icon-graphic` dependency automatically. It is
+a decorative renderer, not a separate interactive control.
+
+`size` accepts `sm`, `default`, and `lg`; explicit dimensions/padding still win.
+IconButton keeps a square shape. Always supply an action name via
+`accessibleLabel` (or `Accessible.name`), especially when `text` is a symbol.
 
 Controls preserve Qt's native state ownership: user interaction can change
 `checked`, `text`, `value`, or `currentIndex`. Use the native interaction signals to
@@ -43,7 +51,79 @@ args or resetting a preset restores wrapper-local state.
 
 Provide `Accessible.name` for fields, sliders, and selects without visible labels.
 IconButton's `accessibleLabel` supplies its name. Keyboard/focus behavior is tested;
-full screen-reader and cross-compositor accessibility audits remain future work.
+native accessibility values, selected states, actions, and the panel cursor are
+also checked through QAccessible. Full screen-reader and cross-compositor audits
+remain separate from those interface checks.
+
+## Composition recipes
+
+Field keeps validation timing with the consumer. A validator may consider an
+unfinished edit intermediate; that alone must not display an error. Set `invalid`
+on a control explicitly, or let Field bind it from `errorText`:
+
+```qml
+// ./quickui add field text-field --cwd ~/my-shell
+// Also import QtQuick.Layouts in this consumer.
+UI.Field {
+    theme: tokens
+    width: 300
+    label: "Workspace name"
+    description: "Shown in the workspace switcher."
+    requiredIndicator: true
+    errorText: submitted && name.text.length === 0 ? "Enter a name." : ""
+    UI.TextField { id: name; theme: tokens; Layout.fillWidth: true }
+}
+```
+
+The first child is the default `control`; assign `control` explicitly for more
+complex content. Field binds its name/description while `manageAccessibility` is
+true, restoring prior values/bindings when disabled. Set it false to own those
+properties yourself. Required indication is descriptive; validation and submission
+remain application responsibilities. Switch and CheckBox can instead use their
+integrated `description` and `multiline` properties for clickable settings rows.
+
+Buttons support leading/trailing icons with RTL-aware `iconPosition`, and native
+`TextOnly`, `IconOnly`, `TextBesideIcon`, and `TextUnderIcon` display modes. Loading
+preserves content dimensions and exposes a loading description:
+
+```qml
+UI.Button {
+    theme: tokens
+    text: "Save changes"
+    icon.name: "document-save"
+    icon.source: "icons/save.svg" // consumer-owned fallback
+    loading: saving
+    onClicked: {
+        if (loading) return; // preserve focus while rejecting repeated requests
+        saveRequested();
+    }
+}
+```
+
+`loading` is presentation only. Guard the action as above, or bind
+`enabled: !loading` if disabling the control is the desired policy. Badge's `busy`
+is likewise presentation only. Both respect `motionDuration: 0`.
+
+Select supports an unselected state through `currentIndex: -1` and
+`placeholderText`. Set `enabledRole: "available"` for model rows whose boolean
+`available` role is false to be skipped by pointer, keyboard, and wheel selection.
+Missing roles remain available. Programmatic `currentIndex` remains consumer-owned;
+the component does not silently choose a new device when availability changes.
+Editable ComboBox completion remains native; it is not a filtered search popup.
+
+Slider retains native `live`, `snapMode`, `stepSize`, and `orientation`. Use
+`live: false` for pointer-release updates, and `SnapAlways` with `stepSize` for
+snapped dragging. Keyboard changes remain immediate. SliderStory demonstrates a
+`valueCommitted` event recipe that combines `moved` and `pressed` without treating
+programmatic updates as user commits. RangeSlider adds two native handles;
+provide descriptive `firstAccessibleName` and `secondAccessibleName` values.
+
+Card uses one content child, normally `ColumnLayout { width: card.availableWidth }`.
+Two unrelated direct children neither stack nor determine Pane's content size.
+The Card story shows a wrapping title, body, and responsive footer actions;
+ordinary layouts can add header actions without new slot APIs. Use
+`Layout.fillWidth`/`Layout.fillHeight` for separators in layouts. `semantic: true`
+includes a separator in the accessibility tree without adding a keyboard stop.
 
 ## Audio controls and blocks
 
@@ -62,8 +142,14 @@ Editable tokens include:
 - Semantic colors: `background`, `surface`, `surfaceHover`, `foreground`,
   `mutedForeground`, `border`, `accent`, `accentForeground`, `destructive`,
   `destructiveForeground`, and `focus`.
+- Overridable role pairs: `primary`/`primaryForeground`,
+  `selection`/`selectionForeground`, `popup`/`popupForeground`, and
+  `card`/`cardForeground`. They default to the original accent/surface tokens.
 - Typography: `fontFamily`, `fontSize`, `smallFontSize`.
 - Geometry: `radius`, `controlHeight`, `padding`, `spacing`, `borderWidth`, `focusWidth`.
+- Scale: `fontScale` (default 1), `density` (`compact`, `default`, `comfortable`),
+  `radiusSmall`, `radiusLarge`, and `handleSize`. `heightFor(size)` and
+  `paddingFor(size)` derive per-control sizes. Direct token overrides remain valid.
 - Behavior: `motionDuration` (set to `0` to disable themed animations), `disabledOpacity`.
 
 Default colors follow `dark`. Explicit color overrides belong to you: when changing
