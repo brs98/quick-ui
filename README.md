@@ -123,7 +123,6 @@ Qt 6 development tools and Python 3 are needed for the checks. On Arch, Qt 5 too
 
 ```sh
 ./scripts/test
-python3 -m unittest discover -s tests -p test_launcher.py
 python3 scripts/smoke.py
 ```
 
