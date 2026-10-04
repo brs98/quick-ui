@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+root=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)
+runner=${QMLTESTRUNNER:-/usr/lib/qt6/bin/qmltestrunner}
+if [[ ! -x "$runner" ]]; then
+    runner=$(command -v qmltestrunner6 || command -v qmltestrunner || true)
+fi
+if [[ -z "$runner" || ! -x "$runner" ]]; then
+    echo "Qt 6 qmltestrunner is required. Set QMLTESTRUNNER to its path." >&2
+    exit 1
+fi
+
+export QT_QPA_PLATFORM=offscreen
+export QT_QUICK_BACKEND=software
+export QT_FORCE_STDERR_LOGGING=1
+exec "$runner" -input "$root/tests" "$@"
