@@ -3,6 +3,7 @@ pragma ComponentBehavior: Bound
 import QtQuick
 import QtQuick.Controls.Basic
 import QtQuick.Layouts
+import "../registry/quickui" as UI
 
 Rectangle {
     id: root
@@ -16,8 +17,9 @@ Rectangle {
         anchors.fill: parent
         anchors.margins: 16
         spacing: 18
-        UiField {
+        UI.TextField {
             id: search
+            Accessible.name: "Find a component"
             objectName: root.searchName
             Layout.fillWidth: true
             theme: root.theme
@@ -42,7 +44,8 @@ Rectangle {
                 required property var modelData
                 width: storyList.width
                 height: 65
-                objectName: root.searchName === "compactStorySearch" ? "compactStoryEntry" : "storyEntry"
+                Accessible.name: "Find a component"
+            objectName: root.searchName === "compactStorySearch" ? "compactStoryEntry" : "storyEntry"
                 onClicked: { root.modelState.select(modelData.index); root.selected(); }
                 background: Rectangle {
                     radius: 8
@@ -71,7 +74,7 @@ Rectangle {
                 font.pixelSize: 12
             }
         }
-        Rectangle { Layout.fillWidth: true; implicitHeight: 1; color: root.theme.line }
+        UI.Separator { theme: root.theme; Layout.fillWidth: true }
         Text { text: "YOUR COMPONENT WORKBENCH"; color: root.theme.muted; font.pixelSize: 9; font.letterSpacing: 0.8 }
         Text { text: "Edit. Explore. Make it yours.\nChanges reload as you save."; color: root.theme.muted; font.pixelSize: 11; lineHeight: 1.5 }
     }

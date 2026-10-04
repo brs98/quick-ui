@@ -3,6 +3,7 @@ pragma ComponentBehavior: Bound
 import QtQuick
 import QtQuick.Controls.Basic
 import QtQuick.Layouts
+import "../registry/quickui" as UI
 
 Rectangle {
     id: root
@@ -64,17 +65,23 @@ Rectangle {
                     Text { anchors.centerIn: parent; text: "Q"; color: colors.bg; font.pixelSize: 21; font.bold: true }
                 }
                 Text { text: "Quickbook"; color: colors.text; font.pixelSize: 20; font.weight: Font.DemiBold }
-                Rectangle { visible: !root.compact; implicitWidth: 1; implicitHeight: 20; color: colors.line; Layout.leftMargin: 10; Layout.rightMargin: 10 }
+                UI.Separator { theme: colors; visible: !root.compact; vertical: true; Layout.preferredHeight: 20; Layout.leftMargin: 10; Layout.rightMargin: 10 }
                 Text { visible: !root.compact; text: "A little space for your components."; color: colors.muted; font.pixelSize: 12; Layout.fillWidth: true }
-                UiButton { theme: colors; text: "Components"; visible: root.compact; onClicked: root.focusSearch() }
+                UI.Button { variant: "outline"; theme: colors; text: "Components"; visible: root.compact; onClicked: root.focusSearch() }
                 Item { visible: root.compact; Layout.fillWidth: true }
                 Rectangle { visible: !root.compact; implicitWidth: 6; implicitHeight: 6; radius: 3; color: colors.green }
                 Text { visible: !root.compact; text: "LIVE QML"; color: colors.muted; font.pixelSize: 10; font.letterSpacing: 1; Layout.rightMargin: 12 }
-                UiButton { theme: colors; text: modelState.dark ? "Light theme" : "Dark theme"; onClicked: modelState.dark = !modelState.dark }
-                UiButton { theme: colors; text: "Reload"; onClicked: root.reloadRequested(); ToolTip.visible: hovered; ToolTip.text: "Reload QML · Ctrl+R" }
+                UI.Button { variant: "outline"; theme: colors; text: modelState.dark ? "Light theme" : "Dark theme"; onClicked: modelState.dark = !modelState.dark }
+                UI.Button {
+                    id: reloadButton
+                    theme: colors; variant: "outline"; text: "Reload"
+                    Accessible.description: "Reload QML · Ctrl+R"
+                    onClicked: root.reloadRequested()
+                    UI.ToolTip { theme: colors; text: reloadButton.Accessible.description; visible: reloadButton.hovered || reloadButton.activeFocus; placement: "bottom" }
+                }
             }
         }
-        Rectangle { Layout.fillWidth: true; implicitHeight: 1; color: colors.line }
+        UI.Separator { theme: colors; Layout.fillWidth: true }
         RowLayout {
             Layout.fillWidth: true
             Layout.fillHeight: true
@@ -87,7 +94,7 @@ Rectangle {
                 theme: colors
                 modelState: root.explorerState
             }
-            Rectangle { visible: !root.compact; Layout.fillHeight: true; implicitWidth: 1; color: colors.line }
+            UI.Separator { theme: colors; visible: !root.compact; vertical: true; Layout.fillHeight: true }
             ColumnLayout {
                 Layout.fillWidth: true
                 Layout.fillHeight: true
@@ -113,7 +120,7 @@ Rectangle {
                         }
                     }
                 }
-                Rectangle { Layout.fillWidth: true; implicitHeight: 1; color: colors.line }
+                UI.Separator { theme: colors; Layout.fillWidth: true }
                 Item {
                     Layout.fillWidth: true
                     Layout.preferredHeight: 56
@@ -123,24 +130,26 @@ Rectangle {
                         anchors.rightMargin: 20
                         spacing: 8
                         Text { visible: !root.compact; text: "CANVAS"; color: colors.muted; font.pixelSize: 10; font.letterSpacing: 1; Layout.fillWidth: true }
-                        UiSelect {
+                        UI.Select {
                             theme: colors
+                            Accessible.name: "Canvas width"
                             model: ["Fit to canvas", "Compact · 360", "Wide · 640"]
                             implicitWidth: 150
                             currentIndex: modelState.viewportWidth === 360 ? 1 : modelState.viewportWidth === 640 ? 2 : 0
                             onActivated: modelState.viewportWidth = [0, 360, 640][currentIndex]
                         }
-                        UiSelect {
+                        UI.Select {
                             theme: colors
+                            Accessible.name: "Canvas height"
                             model: ["Auto height", "240 px", "360 px", "480 px"]
                             implicitWidth: 110
                             currentIndex: [0, 240, 360, 480].indexOf(modelState.viewportHeight)
                             onActivated: modelState.viewportHeight = [0, 240, 360, 480][currentIndex]
                         }
-                        UiButton { theme: colors; text: "Grid"; selected: modelState.grid; onClicked: modelState.grid = !modelState.grid }
+                        UI.Button { theme: colors; text: "Grid"; variant: modelState.grid ? "primary" : "outline"; Accessible.checkable: true; Accessible.checked: modelState.grid; onClicked: modelState.grid = !modelState.grid }
                     }
                 }
-                Rectangle { Layout.fillWidth: true; implicitHeight: 1; color: colors.line }
+                UI.Separator { theme: colors; Layout.fillWidth: true }
                 Item {
                     id: stage
                     Layout.fillWidth: true
@@ -213,7 +222,7 @@ Rectangle {
                         color: colors.muted; font.pixelSize: 9; font.letterSpacing: 1
                     }
                 }
-                Rectangle { Layout.fillWidth: true; implicitHeight: 1; color: colors.line }
+                UI.Separator { theme: colors; Layout.fillWidth: true }
                 Rectangle {
                     Layout.fillWidth: true
                     Layout.preferredHeight: root.height < 780 ? 120 : 178
@@ -226,11 +235,11 @@ Rectangle {
                         spacing: 10
                         RowLayout {
                             Layout.fillWidth: true
-                            UiButton { theme: colors; text: "Events  ·  " + modelState.events.length; selected: inspector.tab === 0; onClicked: inspector.tab = 0 }
-                            UiButton { theme: colors; text: "Arguments"; selected: inspector.tab === 1; onClicked: inspector.tab = 1 }
-                            UiButton { theme: colors; text: "Usage"; visible: !!(modelState.story && modelState.story.usage); selected: inspector.tab === 2; onClicked: inspector.tab = 2 }
+                            UI.Button { theme: colors; text: "Events  ·  " + modelState.events.length; variant: inspector.tab === 0 ? "primary" : "outline"; Accessible.selected: inspector.tab === 0; onClicked: inspector.tab = 0 }
+                            UI.Button { theme: colors; text: "Arguments"; variant: inspector.tab === 1 ? "primary" : "outline"; Accessible.selected: inspector.tab === 1; onClicked: inspector.tab = 1 }
+                            UI.Button { theme: colors; text: "Usage"; visible: !!(modelState.story && modelState.story.usage); variant: inspector.tab === 2 ? "primary" : "outline"; Accessible.selected: inspector.tab === 2; onClicked: inspector.tab = 2 }
                             Item { Layout.fillWidth: true }
-                            UiButton { theme: colors; text: "Clear"; visible: inspector.tab === 0; enabled: modelState.events.length > 0; onClicked: modelState.events = [] }
+                            UI.Button { variant: "outline"; theme: colors; text: "Clear"; visible: inspector.tab === 0; enabled: modelState.events.length > 0; onClicked: modelState.events = [] }
                         }
                         ListView {
                             id: eventList
@@ -280,7 +289,7 @@ Rectangle {
                     }
                 }
             }
-            Rectangle { Layout.fillHeight: true; implicitWidth: 1; color: colors.line }
+            UI.Separator { theme: colors; vertical: true; Layout.fillHeight: true }
             Rectangle {
                 Layout.preferredWidth: root.compact ? 240 : 276
                 Layout.fillHeight: true
@@ -296,14 +305,15 @@ Rectangle {
                     }
                     Text { Layout.fillWidth: true; wrapMode: Text.WordWrap; text: "Start with a state. Then make it your own."; color: colors.muted; font.pixelSize: 10 }
                     Text { text: "PRESET"; color: colors.muted; font.pixelSize: 10; font.letterSpacing: 1 }
-                    UiSelect {
+                    UI.Select {
                         theme: colors
                         Layout.fillWidth: true
+                        Accessible.name: "Story preset"
                         model: modelState.story ? modelState.story.presets.map(p => p.name) : []
                         currentIndex: modelState.presetIndex
                         onActivated: modelState.preset(currentIndex)
                     }
-                    Rectangle { Layout.fillWidth: true; implicitHeight: 1; color: colors.line }
+                    UI.Separator { theme: colors; Layout.fillWidth: true }
                     ScrollView {
                         Layout.fillWidth: true
                         Layout.fillHeight: true
@@ -325,20 +335,21 @@ Rectangle {
                             }
                         }
                     }
-                    Rectangle { Layout.fillWidth: true; implicitHeight: 1; color: colors.line }
-                    UiButton {
+                    UI.Separator { theme: colors; Layout.fillWidth: true }
+                    UI.Button { variant: "outline";
                         theme: colors
+                        id: resetButton
                         text: "Reset to preset"
                         Layout.fillWidth: true
                         onClicked: modelState.reset()
-                        ToolTip.visible: hovered
-                        ToolTip.text: "Restore the current preset · Ctrl+0"
+                        Accessible.description: "Restore the current preset · Ctrl+0"
+                        UI.ToolTip { theme: colors; text: resetButton.Accessible.description; visible: resetButton.hovered || resetButton.activeFocus }
                     }
                     Text { text: "Mock data. Real components."; color: colors.muted; font.pixelSize: 10; Layout.alignment: Qt.AlignHCenter }
                 }
             }
         }
-        Rectangle { Layout.fillWidth: true; implicitHeight: 1; color: colors.line }
+        UI.Separator { theme: colors; Layout.fillWidth: true }
         Item {
             Layout.fillWidth: true
             Layout.preferredHeight: 28

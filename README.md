@@ -105,7 +105,7 @@ Explicit display and Qt platform settings are preserved, including `QT_QPA_PLATF
 
 ## What’s included
 
-- Direct previews for all 15 QuickUI components, including the complete audio mixer, a shared-theme playground, and three clearly labeled legacy examples.
+- Direct previews for all 17 QuickUI components, including the complete audio mixer, a shared-theme playground, and three example compositions.
 - Compact layout for narrow tiled windows; use **Components** or `Ctrl+K` to browse.
 - Light/dark presets and explicit text, boolean, number, and select controls.
 - A Usage tab with install commands and QML snippets for every library entry.
@@ -114,7 +114,7 @@ Explicit display and Qt platform settings are preserved, including `QT_QPA_PLATF
 - Reset to the selected preset, automatic QML reload, and a manual reload button.
 - IPC for selecting stories, setting controls, and exporting native PNG screenshots.
 
-The previews use the exact QML files distributed by the installer. The examples use mock data. Volume and notification interactions never change your desktop services.
+The explorer itself and its previews use the exact QML files distributed by the installer. Its shared theme extends QuickUI, and its buttons, fields, selects, switches, sliders, tooltips, and separators exercise the library during everyday use. The examples use mock data. Volume and notification interactions never change your desktop services.
 
 | Shortcut | Action |
 | --- | --- |
