@@ -8,6 +8,7 @@ import "ui" as UI
 // All interactions below are local mock state; connect services in your own shell.
 ShellRoot {
     id: root
+    property bool amberAccent: false
     property string lastAction: "Ready to make it yours"
     UI.Theme { id: libraryTheme }
 
@@ -104,11 +105,14 @@ ShellRoot {
                             }
                             UI.Button {
                                 theme: libraryTheme
+                                id: cycleAccentButton
                                 text: "Try a new color"
                                 variant: "secondary"
                                 onClicked: {
-                                    libraryTheme.accent = libraryTheme.accent.toString() === "#f2b880"
-                                        ? "#b4a0ff" : "#f2b880"
+                                    root.amberAccent = !root.amberAccent
+                                    libraryTheme.accent = Qt.binding(() => root.amberAccent
+                                        ? (libraryTheme.dark ? "#f2b880" : "#92501a")
+                                        : (libraryTheme.dark ? "#b4a0ff" : "#7152cf"))
                                     root.lastAction = "Every component now shares the new accent"
                                 }
                             }
@@ -250,6 +254,7 @@ ShellRoot {
         }
         function theme(dark: bool): void { libraryTheme.dark = dark; }
         function accent(color: string): void { libraryTheme.accent = color; }
+        function cycleAccent(): void { cycleAccentButton.clicked(); }
         function apply(): void { applyButton.clicked(); }
         function capture(path: string): bool {
             return page.grabToImage(result => {

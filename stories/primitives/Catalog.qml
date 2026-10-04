@@ -5,7 +5,7 @@ QtObject {
     {
         "id": "ui-button",
         "installName": "button",
-        "usage": "./quickui init --cwd ~/my-shell\n./quickui add button --cwd ~/my-shell\n\n// In your shell.qml (inside a window):\nimport \"ui\" as UI\n\nUI.Theme { id: theme; dark: true; accent: \"#72dce8\" }\nUI.Button { theme: theme; text: \"Save changes\"; onClicked: console.log(\"saved\") }\n\nSource: registry/quickui/Button.qml\nInstalled source is yours to edit. Shared dependencies are preserved.",
+        "usage": "./quickui init --cwd ~/my-shell\n./quickui add button --cwd ~/my-shell\n\n// In your shell.qml (inside a window):\nimport \"ui\" as UI\n\nUI.Theme { id: tokens; dark: true; accent: \"#72dce8\" }\nUI.Button { theme: tokens; text: \"Save changes\"; onClicked: console.log(\"saved\") }\n\nSource: registry/quickui/Button.qml\nInstalled source is yours to edit. Shared dependencies are preserved.",
         "group": "QuickUI",
         "title": "Button",
         "description": "Native keyboard and pointer behavior with semantic visual variants.",
@@ -79,7 +79,7 @@ QtObject {
     {
         "id": "ui-icon-button",
         "installName": "icon-button",
-        "usage": "./quickui init --cwd ~/my-shell\n./quickui add icon-button --cwd ~/my-shell\n\n// In your shell.qml (inside a window):\nimport \"ui\" as UI\n\nUI.Theme { id: theme; dark: true; accent: \"#72dce8\" }\nUI.IconButton { theme: theme; text: \"+\"; accessibleLabel: \"Add workspace\" }\n\nSource: registry/quickui/IconButton.qml\nInstalled source is yours to edit. Shared dependencies are preserved.",
+        "usage": "./quickui init --cwd ~/my-shell\n./quickui add icon-button --cwd ~/my-shell\n\n// In your shell.qml (inside a window):\nimport \"ui\" as UI\n\nUI.Theme { id: tokens; dark: true; accent: \"#72dce8\" }\nUI.IconButton { theme: tokens; text: \"+\"; accessibleLabel: \"Add workspace\" }\n\nSource: registry/quickui/IconButton.qml\nInstalled source is yours to edit. Shared dependencies are preserved.",
         "group": "QuickUI",
         "title": "Icon button",
         "description": "A compact action with a separate accessible name.",
@@ -145,7 +145,7 @@ QtObject {
     {
         "id": "ui-text-field",
         "installName": "text-field",
-        "usage": "./quickui init --cwd ~/my-shell\n./quickui add text-field --cwd ~/my-shell\n\n// In your shell.qml (inside a window):\nimport \"ui\" as UI\n\nUI.Theme { id: theme; dark: true; accent: \"#72dce8\" }\nUI.TextField { theme: theme; placeholderText: \"Workspace name\"; Accessible.name: \"Workspace name\" }\n\nSource: registry/quickui/TextField.qml\nInstalled source is yours to edit. Shared dependencies are preserved.",
+        "usage": "./quickui init --cwd ~/my-shell\n./quickui add text-field --cwd ~/my-shell\n\n// In your shell.qml (inside a window):\nimport \"ui\" as UI\n\nUI.Theme { id: tokens; dark: true; accent: \"#72dce8\" }\nUI.TextField { theme: tokens; placeholderText: \"Workspace name\"; Accessible.name: \"Workspace name\" }\n\nSource: registry/quickui/TextField.qml\nInstalled source is yours to edit. Shared dependencies are preserved.",
         "group": "QuickUI",
         "title": "Text field",
         "description": "Editable text with selection, native keyboard handling, and focus styling.",
@@ -223,7 +223,7 @@ QtObject {
     {
         "id": "ui-switch",
         "installName": "switch",
-        "usage": "./quickui init --cwd ~/my-shell\n./quickui add switch --cwd ~/my-shell\n\n// In your shell.qml (inside a window):\nimport \"ui\" as UI\n\nUI.Theme { id: theme; dark: true; accent: \"#72dce8\" }\nUI.Switch { theme: theme; text: \"Notifications\"; checked: true }\n\nSource: registry/quickui/Switch.qml\nInstalled source is yours to edit. Shared dependencies are preserved.",
+        "usage": "./quickui init --cwd ~/my-shell\n./quickui add switch --cwd ~/my-shell\n\n// In your shell.qml (inside a window):\nimport \"ui\" as UI\n\nUI.Theme { id: tokens; dark: true; accent: \"#72dce8\" }\nUI.Switch { theme: tokens; text: \"Notifications\"; checked: true }\n\nSource: registry/quickui/Switch.qml\nInstalled source is yours to edit. Shared dependencies are preserved.",
         "group": "QuickUI",
         "title": "Switch",
         "description": "Native toggle behavior. Space activates the focused control.",
@@ -275,7 +275,7 @@ QtObject {
     {
         "id": "ui-checkbox",
         "installName": "checkbox",
-        "usage": "./quickui init --cwd ~/my-shell\n./quickui add checkbox --cwd ~/my-shell\n\n// In your shell.qml (inside a window):\nimport \"ui\" as UI\n\nUI.Theme { id: theme; dark: true; accent: \"#72dce8\" }\nUI.CheckBox { theme: theme; text: \"Start on login\" }\n\nSource: registry/quickui/CheckBox.qml\nInstalled source is yours to edit. Shared dependencies are preserved.",
+        "usage": "./quickui init --cwd ~/my-shell\n./quickui add checkbox --cwd ~/my-shell\n\n// In your shell.qml (inside a window):\nimport \"ui\" as UI\n\nUI.Theme { id: tokens; dark: true; accent: \"#72dce8\" }\nUI.CheckBox { theme: tokens; text: \"Start on login\" }\n\nSource: registry/quickui/CheckBox.qml\nInstalled source is yours to edit. Shared dependencies are preserved.",
         "group": "QuickUI",
         "title": "Checkbox",
         "description": "Native toggle behavior. Space activates the focused control.",
@@ -327,7 +327,7 @@ QtObject {
     {
         "id": "ui-slider",
         "installName": "slider",
-        "usage": "./quickui init --cwd ~/my-shell\n./quickui add slider --cwd ~/my-shell\n\n// In your shell.qml (inside a window):\nimport \"ui\" as UI\n\nUI.Theme { id: theme; dark: true; accent: \"#72dce8\" }\nUI.Slider { theme: theme; from: 0; to: 100; value: 60; Accessible.name: \"Volume\" }\n\nSource: registry/quickui/Slider.qml\nInstalled source is yours to edit. Shared dependencies are preserved.",
+        "usage": "./quickui init --cwd ~/my-shell\n./quickui add slider --cwd ~/my-shell\n\n// In your shell.qml (inside a window):\nimport \"ui\" as UI\n\nUI.Theme { id: tokens; dark: true; accent: \"#72dce8\" }\nUI.Slider { theme: tokens; from: 0; to: 100; value: 60; Accessible.name: \"Volume\" }\n\nSource: registry/quickui/Slider.qml\nInstalled source is yours to edit. Shared dependencies are preserved.",
         "group": "QuickUI",
         "title": "Slider",
         "description": "A bounded value control supporting drag, click, and arrow keys.",
@@ -381,7 +381,7 @@ QtObject {
     {
         "id": "ui-select",
         "installName": "select",
-        "usage": "./quickui init --cwd ~/my-shell\n./quickui add select --cwd ~/my-shell\n\n// In your shell.qml (inside a window):\nimport \"ui\" as UI\n\nUI.Theme { id: theme; dark: true; accent: \"#72dce8\" }\nUI.Select { theme: theme; model: [\"Speakers\", \"Headphones\"]; Accessible.name: \"Audio output\" }\n\nSource: registry/quickui/Select.qml\nInstalled source is yours to edit. Shared dependencies are preserved.",
+        "usage": "./quickui init --cwd ~/my-shell\n./quickui add select --cwd ~/my-shell\n\n// In your shell.qml (inside a window):\nimport \"ui\" as UI\n\nUI.Theme { id: tokens; dark: true; accent: \"#72dce8\" }\nUI.Select { theme: tokens; model: [\"Speakers\", \"Headphones\"]; Accessible.name: \"Audio output\" }\n\nSource: registry/quickui/Select.qml\nInstalled source is yours to edit. Shared dependencies are preserved.",
         "group": "QuickUI",
         "title": "Select",
         "description": "A themed native choice control with keyboard navigation and a popup.",
@@ -428,7 +428,7 @@ QtObject {
     {
         "id": "ui-card",
         "installName": "card",
-        "usage": "./quickui init --cwd ~/my-shell\n./quickui add card --cwd ~/my-shell\n\n// In your shell.qml (inside a window):\nimport \"ui\" as UI\n\nUI.Theme { id: theme; dark: true; accent: \"#72dce8\" }\nUI.Card { theme: theme; width: 300; Text { text: \"Hello\"; color: theme.foreground } }\n\nSource: registry/quickui/Card.qml\nInstalled source is yours to edit. Shared dependencies are preserved.",
+        "usage": "./quickui init --cwd ~/my-shell\n./quickui add card --cwd ~/my-shell\n\n// In your shell.qml (inside a window):\nimport \"ui\" as UI\n\nUI.Theme { id: tokens; dark: true; accent: \"#72dce8\" }\nUI.Card { theme: tokens; width: 300; Text { text: \"Hello\"; color: tokens.foreground } }\n\nSource: registry/quickui/Card.qml\nInstalled source is yours to edit. Shared dependencies are preserved.",
         "group": "QuickUI",
         "title": "Card",
         "description": "A padded surface that composes ordinary QML content.",
@@ -465,7 +465,7 @@ QtObject {
     {
         "id": "ui-badge",
         "installName": "badge",
-        "usage": "./quickui init --cwd ~/my-shell\n./quickui add badge --cwd ~/my-shell\n\n// In your shell.qml (inside a window):\nimport \"ui\" as UI\n\nUI.Theme { id: theme; dark: true; accent: \"#72dce8\" }\nUI.Badge { theme: theme; text: \"Connected\"; variant: \"accent\" }\n\nSource: registry/quickui/Badge.qml\nInstalled source is yours to edit. Shared dependencies are preserved.",
+        "usage": "./quickui init --cwd ~/my-shell\n./quickui add badge --cwd ~/my-shell\n\n// In your shell.qml (inside a window):\nimport \"ui\" as UI\n\nUI.Theme { id: tokens; dark: true; accent: \"#72dce8\" }\nUI.Badge { theme: tokens; text: \"Connected\"; variant: \"accent\" }\n\nSource: registry/quickui/Badge.qml\nInstalled source is yours to edit. Shared dependencies are preserved.",
         "group": "QuickUI",
         "title": "Badge",
         "description": "Compact status text with semantic colors.",
@@ -514,7 +514,7 @@ QtObject {
     {
         "id": "ui-separator",
         "installName": "separator",
-        "usage": "./quickui init --cwd ~/my-shell\n./quickui add separator --cwd ~/my-shell\n\n// In your shell.qml (inside a window):\nimport \"ui\" as UI\n\nUI.Theme { id: theme; dark: true; accent: \"#72dce8\" }\nUI.Separator { theme: theme; width: 280 }\n\nSource: registry/quickui/Separator.qml\nInstalled source is yours to edit. Shared dependencies are preserved.",
+        "usage": "./quickui init --cwd ~/my-shell\n./quickui add separator --cwd ~/my-shell\n\n// In your shell.qml (inside a window):\nimport \"ui\" as UI\n\nUI.Theme { id: tokens; dark: true; accent: \"#72dce8\" }\nUI.Separator { theme: tokens; width: 280 }\n\nSource: registry/quickui/Separator.qml\nInstalled source is yours to edit. Shared dependencies are preserved.",
         "group": "QuickUI",
         "title": "Separator",
         "description": "A theme-colored divider for horizontal and vertical layouts.",
@@ -544,7 +544,7 @@ QtObject {
     {
         "id": "ui-theme",
         "installName": "theme",
-        "usage": "./quickui init --cwd ~/my-shell\n./quickui add theme --cwd ~/my-shell\n\n// In your shell.qml (inside a window):\nimport \"ui\" as UI\n\nUI.Theme { id: theme; dark: true; accent: \"#72dce8\" }\n\nSource: registry/quickui/Theme.qml\nInstalled source is yours to edit. Shared dependencies are preserved.",
+        "usage": "./quickui init --cwd ~/my-shell\n./quickui add theme --cwd ~/my-shell\n\n// In your shell.qml (inside a window):\nimport \"ui\" as UI\n\nUI.Theme { id: tokens; dark: true; accent: \"#72dce8\" }\n\nSource: registry/quickui/Theme.qml\nInstalled source is yours to edit. Shared dependencies are preserved.",
         "group": "QuickUI",
         "title": "Theme playground",
         "description": "One shared Theme object styles every component. Change tokens live.",

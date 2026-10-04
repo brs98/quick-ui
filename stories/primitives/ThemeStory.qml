@@ -6,6 +6,7 @@ Item {
     id: root
     property var args: ({})
     property bool dark: true
+    onArgsChanged: { workspaceName.text = ""; notifications.checked = true; }
     signal eventRaised(string name, var payload)
     implicitWidth: 320
     implicitHeight: card.implicitHeight
@@ -26,8 +27,8 @@ Item {
             spacing: tokens.spacing * 2
             Text { text: "One theme. Every component."; color: tokens.foreground; font.pixelSize: tokens.fontSize; font.bold: true }
             UI.Badge { theme: tokens; text: root.args.palette ?? "Lavender"; variant: "accent" }
-            UI.TextField { Layout.fillWidth: true; theme: tokens; placeholderText: "Workspace name"; Accessible.name: "Workspace name" }
-            UI.Switch { theme: tokens; text: "Notifications"; checked: true; onToggled: root.eventRaised("toggled", {checked: checked}) }
+            UI.TextField { id: workspaceName; objectName: "themeWorkspaceName"; Layout.fillWidth: true; theme: tokens; placeholderText: "Workspace name"; Accessible.name: "Workspace name" }
+            UI.Switch { id: notifications; objectName: "themeNotifications"; theme: tokens; text: "Notifications"; checked: true; onToggled: root.eventRaised("toggled", {checked: checked}) }
             UI.Button { Layout.fillWidth: true; theme: tokens; text: "Save preferences"; onClicked: root.eventRaised("clicked", {}) }
         }
     }

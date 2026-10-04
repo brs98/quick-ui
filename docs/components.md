@@ -18,7 +18,7 @@ UI.Switch { theme: appearance; text: "Notifications" }
 
 | Registry entry / QML type | Main API | User interaction |
 | --- | --- | --- |
-| `button` / `UI.Button` | `text`, `variant`, `enabled`, `checkable`, `checked` | Native `clicked`, `toggled`; Space/Enter and Tab focus |
+| `button` / `UI.Button` | `text`, `variant`, `enabled`, `checkable`, `checked` | Native `clicked`, `toggled`; Space activation and Tab focus |
 | `icon-button` / `UI.IconButton` | Button API; text glyph and `accessibleLabel` | Native button behavior with a nonvisual label |
 | `text-field` / `UI.TextField` | `text`, `placeholderText`, `readOnly`, `validator`, `echoMode` | `textEdited`, `accepted`; native editing and selection |
 | `switch` / `UI.Switch` | `text`, `checked`, `enabled` | `toggled`; Space and pointer activation |

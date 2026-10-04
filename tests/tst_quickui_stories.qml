@@ -56,6 +56,33 @@ Item {
             explorer.explorerState.reset();
             compare(control[data.property], data.value);
         }
+        function test_usageExamples_data() {
+            return primitiveCatalog.entries.map(entry => ({tag: entry.id, usage: entry.usage}));
+        }
+        function test_usageExamples(data) {
+            const example = data.usage.slice(data.usage.indexOf("UI.Theme {"), data.usage.indexOf("\n\nSource:"));
+            const scene = Qt.createQmlObject('import QtQuick; import "../registry/quickui" as UI; Item { ' + example + ' }', parent);
+            verify(scene !== null);
+            if (scene.children.length) compare(String(scene.children[0].theme.accent), "#72dce8");
+            scene.destroy();
+        }
+        function test_themeInputsReset() {
+            verify(explorer.explorerState.selectId("ui-theme"));
+            tryCompare(explorer.preview, "status", Loader.Ready);
+            const field = findChild(explorer.preview.item, "themeWorkspaceName");
+            const toggle = findChild(explorer.preview.item, "themeNotifications");
+            verify(field !== null && toggle !== null);
+            field.text = "Changed";
+            toggle.checked = false;
+            explorer.explorerState.reset();
+            compare(field.text, "");
+            compare(toggle.checked, true);
+            field.text = "Changed again";
+            toggle.checked = false;
+            explorer.explorerState.preset(1);
+            compare(field.text, "");
+            compare(toggle.checked, true);
+        }
         function test_sharedThemeResponds() {
             verify(explorer.explorerState.selectId("ui-theme"));
             tryCompare(explorer.preview, "status", Loader.Ready);
