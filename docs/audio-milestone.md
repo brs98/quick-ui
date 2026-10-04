@@ -68,3 +68,43 @@ The local milestone is complete. Public distribution still needs a license and
 upstream integration-source attribution review, a versioned remote registry,
 reviewed source updates/diffs, and compatibility testing across Qt/Quickshell and
 compositors. Screen-reader auditing and further shell blocks remain future work.
+
+## Component hardening follow-up — 2026-10-04
+
+The component-by-component shadcn comparison is implemented in QuickUI revision
+`c364b94`. The public library now has 17 components plus Theme; IconGraphic is an
+internal dependency. Field and RangeSlider join the foundation, and the existing
+components gain the audited icons, sizes, validation, composition, focus,
+accessibility, RTL, typography, and rendering improvements. Quickbook exposes
+all the new states through presets and controls. See `docs/components.md` for
+the final APIs and recipes.
+
+Verification on Qt 6.11.2 / Quickshell 0.3.1:
+
+- 39 Python tests and 444 Qt test results passed; QML lint and diff checks clean.
+- Foundation clean-install smoke renders all twelve foundation components,
+  preserves a customized Theme, and verifies Field naming and both range values.
+- Audio clean-install smoke verifies the new twelve-source dependency closure,
+  exact source bytes, mock request wiring, and dark/light captures.
+- Quickbook native smoke verifies IPC, SVG assets, new compositions, and reload.
+- Native QAccessible inspection checks bounded meter values/ranges, individual
+  range-handle limits, selected device semantics, and a named focused panel cursor.
+  Qt tests exercise accessibility activation; this is not a screen-reader audit.
+- Independent reviews reproduced and closed additional large-font Select,
+  unbroken-description/Card text, constrained-icon, RTL alignment, and range-bound
+  issues. The live installed audio panel opens, focuses, renders, and closes.
+
+Installed-source updates preserve the existing adapters and user settings:
+
+- `~/personal/quickui-demo`: fourteen sources including both new components and
+  the expanded starter.
+- `~/personal/quickui-audio-demo`: twelve sources.
+- `~/.config/omarchy/plugins/brandon.audio`: commit `b1233c7`.
+- `~/src/omarchy-news`: commit `28ec7e9`.
+
+All previously installed source files matched their recorded hashes before the
+upgrade. Rollback copies of each `ui/`, installer manifest, and the changed starter
+are in `~/.cache/quickui-upgrades/hardening-20261004-155301`. Revert the respective
+plugin upgrade commit to undo only this follow-up. Native panel evidence is
+`artifacts/quickui-hardened-native-audio.png`; isolated captures include Field,
+RangeSlider, icon buttons, checkbox groups, card sections, and mirrored audio.
