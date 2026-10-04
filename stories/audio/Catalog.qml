@@ -5,7 +5,7 @@ QtObject {
     {
         "id": "audio-mixer",
         "installName": "audio-mixer",
-        "usage": "./quickui init --cwd ~/my-shell\n./quickui add audio-mixer --cwd ~/my-shell\n\n// In your shell.qml (inside a window):\nimport \"ui\" as UI\n\nUI.Theme { id: tokens; dark: true; accent: \"#72dce8\" }\nUI.AudioMixer {\n    theme: tokens; width: 380; height: 520\n    hasOutput: true; outputVolume: 0.6\n    outputs: [{id: \"speakers\", label: \"Speakers\", glyph: \"♫\", current: true}]\n    onOutputVolumeRequested: value => console.log(\"Set output volume\", value)\n    onOutputSelected: id => console.log(\"Select output\", id)\n}\n\nSource: registry/quickui/AudioMixer.qml\nSignals request changes; your adapter owns service state.",
+        "usage": "./quickui init --cwd ~/my-shell\n./quickui add audio-mixer --cwd ~/my-shell\n\n// In your shell.qml (inside a window):\nimport \"ui\" as UI\n\nUI.Theme { id: tokens; dark: true; accent: \"#72dce8\" }\nUI.AudioMixer {\n    theme: tokens; width: 380; height: 520\n    hasOutput: true; outputVolume: 0.6\n    outputs: [{id: \"speakers\", label: \"Speakers\", glyph: \"\u266b\", current: true}]\n    onOutputVolumeRequested: value => console.log(\"Set output volume\", value)\n    onOutputSelected: id => console.log(\"Select output\", id)\n}\n\nSource: registry/quickui/AudioMixer.qml\nSignals request changes; your adapter owns service state.",
         "group": "Audio blocks",
         "title": "Audio mixer",
         "description": "A service-free mixer with device selection, channel controls, app streams, and optional shell-style navigation.",
@@ -20,7 +20,8 @@ QtObject {
                     "Output only",
                     "No devices",
                     "Long labels",
-                    "Amplified streams"
+                    "Amplified streams",
+                    "No default input"
                 ]
             },
             {
@@ -56,6 +57,19 @@ QtObject {
                 "key": "panelNavigation",
                 "label": "Shell keyboard navigation",
                 "type": "boolean"
+            },
+            {
+                "key": "rtl",
+                "label": "Right to left",
+                "type": "boolean"
+            },
+            {
+                "key": "fontScale",
+                "label": "Text scale",
+                "type": "number",
+                "min": 1,
+                "max": 3,
+                "step": 0.5
             }
         ],
         "presets": [
@@ -135,6 +149,24 @@ QtObject {
                     "muted": false,
                     "panelNavigation": true
                 }
+            },
+            {
+                "name": "Right to left",
+                "args": {
+                    "rtl": true
+                }
+            },
+            {
+                "name": "Large text",
+                "args": {
+                    "fontScale": 3
+                }
+            },
+            {
+                "name": "Choose input",
+                "args": {
+                    "scenario": "No default input"
+                }
             }
         ]
     },
@@ -190,6 +222,19 @@ QtObject {
                 "min": 0,
                 "max": 1,
                 "step": 0.05
+            },
+            {
+                "key": "rtl",
+                "label": "Right to left",
+                "type": "boolean"
+            },
+            {
+                "key": "fontScale",
+                "label": "Text scale",
+                "type": "number",
+                "min": 1,
+                "max": 3,
+                "step": 0.5
             }
         ],
         "presets": [
@@ -252,13 +297,25 @@ QtObject {
                     "showMeter": false,
                     "peak": 0
                 }
+            },
+            {
+                "name": "Right to left",
+                "args": {
+                    "rtl": true
+                }
+            },
+            {
+                "name": "Large text",
+                "args": {
+                    "fontScale": 3
+                }
             }
         ]
     },
     {
         "id": "ui-device-item",
         "installName": "device-item",
-        "usage": "./quickui init --cwd ~/my-shell\n./quickui add device-item --cwd ~/my-shell\n\n// In your shell.qml (inside a window):\nimport \"ui\" as UI\n\nUI.Theme { id: tokens; dark: true; accent: \"#72dce8\" }\nUI.DeviceItem { theme: tokens; width: 340; text: \"Speakers\"; glyph: \"♫\"; current: true; onClicked: console.log(\"Select speakers\") }\n\nSource: registry/quickui/DeviceItem.qml\nSignals request changes; your adapter owns service state.",
+        "usage": "./quickui init --cwd ~/my-shell\n./quickui add device-item --cwd ~/my-shell\n\n// In your shell.qml (inside a window):\nimport \"ui\" as UI\n\nUI.Theme { id: tokens; dark: true; accent: \"#72dce8\" }\nUI.DeviceItem { theme: tokens; width: 340; text: \"Speakers\"; glyph: \"\u266b\"; current: true; onClicked: console.log(\"Select speakers\") }\n\nSource: registry/quickui/DeviceItem.qml\nSignals request changes; your adapter owns service state.",
         "group": "QuickUI",
         "title": "Device item",
         "description": "A keyboard-accessible device choice with independent current and focused states.",
@@ -283,6 +340,29 @@ QtObject {
                 "key": "disabled",
                 "label": "Disabled",
                 "type": "boolean"
+            },
+            {
+                "key": "rtl",
+                "label": "Right to left",
+                "type": "boolean"
+            },
+            {
+                "key": "fontScale",
+                "label": "Text scale",
+                "type": "number",
+                "min": 1,
+                "max": 3,
+                "step": 0.5
+            },
+            {
+                "key": "description",
+                "label": "Description",
+                "type": "text"
+            },
+            {
+                "key": "selectionList",
+                "label": "Exclusive selection",
+                "type": "boolean"
             }
         ],
         "presets": [
@@ -290,7 +370,7 @@ QtObject {
                 "name": "Available",
                 "args": {
                     "text": "Headphones",
-                    "glyph": "♪",
+                    "glyph": "\u266a",
                     "current": false,
                     "disabled": false
                 }
@@ -299,7 +379,7 @@ QtObject {
                 "name": "Current",
                 "args": {
                     "text": "Speakers",
-                    "glyph": "♫",
+                    "glyph": "\u266b",
                     "current": true,
                     "disabled": false
                 }
@@ -308,7 +388,7 @@ QtObject {
                 "name": "Long label",
                 "args": {
                     "text": "Studio monitor speakers connected through the external USB audio interface",
-                    "glyph": "♫",
+                    "glyph": "\u266b",
                     "current": true,
                     "disabled": false
                 }
@@ -317,9 +397,34 @@ QtObject {
                 "name": "Disabled",
                 "args": {
                     "text": "Disconnected headset",
-                    "glyph": "♪",
+                    "glyph": "\u266a",
                     "current": false,
                     "disabled": true
+                }
+            },
+            {
+                "name": "Right to left",
+                "args": {
+                    "rtl": true
+                }
+            },
+            {
+                "name": "Large text",
+                "args": {
+                    "fontScale": 3
+                }
+            },
+            {
+                "name": "Device details",
+                "args": {
+                    "label": "USB Audio",
+                    "description": "USB-C dock \u00b7 stereo output"
+                }
+            },
+            {
+                "name": "Exclusive selection",
+                "args": {
+                    "selectionList": true
                 }
             }
         ]
@@ -375,6 +480,24 @@ QtObject {
                     "value": 0.35,
                     "muted": true
                 }
+            },
+            {
+                "name": "Low level",
+                "args": {
+                    "value": 0.01
+                }
+            },
+            {
+                "name": "Clamped high",
+                "args": {
+                    "value": 2
+                }
+            },
+            {
+                "name": "Clamped low",
+                "args": {
+                    "value": -1
+                }
             }
         ]
     },
@@ -396,6 +519,23 @@ QtObject {
                 "key": "show",
                 "label": "Pin preview",
                 "type": "boolean"
+            },
+            {
+                "key": "placement",
+                "label": "Placement",
+                "type": "select",
+                "options": [
+                    "top",
+                    "bottom"
+                ]
+            },
+            {
+                "key": "maximumWidth",
+                "label": "Maximum width",
+                "type": "number",
+                "min": 100,
+                "max": 400,
+                "step": 20
             }
         ],
         "presets": [
@@ -418,6 +558,14 @@ QtObject {
                 "args": {
                     "text": "Mute output",
                     "show": true
+                }
+            },
+            {
+                "name": "Narrow above",
+                "args": {
+                    "text": "Supplemental information wraps to a readable width.",
+                    "placement": "top",
+                    "maximumWidth": 160
                 }
             }
         ]

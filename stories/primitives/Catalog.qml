@@ -24,12 +24,58 @@ QtObject {
                     "primary",
                     "secondary",
                     "ghost",
-                    "destructive"
+                    "destructive",
+                    "outline"
                 ]
             },
             {
                 "key": "disabled",
                 "label": "Disabled",
+                "type": "boolean"
+            },
+            {
+                "key": "size",
+                "label": "Size",
+                "type": "select",
+                "options": [
+                    "sm",
+                    "default",
+                    "lg"
+                ]
+            },
+            {
+                "key": "iconKind",
+                "label": "Icon",
+                "type": "select",
+                "options": [
+                    "none",
+                    "source",
+                    "theme"
+                ]
+            },
+            {
+                "key": "iconPosition",
+                "label": "Icon position",
+                "type": "select",
+                "options": [
+                    "leading",
+                    "trailing"
+                ]
+            },
+            {
+                "key": "display",
+                "label": "Display",
+                "type": "select",
+                "options": [
+                    "beside",
+                    "under",
+                    "icon",
+                    "text"
+                ]
+            },
+            {
+                "key": "loading",
+                "label": "Loading",
                 "type": "boolean"
             }
         ],
@@ -73,6 +119,49 @@ QtObject {
                     "variant": "primary",
                     "disabled": true
                 }
+            },
+            {
+                "name": "Outline",
+                "args": {
+                    "text": "View details",
+                    "variant": "outline"
+                }
+            },
+            {
+                "name": "Leading icon",
+                "args": {
+                    "text": "Add workspace",
+                    "iconKind": "source"
+                }
+            },
+            {
+                "name": "Trailing icon",
+                "args": {
+                    "text": "Add workspace",
+                    "iconKind": "source",
+                    "iconPosition": "trailing"
+                }
+            },
+            {
+                "name": "Theme icon",
+                "args": {
+                    "text": "Add workspace",
+                    "iconKind": "theme"
+                }
+            },
+            {
+                "name": "Loading",
+                "args": {
+                    "text": "Save changes",
+                    "loading": true
+                }
+            },
+            {
+                "name": "Compact",
+                "args": {
+                    "text": "Save",
+                    "size": "sm"
+                }
             }
         ]
     },
@@ -103,13 +192,34 @@ QtObject {
                     "primary",
                     "secondary",
                     "ghost",
-                    "destructive"
+                    "destructive",
+                    "outline"
                 ]
             },
             {
                 "key": "disabled",
                 "label": "Disabled",
                 "type": "boolean"
+            },
+            {
+                "key": "size",
+                "label": "Size",
+                "type": "select",
+                "options": [
+                    "sm",
+                    "default",
+                    "lg"
+                ]
+            },
+            {
+                "key": "iconKind",
+                "label": "Icon",
+                "type": "select",
+                "options": [
+                    "glyph",
+                    "source",
+                    "theme"
+                ]
             }
         ],
         "presets": [
@@ -138,6 +248,28 @@ QtObject {
                     "label": "Add workspace",
                     "variant": "secondary",
                     "disabled": true
+                }
+            },
+            {
+                "name": "Source icon",
+                "args": {
+                    "iconKind": "source",
+                    "label": "Add workspace"
+                }
+            },
+            {
+                "name": "Theme icon",
+                "args": {
+                    "iconKind": "theme",
+                    "label": "Add workspace"
+                }
+            },
+            {
+                "name": "Large",
+                "args": {
+                    "icon": "+",
+                    "label": "Add workspace",
+                    "size": "lg"
                 }
             }
         ]
@@ -174,6 +306,31 @@ QtObject {
             {
                 "key": "disabled",
                 "label": "Disabled",
+                "type": "boolean"
+            },
+            {
+                "key": "invalid",
+                "label": "Invalid",
+                "type": "boolean"
+            },
+            {
+                "key": "password",
+                "label": "Password",
+                "type": "boolean"
+            },
+            {
+                "key": "size",
+                "label": "Size",
+                "type": "select",
+                "options": [
+                    "sm",
+                    "default",
+                    "lg"
+                ]
+            },
+            {
+                "key": "numeric",
+                "label": "Numeric validator",
                 "type": "boolean"
             }
         ],
@@ -217,6 +374,36 @@ QtObject {
                     "readOnly": false,
                     "disabled": true
                 }
+            },
+            {
+                "name": "Invalid",
+                "args": {
+                    "text": "Already taken",
+                    "invalid": true
+                }
+            },
+            {
+                "name": "Password",
+                "args": {
+                    "text": "secret-example",
+                    "password": true,
+                    "label": "Password"
+                }
+            },
+            {
+                "name": "Compact",
+                "args": {
+                    "size": "sm"
+                }
+            },
+            {
+                "name": "Validated number",
+                "args": {
+                    "numeric": true,
+                    "text": "42",
+                    "label": "Workspace number",
+                    "placeholder": "1\u2013999"
+                }
             }
         ]
     },
@@ -243,6 +430,31 @@ QtObject {
                 "key": "disabled",
                 "label": "Disabled",
                 "type": "boolean"
+            },
+            {
+                "key": "description",
+                "label": "Description",
+                "type": "text"
+            },
+            {
+                "key": "multiline",
+                "label": "Wrap label",
+                "type": "boolean"
+            },
+            {
+                "key": "invalid",
+                "label": "Invalid",
+                "type": "boolean"
+            },
+            {
+                "key": "size",
+                "label": "Size",
+                "type": "select",
+                "options": [
+                    "sm",
+                    "default",
+                    "lg"
+                ]
             }
         ],
         "presets": [
@@ -268,6 +480,28 @@ QtObject {
                     "text": "Do not disturb",
                     "checked": true,
                     "disabled": true
+                }
+            },
+            {
+                "name": "Description",
+                "args": {
+                    "text": "Background updates",
+                    "description": "Keep this workspace up to date when the panel is closed.",
+                    "multiline": true
+                }
+            },
+            {
+                "name": "Compact",
+                "args": {
+                    "text": "Notifications",
+                    "size": "sm"
+                }
+            },
+            {
+                "name": "Invalid",
+                "args": {
+                    "text": "Accept the terms",
+                    "invalid": true
                 }
             }
         ]
@@ -295,6 +529,46 @@ QtObject {
                 "key": "disabled",
                 "label": "Disabled",
                 "type": "boolean"
+            },
+            {
+                "key": "description",
+                "label": "Description",
+                "type": "text"
+            },
+            {
+                "key": "multiline",
+                "label": "Wrap label",
+                "type": "boolean"
+            },
+            {
+                "key": "invalid",
+                "label": "Invalid",
+                "type": "boolean"
+            },
+            {
+                "key": "size",
+                "label": "Size",
+                "type": "select",
+                "options": [
+                    "sm",
+                    "default",
+                    "lg"
+                ]
+            },
+            {
+                "key": "tristate",
+                "label": "Three states",
+                "type": "boolean"
+            },
+            {
+                "key": "partial",
+                "label": "Partially checked",
+                "type": "boolean"
+            },
+            {
+                "key": "selectAll",
+                "label": "Select-all group",
+                "type": "boolean"
             }
         ],
         "presets": [
@@ -320,6 +594,43 @@ QtObject {
                     "text": "Start on login",
                     "checked": true,
                     "disabled": true
+                }
+            },
+            {
+                "name": "Description",
+                "args": {
+                    "text": "Background updates",
+                    "description": "Keep this workspace up to date when the panel is closed.",
+                    "multiline": true
+                }
+            },
+            {
+                "name": "Compact",
+                "args": {
+                    "text": "Notifications",
+                    "size": "sm"
+                }
+            },
+            {
+                "name": "Invalid",
+                "args": {
+                    "text": "Accept the terms",
+                    "invalid": true
+                }
+            },
+            {
+                "name": "Indeterminate",
+                "args": {
+                    "text": "Select notifications",
+                    "tristate": true,
+                    "partial": true
+                }
+            },
+            {
+                "name": "Select all",
+                "args": {
+                    "text": "Select all channels",
+                    "selectAll": true
                 }
             }
         ]
@@ -448,13 +759,43 @@ QtObject {
                 "key": "index",
                 "label": "Selected index",
                 "type": "number",
-                "min": 0,
+                "min": -1,
                 "max": 2,
                 "step": 1
             },
             {
                 "key": "disabled",
                 "label": "Disabled",
+                "type": "boolean"
+            },
+            {
+                "key": "placeholder",
+                "label": "Placeholder",
+                "type": "text"
+            },
+            {
+                "key": "invalid",
+                "label": "Invalid",
+                "type": "boolean"
+            },
+            {
+                "key": "size",
+                "label": "Size",
+                "type": "select",
+                "options": [
+                    "sm",
+                    "default",
+                    "lg"
+                ]
+            },
+            {
+                "key": "editable",
+                "label": "Editable",
+                "type": "boolean"
+            },
+            {
+                "key": "unavailable",
+                "label": "Disable headphones",
                 "type": "boolean"
             }
         ],
@@ -479,6 +820,35 @@ QtObject {
                     "index": 0,
                     "disabled": true
                 }
+            },
+            {
+                "name": "Placeholder",
+                "args": {
+                    "index": -1,
+                    "placeholder": "Choose an output"
+                }
+            },
+            {
+                "name": "Invalid",
+                "args": {
+                    "index": -1,
+                    "placeholder": "Choose an output",
+                    "invalid": true
+                }
+            },
+            {
+                "name": "Unavailable option",
+                "args": {
+                    "index": 0,
+                    "unavailable": true
+                }
+            },
+            {
+                "name": "Editable",
+                "args": {
+                    "index": 0,
+                    "editable": true
+                }
             }
         ]
     },
@@ -500,6 +870,21 @@ QtObject {
                 "key": "description",
                 "label": "Description",
                 "type": "text"
+            },
+            {
+                "key": "size",
+                "label": "Size",
+                "type": "select",
+                "options": [
+                    "sm",
+                    "default",
+                    "lg"
+                ]
+            },
+            {
+                "key": "footer",
+                "label": "Show footer",
+                "type": "boolean"
             }
         ],
         "presets": [
@@ -515,6 +900,15 @@ QtObject {
                 "args": {
                     "title": "A place for everything",
                     "description": "Cards resize around their content. Compose labels, controls, and layouts while keeping the same shared theme."
+                }
+            },
+            {
+                "name": "Compact sections",
+                "args": {
+                    "title": "Notifications",
+                    "description": "Header, content, and footer share one layout.",
+                    "size": "sm",
+                    "footer": true
                 }
             }
         ]
@@ -540,7 +934,19 @@ QtObject {
                 "options": [
                     "neutral",
                     "accent",
-                    "destructive"
+                    "destructive",
+                    "outline"
+                ]
+            },
+            {
+                "key": "decoration",
+                "label": "Decoration",
+                "type": "select",
+                "options": [
+                    "none",
+                    "dot",
+                    "icon",
+                    "busy"
                 ]
             }
         ],
@@ -565,6 +971,41 @@ QtObject {
                     "text": "Offline",
                     "variant": "destructive"
                 }
+            },
+            {
+                "name": "Outline",
+                "args": {
+                    "text": "Metadata",
+                    "variant": "outline"
+                }
+            },
+            {
+                "name": "Status dot",
+                "args": {
+                    "text": "Connected",
+                    "variant": "accent",
+                    "decoration": "dot"
+                }
+            },
+            {
+                "name": "With icon",
+                "args": {
+                    "text": "New workspace",
+                    "decoration": "icon"
+                }
+            },
+            {
+                "name": "Syncing",
+                "args": {
+                    "text": "Syncing",
+                    "decoration": "busy"
+                }
+            },
+            {
+                "name": "Long label",
+                "args": {
+                    "text": "A long status label remains inside its available space"
+                }
             }
         ]
     },
@@ -581,6 +1022,11 @@ QtObject {
                 "key": "vertical",
                 "label": "Vertical",
                 "type": "boolean"
+            },
+            {
+                "key": "semantic",
+                "label": "Semantic separator",
+                "type": "boolean"
             }
         ],
         "presets": [
@@ -594,6 +1040,12 @@ QtObject {
                 "name": "Vertical",
                 "args": {
                     "vertical": true
+                }
+            },
+            {
+                "name": "Semantic",
+                "args": {
+                    "semantic": true
                 }
             }
         ]
