@@ -67,6 +67,21 @@ Item {
             for (let i = 0; i < text.length; ++i) keyClick(text.charAt(i));
         }
 
+        function test_gridToggleStaysSynchronized() {
+            const grid = button("Grid");
+            verify(grid.checkable);
+            compare(grid.checked, state.grid);
+            const initial = state.grid;
+            grid.forceActiveFocus();
+            keyClick(Qt.Key_Space);
+            compare(state.grid, !initial);
+            compare(grid.checked, !initial);
+            state.grid = initial;
+            compare(grid.checked, initial);
+            click(grid);
+            compare(state.grid, !initial);
+        }
+
         function test_initialStory() {
             compare(state.story.id, "action-button");
             compare(state.args.label, "Create workspace");

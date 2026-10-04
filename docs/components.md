@@ -165,7 +165,7 @@ change audio levels, or invoke shell commands. Put PipeWire, compositor, network
 and notification connections in separate consumers/adapters. The standalone
 starter is one such mock consumer; the Omarchy News theme adapter is a real one.
 
-The legacy volume and notification examples are still demonstration code
-under `examples/`; they are not entries in the QuickUI installer. The new `audio-mixer` is an installable block; window hosting remains in its consumer.
+The original action, volume, and notification examples now compose QuickUI primitives
+under `examples/`, retaining their demonstration APIs; they are not separate entries in the QuickUI installer. The new `audio-mixer` is an installable block; window hosting remains in its consumer.
 Native window primitives, remote registries, updates/diffs, and further blocks remain
 later milestones.

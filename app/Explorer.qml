@@ -146,7 +146,7 @@ Rectangle {
                             currentIndex: [0, 240, 360, 480].indexOf(modelState.viewportHeight)
                             onActivated: modelState.viewportHeight = [0, 240, 360, 480][currentIndex]
                         }
-                        UI.Button { theme: colors; text: "Grid"; variant: modelState.grid ? "primary" : "outline"; Accessible.checkable: true; Accessible.checked: modelState.grid; onClicked: modelState.grid = !modelState.grid }
+                        UI.Button { theme: colors; text: "Grid"; variant: modelState.grid ? "primary" : "outline"; checkable: true; checked: modelState.grid; onToggled: modelState.grid = checked }
                     }
                 }
                 UI.Separator { theme: colors; Layout.fillWidth: true }
