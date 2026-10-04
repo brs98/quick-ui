@@ -108,6 +108,33 @@ Item {
             keyClick(Qt.Key_Up);
             compare(range.first.value, 25);
         }
+        function test_rangeAccessibleActionsNotifyOwner() {
+            const range = createTemporaryObject(rangeFactory, parent);
+            moved.target = range.first;
+            moved.signalName = "moved";
+            moved.clear();
+            range.accessibleStep(true, true);
+            compare(range.first.value, 25);
+            compare(moved.count, 1);
+            range.enabled = false;
+            range.accessibleStep(true, true);
+            compare(range.first.value, 25);
+            compare(moved.count, 1);
+        }
+        function test_defaultMutedTextContrast() {
+            const theme = createTemporaryObject(themeFactory, parent);
+            function luminance(color) {
+                const channels = [color.r, color.g, color.b].map(value => value <= 0.04045 ? value / 12.92 : Math.pow((value + 0.055) / 1.055, 2.4));
+                return channels[0] * 0.2126 + channels[1] * 0.7152 + channels[2] * 0.0722;
+            }
+            for (const dark of [true, false]) {
+                theme.dark = dark;
+                for (const surface of [theme.background, theme.surface, theme.surfaceHover]) {
+                    const a = luminance(theme.mutedForeground), b = luminance(surface);
+                    verify((Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05) >= 4.5);
+                }
+            }
+        }
         function test_themeCompatibilityAndScale() {
             const theme = createTemporaryObject(themeFactory, parent);
             theme.accent = "#123456";

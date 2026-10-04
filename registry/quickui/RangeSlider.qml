@@ -11,6 +11,14 @@ Controls.RangeSlider {
     implicitHeight: horizontal ? Math.max(theme.controlHeight, theme.handleSize + topPadding + bottomPadding) : 240
     opacity: enabled ? 1 : theme.disabledOpacity
     Accessible.role: Accessible.Grouping
+    function accessibleStep(firstThumb: bool, increase: bool): void {
+        if (!enabled) return;
+        const node = firstThumb ? first : second;
+        const previous = node.value;
+        if (increase) node.increase();
+        else node.decrease();
+        if (node.value !== previous) node.moved();
+    }
 
     background: Rectangle {
         x: control.leftPadding + (control.horizontal ? 0 : (control.availableWidth - width) / 2)
@@ -45,8 +53,8 @@ Controls.RangeSlider {
         border.color: control.theme.primary
         Accessible.name: control.firstAccessibleName
         Accessible.role: Accessible.Slider
-        Accessible.onIncreaseAction: control.first.increase()
-        Accessible.onDecreaseAction: control.first.decrease()
+        Accessible.onIncreaseAction: control.accessibleStep(true, true)
+        Accessible.onDecreaseAction: control.accessibleStep(true, false)
         Rectangle {
             anchors.fill: parent
             anchors.margins: -3
@@ -73,8 +81,8 @@ Controls.RangeSlider {
         border.color: control.theme.primary
         Accessible.name: control.secondAccessibleName
         Accessible.role: Accessible.Slider
-        Accessible.onIncreaseAction: control.second.increase()
-        Accessible.onDecreaseAction: control.second.decrease()
+        Accessible.onIncreaseAction: control.accessibleStep(false, true)
+        Accessible.onDecreaseAction: control.accessibleStep(false, false)
         Rectangle {
             anchors.fill: parent
             anchors.margins: -3
