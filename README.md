@@ -35,9 +35,11 @@ Item {
 }
 ```
 
-The first library contains **10 primitives**: `button`, `icon-button`, `text-field`,
+The foundation contains **10 primitives**: `button`, `icon-button`, `text-field`,
 `switch`, `checkbox`, `slider`, `select`, `card`, `badge`, and `separator`, plus
-`theme`. `./quickui list` shows their source files and dependencies.
+`theme`. The audio milestone adds **five entries**: `tooltip`, `level-meter`,
+`device-item`, `volume-control`, and `audio-mixer` — **15 components plus Theme**.
+`./quickui list` shows their source files and dependencies.
 
 `add` preserves recorded, customized dependencies and refuses to overwrite edited
 explicit targets or unrelated files. `--dry-run` previews installation. This is a
@@ -57,6 +59,25 @@ Alternatively, run `quickshell -p ~/personal/quickui-demo` from a graphical term
 To reproduce the installation elsewhere, create a directory, run `quickui init`,
 add all ten components, and copy `templates/starter.qml` to that directory as
 `shell.qml`. The starter uses mock data and has no desktop service side effects.
+
+## Build an audio panel
+
+```sh
+mkdir -p ~/my-audio-panel
+./quickui init --cwd ~/my-audio-panel
+./quickui add audio-mixer --cwd ~/my-audio-panel
+cp templates/audio.qml ~/my-audio-panel/shell.qml
+quickshell -p ~/my-audio-panel
+```
+
+The complete mixer includes output/microphone selection, volume and mute controls,
+a microphone level meter, application streams, and keyboard navigation. This demo
+uses mock data; the reusable components never access your audio services.
+See [mixer API](docs/audio-mixer.md), [audio controls](docs/audio-controls.md), and
+[Omarchy integration](integrations/omarchy-audio/README.md).
+
+Your installed `brandon.audio` plugin uses the same copied mixer source, with a
+separate adapter retaining PipeWire/MPRIS and Omarchy's native popup hosting.
 
 ## First real-shell adoption
 
@@ -82,7 +103,7 @@ Explicit display and Qt platform settings are preserved, including `QT_QPA_PLATF
 
 ## What’s included
 
-- Direct previews for all ten QuickUI primitives, a shared-theme playground, and three clearly labeled example blocks.
+- Direct previews for all 15 QuickUI components, including the complete audio mixer, a shared-theme playground, and three clearly labeled legacy examples.
 - Compact layout for narrow tiled windows; use **Components** or `Ctrl+K` to browse.
 - Light/dark presets and explicit text, boolean, number, and select controls.
 - A Usage tab with install commands and QML snippets for every library entry.
@@ -191,15 +212,23 @@ Qt 6 development tools and Python 3 are needed for the checks. On Arch, Qt 5 too
 ./scripts/test
 python3 scripts/smoke.py
 python3 scripts/installed_smoke.py
+python3 scripts/audio_smoke.py
 ```
 
 The first command runs launcher and installer regressions, QML lint, and Qt Quick interaction tests, including all primitive presets and both themes. The launcher tests use temporary sockets and a stub executable to verify display discovery and command forwarding without starting Qt. The smoke check starts a separate Quickshell process using the software offscreen renderer, exercises IPC and hot reload in a temporary config, and writes `artifacts/quickbook-dark.png` and `artifacts/quickbook-light.png`. It does not need an active desktop and does not affect any running Quickbook instance. The installed-source smoke test independently copies all ten primitives into a fresh project, edits its Theme, launches the standalone starter, and captures `artifacts/quickui-starter.png`.
+
+The audio smoke test installs the mixer and its dependency closure in an isolated
+project, exercises mock actions and both themes through native Quickshell, and
+exports audio demo screenshots. Qt tests cover keyboard navigation, focus,
+controlled requests, bounds, dynamic device lists, and adapter actions.
 
 ## Project map
 
 - `registry/quickui/`: canonical distributable QML source.
 - `registry.json` and `quickui`: dependency registry and source installer.
-- `templates/starter.qml`: standalone consumer using all ten primitives.
+- `templates/starter.qml`: standalone consumer using all ten foundation primitives.
+- `templates/audio.qml`: standalone mock audio panel.
+- `integrations/omarchy-audio/`: real audio service adapter and installation notes.
 - `shell.qml`: native workbench window and IPC bridge.
 - `app/Explorer.qml`: browser, canvas, controls, and event inspector.
 - `app/ExplorerState.qml`: selection, presets, input validation, and event history.
@@ -209,3 +238,10 @@ The first command runs launcher and installer regressions, QML lint, and Qt Quic
 - `examples/`: independent reusable QML components with no desktop service dependencies.
 
 This first version previews visual Qt Quick items. Actual `PanelWindow`/`PopupWindow` stories need a separate window harness and are not embedded in the canvas. Story discovery and control metadata are explicit; automatic introspection, persisted sessions, screenshot diffing, and web publishing are not included.
+
+## Remaining distribution work
+
+The registry is still bundled locally. Public distribution needs an explicit
+license, a versioned remote registry, reviewed update/diff handling, and a tested
+Qt/Quickshell/compositor compatibility matrix. Full screen-reader verification and
+additional reusable shell blocks remain future work.

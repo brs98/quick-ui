@@ -203,10 +203,6 @@ Panel {
     return ""
   }
 
-  function inputIcon() {
-    if (!source || !source.audio) return "󰍭"
-    return inputMuted ? "󰍭" : "󰍬"
-  }
 
   // Playful mood-name for a given output volume. Mirrors the brightness
   // panel's brightnessName ladder; bands are wide enough that small
@@ -249,17 +245,11 @@ Panel {
     sinkAvailabilityLoaded = true
   }
 
-  function friendlyDeviceLabel(text) {
-    return Model.friendlyDeviceLabel(text)
-  }
 
   function nodeLabel(node) {
     return Model.nodeLabel(node)
   }
 
-  function nodeProps(node) {
-    return Model.nodeProps(node)
-  }
 
   function isHeadphones(node) {
     return Model.isHeadphones(node)
@@ -273,48 +263,15 @@ Panel {
     return Model.sourceGlyph(node)
   }
 
-  function friendlyStreamLabel(label) {
-    return Model.friendlyStreamLabel(label)
-  }
 
-  function streamLabelKey(label) {
-    return Model.streamLabelKey(label)
-  }
 
-  function streamLabelIsGeneric(label) {
-    return Model.streamLabelIsGeneric(label)
-  }
 
-  function rawStreamLabel(node) {
-    return Model.rawStreamLabel(node)
-  }
 
-  function mprisPlayerLabel(player) {
-    return Model.mprisPlayerLabel(player)
-  }
 
-  function mprisPlayerIsProxy(player) {
-    return Model.mprisPlayerIsProxy(player)
-  }
 
-  function streamRepresentsMprisPlayer(streamLabel, playerLabel) {
-    return Model.streamRepresentsMprisPlayer(streamLabel, playerLabel)
-  }
 
-  function mprisLabelsFor(predicate) {
-    return Model.mprisLabelsFor(mprisPlayers, predicate)
-  }
 
-  function matchingMprisStreamLabel(label) {
-    return Model.matchingMprisStreamLabel(label, mprisPlayers)
-  }
 
-  function unmatchedMprisStreamLabel(label) {
-    // Spotify exposes its PipeWire stream as "audio-src". For generic stream
-    // names, use the one MPRIS player not already represented by another audio
-    // stream (e.g. Chromium, or ALSA apps like cliamp).
-    return Model.unmatchedMprisStreamLabel(label, mprisPlayers, displayAudioStreams)
-  }
 
   function streamLabel(node) {
     return Model.streamLabel(node, mprisPlayers, displayAudioStreams)

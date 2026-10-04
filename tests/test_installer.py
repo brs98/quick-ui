@@ -68,7 +68,7 @@ class InstallerTests(unittest.TestCase):
     def test_all_declared_components_install(self):
         self.init()
         self.run_cli("add", *self.registry["components"])
-        self.assertEqual(len(list((self.project / "ui").iterdir())), 11)
+        self.assertEqual(len(list((self.project / "ui").iterdir())), len(self.registry["components"]))
 
     def test_list_does_not_mutate(self):
         before = self.snapshot()

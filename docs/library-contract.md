@@ -13,7 +13,7 @@ coexist in the same window. Controls retain normal Qt Quick properties, signals,
 keyboard navigation, focus and accessibility behavior. Examples and adapters own
 service connections; primitives only render state and emit interaction signals.
 
-Initial registry entries:
+Foundation registry entries:
 
 | Registry name | QML type | Dependencies |
 | --- | --- | --- |
@@ -42,3 +42,10 @@ files. Previously installed, customized dependencies are kept as owned source. R
 updates require a reviewed diff, not an unconditional overwrite. The first release
 uses a bundled local registry; publishing and fetching remote registries are later
 work.
+
+Audio milestone entries: `tooltip` and `level-meter` depend on `theme`;
+`device-item` depends on `theme`; `volume-control` composes `slider`, `icon-button`,
+`tooltip`, and `level-meter`; `audio-mixer` composes `volume-control`, `device-item`,
+`switch`, `separator`, and `tooltip`. The registry is authoritative for transitive
+installation. Audio blocks accept plain state and emit requests; the consumer
+owns service calls and confirmed state, including stable device-id lookup.

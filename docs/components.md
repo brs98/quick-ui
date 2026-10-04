@@ -45,6 +45,15 @@ Provide `Accessible.name` for fields, sliders, and selects without visible label
 IconButton's `accessibleLabel` supplies its name. Keyboard/focus behavior is tested;
 full screen-reader and cross-compositor accessibility audits remain future work.
 
+## Audio controls and blocks
+
+`tooltip`, `level-meter`, and `device-item` are reusable primitives. The
+`volume-control` and `audio-mixer` entries compose them with the foundation controls.
+Unlike native primitive state, these audio blocks use controlled requests: owners
+accept a request and update the public value. A rejected request cannot silently
+change confirmed backend state. See [audio controls](audio-controls.md) and
+[mixer API](audio-mixer.md) for properties, signals, and keyboard modes.
+
 ## Theme tokens
 
 `Theme` is a normal object, not a global singleton, so two themes can coexist.
@@ -70,7 +79,7 @@ change audio levels, or invoke shell commands. Put PipeWire, compositor, network
 and notification connections in separate consumers/adapters. The standalone
 starter is one such mock consumer; the Omarchy News theme adapter is a real one.
 
-The larger volume and notification example blocks are still demonstration code
-under `examples/`; they are not entries in the QuickUI installer. Native panel and
-popup-window primitives, remote registries, updates/diffs, and more complex blocks
-are later milestones.
+The legacy volume and notification examples are still demonstration code
+under `examples/`; they are not entries in the QuickUI installer. The new `audio-mixer` is an installable block; window hosting remains in its consumer.
+Native window primitives, remote registries, updates/diffs, and further blocks remain
+later milestones.
