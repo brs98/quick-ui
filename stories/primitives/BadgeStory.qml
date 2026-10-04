@@ -15,5 +15,8 @@ Item {
         theme: tokens
         text: root.args.text ?? "Connected"
         variant: root.args.variant ?? "accent"
+        statusDot: root.args.decoration === "dot"
+        busy: root.args.decoration === "busy"
+        icon.source: root.args.decoration === "icon" ? Qt.resolvedUrl("assets/add.svg") : ""
     }
 }

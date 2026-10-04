@@ -1,18 +1,20 @@
 import QtQuick
 import QtQuick.Controls.Basic as Controls
 
-// Pane reparents default children into contentItem and sizes from their implicit size.
+// Use one content child (normally a ColumnLayout). Pane derives content size
+// from that child; bind its width to availableWidth for wrapping.
 Controls.Pane {
     id: control
     property Theme theme: Theme {}
-    padding: theme.padding
+    property string size: "default"
+    padding: theme.paddingFor(size)
     font.family: theme.fontFamily
     font.pixelSize: theme.fontSize
-    palette.windowText: theme.foreground
+    palette.windowText: theme.cardForeground
     opacity: enabled ? 1 : theme.disabledOpacity
     background: Rectangle {
-        color: control.theme.surface
-        radius: control.theme.radius
+        color: control.theme.card
+        radius: control.theme.radiusLarge
         border.width: control.theme.borderWidth
         border.color: control.theme.border
     }

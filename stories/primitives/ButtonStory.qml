@@ -15,7 +15,19 @@ Item {
         theme: tokens
         text: root.args.text ?? "Save changes"
         variant: root.args.variant ?? "primary"
+        size: root.args.size ?? "default"
+        loading: root.args.loading === true
+        icon.source: (root.args.iconKind ?? "none") !== "none" ? Qt.resolvedUrl("assets/add.svg") : ""
+        icon.name: root.args.iconKind === "theme" ? "list-add" : ""
+        iconPosition: root.args.iconPosition ?? "leading"
+        display: root.args.display === "under" ? UI.Button.TextUnderIcon
+            : root.args.display === "icon" ? UI.Button.IconOnly
+            : root.args.display === "text" ? UI.Button.TextOnly : UI.Button.TextBesideIcon
+        // Keep text and icon unchanged while loading so the layout stays stable.
+        // Guard requests while loading, preserving keyboard focus on this action.
         enabled: root.args.disabled !== true
-        onClicked: root.eventRaised("clicked", {text: text})
+        onClicked: {
+            if (!loading) root.eventRaised("clicked", {text: text})
+        }
     }
 }

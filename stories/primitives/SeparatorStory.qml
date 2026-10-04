@@ -12,6 +12,7 @@ Item {
     UI.Separator {
         anchors.centerIn: parent
         theme: tokens
+        semantic: root.args.semantic === true
         vertical: root.args.vertical === true
         width: vertical ? implicitWidth : parent.width
         height: vertical ? parent.height : implicitHeight
