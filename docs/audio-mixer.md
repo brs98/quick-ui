@@ -2,7 +2,9 @@
 
 `AudioMixer` composes QuickUI source components into an audio panel. It has no
 PipeWire, compositor, process, or Omarchy imports. Supply snapshots and handle
-requests in an adapter. IDs are opaque strings; replace arrays to publish changes.
+requests in an adapter. IDs are unique opaque strings within each list; replace arrays to publish changes.
+Internal keyed models retain the same native controls across snapshot updates and
+reordering, preserving pointer drags and keyboard focus.
 
 ```qml
 AudioMixer {

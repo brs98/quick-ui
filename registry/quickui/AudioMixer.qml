@@ -52,6 +52,48 @@ FocusScope {
     implicitWidth: 380
     implicitHeight: contentColumn.implicitHeight
 
+    // Array snapshots are an external API; keyed models preserve native controls
+    // during asynchronous value updates, including the item holding a drag grab.
+    ListModel { id: outputModel }
+    ListModel { id: inputModel }
+    ListModel { id: streamModel }
+    function reconcile(model, rows, section) {
+        if (!model) return;
+        const retainedId = focusSection === section && selectedIndex >= 0 && selectedIndex < model.count
+            ? model.get(selectedIndex).key : "";
+        let destination = 0;
+        for (const row of rows) {
+            const key = String(row.id);
+            const data = {key: key, label: String(row.label || ""), glyph: String(row.glyph || ""),
+                current: row.current === true, volume: bounded(Number(row.volume), 1.5), muted: row.muted === true};
+            let existing = -1;
+            for (let index = destination; index < model.count; ++index) {
+                if (model.get(index).key === key) { existing = index; break; }
+            }
+            if (existing < 0) model.insert(destination, data);
+            else {
+                if (existing !== destination) model.move(existing, destination, 1);
+                model.set(destination, data);
+            }
+            destination++;
+        }
+        if (model.count > destination) model.remove(destination, model.count - destination);
+        if (retainedId !== "") {
+            for (let index = 0; index < model.count; ++index) {
+                if (model.get(index).key === retainedId) { selectedIndex = index; break; }
+            }
+        }
+        repairCursor();
+    }
+    onOutputsChanged: reconcile(outputModel, outputs, "output")
+    onInputsChanged: reconcile(inputModel, inputs, "input")
+    onStreamsChanged: reconcile(streamModel, streams, "streams")
+    Component.onCompleted: {
+        reconcile(outputModel, outputs, "output");
+        reconcile(inputModel, inputs, "input");
+        reconcile(streamModel, streams, "streams");
+    }
+
     function bounded(value, maximum) { return Number.isFinite(value) ? Math.max(0, Math.min(maximum, value)) : 0; }
     function hasCursor(section, index) { return cursorActive && focusSection === section && selectedIndex === index; }
     function setCursor(section, index) {
@@ -67,6 +109,7 @@ FocusScope {
         if (panelNavigation) panelKeys.forceActiveFocus();
     }
     function repairCursor() {
+        if (!cursorRows) return; // Initial property bindings can precede the cursor model.
         const sameSection = cursorRows.filter(row => row.section === focusSection);
         if (!sameSection.length) { focusSection = "output"; selectedIndex = -1; }
         else selectedIndex = Math.max(sameSection[0].index, Math.min(sameSection[sameSection.length - 1].index, selectedIndex));
@@ -259,19 +302,19 @@ FocusScope {
             }
             Repeater {
                 id: outputRows
-                model: root.outputs
+                model: outputModel
                 delegate: DeviceItem {
-                    required property var modelData
+                    required property var model
                     required property int index
                     objectName: "audioOutputDevice" + index
                     width: contentColumn.width
                     theme: root.theme
-                    text: modelData.label
-                    glyph: modelData.glyph || "♪"
-                    current: modelData.current === true
+                    text: model.label
+                    glyph: model.glyph || "♪"
+                    current: model.current === true
                     cursorHighlighted: root.hasCursor("output", index)
                     focusPolicy: root.panelNavigation ? Qt.NoFocus : Qt.StrongFocus
-                    onClicked: root.outputSelected(String(modelData.id))
+                    onClicked: root.outputSelected(model.key)
                     onHoveredChanged: if (hovered) root.setCursor("output", index)
                     onActiveFocusChanged: if (activeFocus) root.ensureVisible(this)
                 }
@@ -308,19 +351,19 @@ FocusScope {
             }
             Repeater {
                 id: inputRows
-                model: root.inputs
+                model: inputModel
                 delegate: DeviceItem {
-                    required property var modelData
+                    required property var model
                     required property int index
                     objectName: "audioInputDevice" + index
                     width: contentColumn.width
                     theme: root.theme
-                    text: modelData.label
-                    glyph: modelData.glyph || "●"
-                    current: modelData.current === true
+                    text: model.label
+                    glyph: model.glyph || "●"
+                    current: model.current === true
                     cursorHighlighted: root.hasCursor("input", index)
                     focusPolicy: root.panelNavigation ? Qt.NoFocus : Qt.StrongFocus
-                    onClicked: root.inputSelected(String(modelData.id))
+                    onClicked: root.inputSelected(model.key)
                     onHoveredChanged: if (hovered) root.setCursor("input", index)
                     onActiveFocusChanged: if (activeFocus) root.ensureVisible(this)
                 }
@@ -337,25 +380,25 @@ FocusScope {
             }
             Repeater {
                 id: streamRows
-                model: root.streams
+                model: streamModel
                 delegate: VolumeControl {
                     id: streamControl
-                    required property var modelData
+                    required property var model
                     required property int index
                     objectName: "audioStream" + index
                     width: contentColumn.width
                     theme: root.theme
-                    title: modelData.label
+                    title: model.label
                     glyph: "♪"
-                    value: modelData.volume
+                    value: model.volume
                     maximum: 1.5
-                    muted: modelData.muted === true
-                    active: modelData.current === true
+                    muted: model.muted === true
+                    active: model.current === true
                     cursorHighlighted: root.hasCursor("streams", index)
                     slider.focusPolicy: root.panelNavigation ? Qt.NoFocus : Qt.StrongFocus
                     muteButton.focusPolicy: root.panelNavigation ? Qt.NoFocus : Qt.StrongFocus
-                    onVolumeRequested: value => root.streamVolumeRequested(String(modelData.id), root.bounded(value, 1.5))
-                    onMuteRequested: root.streamMuteRequested(String(modelData.id))
+                    onVolumeRequested: value => root.streamVolumeRequested(model.key, root.bounded(value, 1.5))
+                    onMuteRequested: root.streamMuteRequested(model.key)
                     onHovered: root.setCursor("streams", index)
                     Connections { target: streamControl.slider; function onActiveFocusChanged() { if (streamControl.slider.activeFocus) root.ensureVisible(streamControl); } }
                     Connections { target: streamControl.muteButton; function onActiveFocusChanged() { if (streamControl.muteButton.activeFocus) root.ensureVisible(streamControl); } }

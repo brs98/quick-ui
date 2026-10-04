@@ -204,6 +204,47 @@ Item {
             compare(master.checked, true);
         }
 
+        function test_snapshotReplacementKeepsDragAndFocus() {
+            const device = child("audioOutputDevice1");
+            device.forceActiveFocus(Qt.TabFocusReason);
+            mixer.outputs = mixer.outputs.map(row => Object.assign({}, row, {current: row.id === "out-b"}));
+            compare(child("audioOutputDevice1"), device);
+            compare(device.activeFocus, true);
+            compare(device.current, true);
+            mixer.outputs = [mixer.outputs[1], mixer.outputs[0]];
+            compare(child("audioOutputDevice0"), device, "Reorder retains the keyed delegate");
+            compare(device.activeFocus, true);
+
+            const stream = child("audioStream0");
+            const slider = stream.slider;
+            mixer.ensureVisible(stream);
+            verify(waitForRendering(mixer));
+            function accept(id, value) {
+                mixer.streams = mixer.streams.map(row => Object.assign({}, row,
+                    row.id === id ? {volume: value} : {}));
+            }
+            mixer.streamVolumeRequested.connect(accept);
+            watch("streamVolumeRequested");
+            const center = slider.handle.x + slider.handle.width / 2;
+            mousePress(slider, center, slider.height / 2);
+            verify(slider.pressed);
+            mouseMove(slider, slider.width * 0.65, slider.height / 2);
+            verify(spy.count > 0);
+            compare(child("audioStream0"), stream);
+            compare(slider.pressed, true, "Owner snapshot update must retain the active mouse grab");
+            const first = mixer.streams[0].volume;
+            mouseMove(slider, slider.width * 0.85, slider.height / 2);
+            verify(mixer.streams[0].volume > first, "The same held drag continues updating volume");
+            mouseRelease(slider, slider.width * 0.85, slider.height / 2);
+            verify(!slider.pressed);
+            compare(slider.value, mixer.streams[0].volume);
+            slider.forceActiveFocus(Qt.TabFocusReason);
+            mixer.streams = mixer.streams.map(row => Object.assign({}, row, {volume: 0.25}));
+            compare(slider.activeFocus, true);
+            compare(slider.value, 0.25);
+            mixer.streamVolumeRequested.disconnect(accept);
+        }
+
         function test_controlCompositionAndMuteRequests() {
             const output = child("audioOutput");
             const input = child("audioInput");
