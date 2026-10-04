@@ -44,8 +44,8 @@ Rectangle {
                 required property var modelData
                 width: storyList.width
                 height: 65
-                Accessible.name: "Find a component"
-            objectName: root.searchName === "compactStorySearch" ? "compactStoryEntry" : "storyEntry"
+                Accessible.name: modelData.entry.title
+                objectName: root.searchName === "compactStorySearch" ? "compactStoryEntry" : "storyEntry"
                 onClicked: { root.modelState.select(modelData.index); root.selected(); }
                 background: Rectangle {
                     radius: 8
