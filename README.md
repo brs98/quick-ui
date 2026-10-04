@@ -81,14 +81,18 @@ See [mixer API](docs/audio-mixer.md), [audio controls](docs/audio-controls.md), 
 Your installed `brandon.audio` plugin uses the same copied mixer source, with a
 separate adapter retaining PipeWire/MPRIS and Omarchy's native popup hosting.
 
-## First real-shell adoption
+## Installed shell consumers
 
-The user-owned Omarchy News plugin at `~/src/omarchy-news` now imports its footer
-button and divider from its own installed `ui/` sources. Its local Theme adapter
-maps Omarchy colors and sizing into QuickUI without putting Omarchy dependencies
-in the component library. Adoption commit: `7aa2961` (revert that commit in the
-plugin repository to restore the previous widgets).
+The shared Omarchy setup bundles QuickUI sources with the audio panel, custom bar,
+News, and Blip. Local theme adapters follow Omarchy colors and sizing; services,
+window hosting, and keyboard routing remain in each plugin. News uses QuickUI for
+its footer, refresh action, unread badge, and tooltip; the bar uses it for category
+and tray actions; Blip uses it for its editors and action controls.
 
+These plugins are deployed through the private shared-configuration workflow in
+`~/omarchy-config`, including both machines. Omamail is excluded from the plugin
+inventory; uninstalling it preserves its machine-local data. The original Blip
+checkout is backed up before replacing its installation with the reviewed bundle.
 
 ## Run the workbench
 
