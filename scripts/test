@@ -2,6 +2,7 @@
 set -euo pipefail
 
 root=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)
+python3 "$root/tests/test_launcher.py"
 linter=${QMLLINT:-/usr/lib/qt6/bin/qmllint}
 if [[ ! -x "$linter" ]]; then
     linter=$(command -v qmllint6 || command -v qmllint || true)

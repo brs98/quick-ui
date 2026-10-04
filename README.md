@@ -18,6 +18,7 @@ Explicit display and Qt platform settings are preserved, including `QT_QPA_PLATF
 ## What’s included
 
 - Searchable catalog with action button, volume card, and notification examples.
+- Compact layout for narrow tiled windows; use **Components** or `Ctrl+K` to browse.
 - Twelve named presets and explicit text, boolean, number, and select controls.
 - Dark/light themes, canvas grid, compact/wide widths, and height presets.
 - A live event log (latest 100 events) and selectable JSON arguments.
@@ -126,7 +127,7 @@ python3 -m unittest discover -s tests -p test_launcher.py
 python3 scripts/smoke.py
 ```
 
-The first command runs QML lint and Qt Quick interaction tests. The launcher tests use temporary sockets and a stub executable to verify display discovery and command forwarding without starting Qt. The smoke check starts a separate Quickshell process using the software offscreen renderer, exercises IPC and hot reload in a temporary config, and writes `artifacts/quickbook-dark.png` and `artifacts/quickbook-light.png`. It does not need an active desktop and does not affect any running Quickbook instance.
+The first command runs launcher regression tests, QML lint, and Qt Quick interaction tests. The launcher tests use temporary sockets and a stub executable to verify display discovery and command forwarding without starting Qt. The smoke check starts a separate Quickshell process using the software offscreen renderer, exercises IPC and hot reload in a temporary config, and writes `artifacts/quickbook-dark.png` and `artifacts/quickbook-light.png`. It does not need an active desktop and does not affect any running Quickbook instance.
 
 ## Project map
 
