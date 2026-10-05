@@ -30,6 +30,9 @@ Foundation registry entries:
 | card | Card | theme |
 | badge | Badge | theme, icon-graphic |
 | separator | Separator | theme |
+| menu | Menu | theme, menu-item, menu-separator |
+| menu-item | MenuItem | theme, icon-graphic |
+| menu-separator | MenuSeparator | theme |
 
 Button variants: `primary`, `secondary`, `ghost`, `outline`, `destructive`. IconButton extends
 Button and accepts `accessibleLabel` for its nonvisual name. TextField, Switch,

@@ -119,6 +119,27 @@
     "icon-graphic": {
       "file": "IconGraphic.qml",
       "dependencies": []
+    },
+    "menu": {
+      "file": "Menu.qml",
+      "dependencies": [
+        "theme",
+        "menu-item",
+        "menu-separator"
+      ]
+    },
+    "menu-item": {
+      "file": "MenuItem.qml",
+      "dependencies": [
+        "theme",
+        "icon-graphic"
+      ]
+    },
+    "menu-separator": {
+      "file": "MenuSeparator.qml",
+      "dependencies": [
+        "theme"
+      ]
     }
   }
 }

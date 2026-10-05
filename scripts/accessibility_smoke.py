@@ -40,12 +40,16 @@ def main():
                                              ("Lower limit", 20, 0, 80), ("Upper limit", 80, 20, 100)]:
             node = named(name)
             assert (node["value"], node["minimum"], node["maximum"]) == (value, minimum, maximum), node
+        toggle = named("Show status bar")
+        assert toggle["menuItem"] and toggle["checkable"] and toggle["checked"], toggle
+        assert "Press" in toggle["actions"], toggle
+        assert named("Unavailable action")["disabled"]
         device = named("Speakers")
         assert device["selected"] and device["selectable"], device
         assert "Press" in device["actions"], device
         cursor = [node for node in nodes if node["focused"] and "64%" in node["name"]]
         assert len(cursor) == 1 and cursor[0]["description"], cursor
-        print("Native accessibility passed: bounded meter values, independent range handles, device selection, named panel cursor.")
+        print("Native accessibility passed: bounded meter values, independent range handles, device selection, named panel cursor, and native menu item states.")
 
 
 if __name__ == "__main__":

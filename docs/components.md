@@ -30,6 +30,9 @@ UI.Switch { theme: appearance; text: "Notifications" }
 | `card` / `UI.Card` | Native Pane, `padding`, `size`, one layout child | Compose header, body, and footer in the layout |
 | `badge` / `UI.Badge` | `text`, `variant`, `icon`, `statusDot`, `busy` | Noninteractive status label; constrained text elides |
 | `separator` / `UI.Separator` | `vertical`, `semantic`; set width/height for your layout | Decorative by default; optional accessible separator |
+| `menu` / `UI.Menu` | Native `title`, `open`, `popup`, actions and submenus; `size` | Native keyboard navigation, dismissal, and action dispatch |
+| `menu-item` / `UI.MenuItem` | Native `text`, `icon`, `action`, `checkable`, `checked`; `variant`, `shortcutText`, `indicatorType` | Native `triggered`, `toggled`; pointer and keyboard activation |
+| `menu-separator` / `UI.MenuSeparator` | `size`; set width for standalone layouts | Native nonselectable menu divider |
 
 Button variants are `primary`, `secondary`, `ghost`, `outline`, and `destructive`.
 Badge variants are `neutral`, `accent`, `outline`, and `destructive`. Labels render
@@ -124,6 +127,52 @@ The Card story shows a wrapping title, body, and responsive footer actions;
 ordinary layouts can add header actions without new slot APIs. Use
 `Layout.fillWidth`/`Layout.fillHeight` for separators in layouts. `semantic: true`
 includes a separator in the accessibility tree without adding a keyboard stop.
+
+## Menus
+
+`./quickui add menu --cwd ~/my-shell` installs Menu, MenuItem, MenuSeparator, Theme,
+and the icon renderer. Menu uses Qt's QML popup surface (`Popup.Item`), so it works
+inside a Quickshell window and retains QuickUI styling. The consumer owns the window
+and decides where to open it. Pass the same theme explicitly to composed items and
+submenus; delegates created for native actions/submenus inherit their menu's theme.
+
+```qml
+UI.Button {
+    id: trigger
+    theme: tokens
+    text: "Actions"
+    onClicked: actions.open()
+    UI.Menu {
+        id: actions
+        theme: tokens
+        y: trigger.height
+        UI.MenuItem { theme: tokens; text: "New workspace"; onTriggered: createWorkspace() }
+        UI.MenuItem { theme: tokens; text: "Show bar"; checkable: true; checked: true }
+        UI.MenuSeparator { theme: tokens }
+        UI.Menu {
+            theme: tokens
+            title: "Appearance"
+            UI.MenuItem { theme: tokens; text: "Dark"; checkable: true; autoExclusive: true; checked: true }
+            UI.MenuItem { theme: tokens; text: "Light"; checkable: true; autoExclusive: true }
+        }
+    }
+}
+```
+
+`variant: "destructive"` styles destructive actions. Native `Action` objects can
+own `text`, `icon`, `enabled`, `checked`, and shortcuts. `shortcutText` is a display
+hint only: use an Action's `shortcut` to register a key binding. `indicatorType`
+accepts `auto`, `check`, or `radio`; `auto` follows `autoExclusive`. When using a
+native `ActionGroup` for exclusivity, set `indicatorType: "radio"` explicitly.
+`partiallyChecked` displays a mixed-state dash without changing native boolean
+`checked` behavior. Consumers must clear or update that presentation state.
+
+Native submenus display a chevron automatically. `hasSubmenu` also allows adapters
+to display one while managing navigation in their own host. Standalone MenuItem
+and MenuSeparator rows can be installed separately for those hosts; the adapter
+then owns focus, navigation, dismissal, and external state synchronization. The
+Omarchy tray is one such adapter, keeping D-Bus menu entries and opener lifetimes
+outside the library. See [the standalone example](../templates/menu.qml).
 
 ## Audio controls and blocks
 

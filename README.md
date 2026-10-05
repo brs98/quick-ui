@@ -38,8 +38,8 @@ Item {
 The foundation contains **12 components**: `button`, `icon-button`, `text-field`,
 `field`, `switch`, `checkbox`, `slider`, `range-slider`, `select`, `card`, `badge`,
 and `separator`. Audio adds **five components**: `tooltip`, `level-meter`,
-`device-item`, `volume-control`, and `audio-mixer` — **17 public components plus
-Theme**, with an internal `icon-graphic` rendering dependency.
+`device-item`, `volume-control`, and `audio-mixer`. Menus add **three components**:
+`menu`, `menu-item`, and `menu-separator` — **20 public components plus Theme**, with an internal `icon-graphic` rendering dependency.
 `./quickui list` shows their source files and dependencies.
 
 `add` preserves recorded, customized dependencies and refuses to overwrite edited
@@ -81,6 +81,21 @@ See [mixer API](docs/audio-mixer.md), [audio controls](docs/audio-controls.md), 
 Your installed `brandon.audio` plugin uses the same copied mixer source, with a
 separate adapter retaining PipeWire/MPRIS and Omarchy's native popup hosting.
 
+## Build a menu
+
+```sh
+mkdir -p ~/my-menu-demo
+./quickui init --cwd ~/my-menu-demo
+./quickui add menu button --cwd ~/my-menu-demo
+cp templates/menu.qml ~/my-menu-demo/shell.qml
+quickshell -p ~/my-menu-demo
+```
+
+`menu` installs its item and separator components automatically. The example uses
+local actions, a checked item, and an appearance submenu. Menu rows can also be
+used inside a shell-owned popup, as in the tray adapter. See the
+[menu APIs and ownership rules](docs/components.md#menus).
+
 ## Installed shell consumers
 
 The shared Omarchy setup bundles QuickUI sources with the audio panel, custom bar,
@@ -109,7 +124,7 @@ Explicit display and Qt platform settings are preserved, including `QT_QPA_PLATF
 
 ## What’s included
 
-- Direct previews for all 17 QuickUI components, including the complete audio mixer, a shared-theme playground, and three example compositions.
+- Direct previews for all 20 QuickUI components, including the complete audio mixer, a shared-theme playground, and three example compositions.
 - Compact layout for narrow tiled windows; use **Components** or `Ctrl+K` to browse.
 - Light/dark presets and explicit text, boolean, number, and select controls.
 - A Usage tab with install commands and QML snippets for every library entry.
@@ -219,6 +234,7 @@ Qt 6 development tools and Python 3 are needed for the checks. On Arch, Qt 5 too
 python3 scripts/smoke.py
 python3 scripts/installed_smoke.py
 python3 scripts/audio_smoke.py
+python3 scripts/menu_smoke.py
 python3 scripts/accessibility_smoke.py
 ```
 
@@ -229,10 +245,14 @@ project, exercises mock actions and both themes through native Quickshell, and
 exports audio demo screenshots. Qt tests cover keyboard navigation, focus,
 controlled requests, bounds, dynamic device lists, and adapter actions.
 
+The menu smoke installs copied menu sources into a fresh project, preserves an
+edited Theme, and checks native activation, check state, dismissal, and dark/light
+popup captures.
+
 The accessibility smoke builds a small native probe (C++ compiler, `pkg-config`,
 and Qt 6 development headers required), then checks the actual QAccessible tree:
 bounded meter values, each range handle's accepted bounds, selected devices, and
-the focused panel cursor. The Quickbook smoke also captures the new composition
+the focused panel cursor, and native menu item check/disabled states. The Quickbook smoke also captures the new composition
 stories, including icons, Field feedback, RangeSlider, and RTL audio controls.
 
 ## Project map
@@ -241,6 +261,7 @@ stories, including icons, Field feedback, RangeSlider, and RTL audio controls.
 - `registry.json` and `quickui`: dependency registry and source installer.
 - `templates/starter.qml`: standalone consumer using all twelve foundation components.
 - `templates/audio.qml`: standalone mock audio panel.
+- `templates/menu.qml`: standalone menu with local actions, checks, and a submenu.
 - `integrations/omarchy-audio/`: real audio service adapter and installation notes.
 - `shell.qml`: native workbench window and IPC bridge.
 - `app/Explorer.qml`: browser, canvas, controls, and event inspector.

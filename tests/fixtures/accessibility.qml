@@ -3,6 +3,14 @@ import "../../registry/quickui" as UI
 
 Item {
     width: 600; height: 640
+    UI.MenuItem {
+        x: 400; y: 20; width: 190
+        text: "Show status bar"; checkable: true; checked: true
+    }
+    UI.MenuItem {
+        x: 400; y: 65; width: 190
+        text: "Unavailable action"; enabled: false
+    }
     UI.RangeSlider {
         y: 20; width: 280
         from: 0; to: 100; first.value: 20; second.value: 80

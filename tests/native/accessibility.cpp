@@ -14,6 +14,10 @@ QJsonObject inspect(QAccessibleInterface *iface) {
     result["description"] = iface->text(QAccessible::Description);
     result["role"] = int(iface->role());
     if (auto object = iface->object()) result["objectName"] = object->objectName();
+    result["checkable"] = bool(iface->state().checkable);
+    result["checked"] = bool(iface->state().checked);
+    result["disabled"] = bool(iface->state().disabled);
+    result["menuItem"] = iface->role() == QAccessible::MenuItem;
     result["focused"] = bool(iface->state().focused);
     result["selected"] = bool(iface->state().selected);
     result["selectable"] = bool(iface->state().selectable);

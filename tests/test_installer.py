@@ -70,6 +70,20 @@ class InstallerTests(unittest.TestCase):
         self.run_cli("add", *self.registry["components"])
         self.assertEqual(len(list((self.project / "ui").iterdir())), len(self.registry["components"]))
 
+    def test_menu_installs_its_composition_and_preserves_owned_theme(self):
+        self.init()
+        theme = self.project / "ui/Theme.qml"
+        theme.write_text("// consumer-owned theme\n")
+        self.run_cli("add", "menu")
+        expected = {"Theme.qml", "Menu.qml", "MenuItem.qml", "MenuSeparator.qml", "IconGraphic.qml"}
+        self.assertEqual({p.name for p in (self.project / "ui").iterdir()}, expected)
+        self.assertEqual(theme.read_text(), "// consumer-owned theme\n")
+        for filename in expected - {"Theme.qml"}:
+            self.assertEqual((self.project / "ui" / filename).read_bytes(), (self.sources / filename).read_bytes())
+        before = self.snapshot()
+        self.run_cli("add", "menu")
+        self.assertEqual(before, self.snapshot())
+
     def test_list_does_not_mutate(self):
         before = self.snapshot()
         result = self.run_cli("list")
