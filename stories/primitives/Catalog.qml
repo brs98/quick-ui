@@ -1513,6 +1513,417 @@ QtObject {
         ]
     },
     {
+        "id": "ui-menu",
+        "installName": "menu",
+        "group": "QuickUI",
+        "title": "Menu",
+        "description": "Native popup navigation with actions, checks, nested choices and separators.",
+        "source": Qt.resolvedUrl("MenuStory.qml"),
+        "usage": "./quickui init --cwd ~/my-shell\n./quickui add button menu menu-item menu-separator --cwd ~/my-shell\n\n// In your shell.qml (inside a window):\nimport \"ui\" as UI\n\nUI.Theme { id: tokens; dark: true; accent: \"#72dce8\" }\nUI.Button {\n    theme: tokens; text: \"Open menu\"\n    onClicked: actions.open()\n    UI.Menu {\n        id: actions; theme: tokens; y: parent.height\n        UI.MenuItem { theme: tokens; text: \"Open\"; onTriggered: console.log(\"open\") }\n        UI.MenuSeparator { theme: tokens }\n        UI.MenuItem { theme: tokens; text: \"Notifications\"; checkable: true; checked: true }\n    }\n}\n\nSource: registry/quickui/Menu.qml\nInstalled source is yours to edit. Shared dependencies are preserved.",
+        "controls": [
+            {
+                "key": "label",
+                "label": "Trigger label",
+                "type": "text"
+            },
+            {
+                "key": "checked",
+                "label": "Notifications",
+                "type": "boolean"
+            },
+            {
+                "key": "choice",
+                "label": "Arrangement",
+                "type": "select",
+                "options": [
+                    "Compact",
+                    "Comfortable"
+                ]
+            },
+            {
+                "key": "icons",
+                "label": "Icons",
+                "type": "boolean"
+            },
+            {
+                "key": "rtl",
+                "label": "Right to left",
+                "type": "boolean"
+            },
+            {
+                "key": "density",
+                "label": "Density",
+                "type": "select",
+                "options": [
+                    "compact",
+                    "default",
+                    "comfortable"
+                ]
+            },
+            {
+                "key": "fontScale",
+                "label": "Text scale",
+                "type": "number",
+                "min": 1,
+                "max": 2,
+                "step": 0.25
+            }
+        ],
+        "presets": [
+            {
+                "name": "Workspace actions",
+                "args": {
+                    "label": "Workspace actions",
+                    "checked": true,
+                    "choice": "Comfortable",
+                    "icons": true,
+                    "rtl": false,
+                    "density": "default",
+                    "fontScale": 1
+                }
+            },
+            {
+                "name": "Unchecked",
+                "args": {
+                    "label": "Workspace actions",
+                    "checked": false,
+                    "choice": "Compact",
+                    "icons": true,
+                    "rtl": false,
+                    "density": "default",
+                    "fontScale": 1
+                }
+            },
+            {
+                "name": "Right to left",
+                "args": {
+                    "label": "Workspace actions",
+                    "checked": true,
+                    "choice": "Comfortable",
+                    "icons": true,
+                    "rtl": true,
+                    "density": "default",
+                    "fontScale": 1
+                }
+            },
+            {
+                "name": "Compact",
+                "args": {
+                    "label": "Workspace actions",
+                    "checked": true,
+                    "choice": "Comfortable",
+                    "icons": true,
+                    "rtl": false,
+                    "density": "compact",
+                    "fontScale": 1
+                }
+            },
+            {
+                "name": "Large text",
+                "args": {
+                    "label": "Workspace actions",
+                    "checked": true,
+                    "choice": "Comfortable",
+                    "icons": true,
+                    "rtl": false,
+                    "density": "comfortable",
+                    "fontScale": 1.5
+                }
+            }
+        ]
+    },
+    {
+        "id": "ui-menu-item",
+        "installName": "menu-item",
+        "group": "QuickUI",
+        "title": "Menu item",
+        "description": "A native action row with icon, shortcut text, check and destructive states.",
+        "source": Qt.resolvedUrl("MenuItemStory.qml"),
+        "usage": "./quickui init --cwd ~/my-shell\n./quickui add menu-item --cwd ~/my-shell\n\n// In your shell.qml (inside a window):\nimport \"ui\" as UI\n\nUI.Theme { id: tokens; dark: true; accent: \"#72dce8\" }\nUI.MenuItem {\n    theme: tokens; text: \"Open workspace\"\n    shortcutText: \"Ctrl+O\" // Display only; bind an Action or Shortcut to register a shortcut.\n    onTriggered: console.log(\"open\")\n}\n\nSource: registry/quickui/MenuItem.qml\nInstalled source is yours to edit. Shared dependencies are preserved.",
+        "controls": [
+            {
+                "key": "text",
+                "label": "Label",
+                "type": "text"
+            },
+            {
+                "key": "shortcut",
+                "label": "Shortcut label",
+                "type": "text"
+            },
+            {
+                "key": "icon",
+                "label": "Icon",
+                "type": "boolean"
+            },
+            {
+                "key": "checkable",
+                "label": "Checkable",
+                "type": "boolean"
+            },
+            {
+                "key": "checked",
+                "label": "Checked",
+                "type": "boolean"
+            },
+            {
+                "key": "indicator",
+                "label": "Indicator",
+                "type": "select",
+                "options": [
+                    "auto",
+                    "check",
+                    "radio"
+                ]
+            },
+            {
+                "key": "partial",
+                "label": "Partial check",
+                "type": "boolean"
+            },
+            {
+                "key": "disabled",
+                "label": "Disabled",
+                "type": "boolean"
+            },
+            {
+                "key": "destructive",
+                "label": "Destructive",
+                "type": "boolean"
+            },
+            {
+                "key": "rtl",
+                "label": "Right to left",
+                "type": "boolean"
+            },
+            {
+                "key": "density",
+                "label": "Density",
+                "type": "select",
+                "options": [
+                    "compact",
+                    "default",
+                    "comfortable"
+                ]
+            },
+            {
+                "key": "fontScale",
+                "label": "Text scale",
+                "type": "number",
+                "min": 1,
+                "max": 2,
+                "step": 0.25
+            }
+        ],
+        "presets": [
+            {
+                "name": "Action",
+                "args": {
+                    "text": "Open workspace",
+                    "shortcut": "Ctrl+O",
+                    "icon": false,
+                    "checkable": false,
+                    "checked": false,
+                    "disabled": false,
+                    "destructive": false,
+                    "rtl": false,
+                    "density": "default",
+                    "fontScale": 1,
+                    "indicator": "auto",
+                    "partial": false
+                }
+            },
+            {
+                "name": "Icon",
+                "args": {
+                    "text": "Open workspace",
+                    "shortcut": "Ctrl+O",
+                    "icon": true,
+                    "checkable": false,
+                    "checked": false,
+                    "disabled": false,
+                    "destructive": false,
+                    "rtl": false,
+                    "density": "default",
+                    "fontScale": 1,
+                    "indicator": "auto",
+                    "partial": false
+                }
+            },
+            {
+                "name": "Checked",
+                "args": {
+                    "text": "Notifications",
+                    "shortcut": "",
+                    "icon": false,
+                    "checkable": true,
+                    "checked": true,
+                    "disabled": false,
+                    "destructive": false,
+                    "rtl": false,
+                    "density": "default",
+                    "fontScale": 1,
+                    "indicator": "auto",
+                    "partial": false
+                }
+            },
+            {
+                "name": "Radio",
+                "args": {
+                    "text": "Comfortable",
+                    "shortcut": "",
+                    "icon": false,
+                    "checkable": true,
+                    "checked": true,
+                    "disabled": false,
+                    "destructive": false,
+                    "rtl": false,
+                    "density": "default",
+                    "fontScale": 1,
+                    "indicator": "radio",
+                    "partial": false
+                }
+            },
+            {
+                "name": "Mixed",
+                "args": {
+                    "text": "Select all",
+                    "shortcut": "",
+                    "icon": false,
+                    "checkable": true,
+                    "checked": false,
+                    "disabled": false,
+                    "destructive": false,
+                    "rtl": false,
+                    "density": "default",
+                    "fontScale": 1,
+                    "indicator": "auto",
+                    "partial": true
+                }
+            },
+            {
+                "name": "Disabled",
+                "args": {
+                    "text": "Restore previous session",
+                    "shortcut": "",
+                    "icon": false,
+                    "checkable": false,
+                    "checked": false,
+                    "disabled": true,
+                    "destructive": false,
+                    "rtl": false,
+                    "density": "default",
+                    "fontScale": 1,
+                    "indicator": "auto",
+                    "partial": false
+                }
+            },
+            {
+                "name": "Destructive",
+                "args": {
+                    "text": "Delete workspace",
+                    "shortcut": "",
+                    "icon": false,
+                    "checkable": false,
+                    "checked": false,
+                    "disabled": false,
+                    "destructive": true,
+                    "rtl": false,
+                    "density": "default",
+                    "fontScale": 1,
+                    "indicator": "auto",
+                    "partial": false
+                }
+            },
+            {
+                "name": "Right to left",
+                "args": {
+                    "text": "Open workspace",
+                    "shortcut": "Ctrl+O",
+                    "icon": true,
+                    "checkable": false,
+                    "checked": false,
+                    "disabled": false,
+                    "destructive": false,
+                    "rtl": true,
+                    "density": "default",
+                    "fontScale": 1,
+                    "indicator": "auto",
+                    "partial": false
+                }
+            },
+            {
+                "name": "Large text",
+                "args": {
+                    "text": "Open workspace",
+                    "shortcut": "Ctrl+O",
+                    "icon": false,
+                    "checkable": false,
+                    "checked": false,
+                    "disabled": false,
+                    "destructive": false,
+                    "rtl": false,
+                    "density": "comfortable",
+                    "fontScale": 1.5,
+                    "indicator": "auto",
+                    "partial": false
+                }
+            }
+        ]
+    },
+    {
+        "id": "ui-menu-separator",
+        "installName": "menu-separator",
+        "group": "QuickUI",
+        "title": "Menu separator",
+        "description": "A noninteractive divider between groups of menu actions.",
+        "source": Qt.resolvedUrl("MenuSeparatorStory.qml"),
+        "usage": "./quickui init --cwd ~/my-shell\n./quickui add menu-separator --cwd ~/my-shell\n\n// In your shell.qml (inside a window):\nimport \"ui\" as UI\n\nUI.Theme { id: tokens; dark: true; accent: \"#72dce8\" }\nUI.MenuSeparator { theme: tokens; width: 240 }\n\nSource: registry/quickui/MenuSeparator.qml\nInstalled source is yours to edit. Shared dependencies are preserved.",
+        "controls": [
+            {
+                "key": "density",
+                "label": "Density",
+                "type": "select",
+                "options": [
+                    "compact",
+                    "default",
+                    "comfortable"
+                ]
+            },
+            {
+                "key": "fontScale",
+                "label": "Text scale",
+                "type": "number",
+                "min": 1,
+                "max": 2,
+                "step": 0.25
+            }
+        ],
+        "presets": [
+            {
+                "name": "Default",
+                "args": {
+                    "density": "default",
+                    "fontScale": 1
+                }
+            },
+            {
+                "name": "Compact",
+                "args": {
+                    "density": "compact",
+                    "fontScale": 1
+                }
+            },
+            {
+                "name": "Comfortable",
+                "args": {
+                    "density": "comfortable",
+                    "fontScale": 1
+                }
+            }
+        ]
+    },
+    {
         "id": "ui-theme",
         "installName": "theme",
         "usage": "./quickui init --cwd ~/my-shell\n./quickui add theme --cwd ~/my-shell\n\n// In your shell.qml (inside a window):\nimport \"ui\" as UI\n\nUI.Theme { id: tokens; dark: true; accent: \"#72dce8\" }\n\nSource: registry/quickui/Theme.qml\nInstalled source is yours to edit. Shared dependencies are preserved.",
