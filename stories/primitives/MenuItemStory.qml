@@ -27,6 +27,8 @@ Item {
         UI.MenuItem {
             id: item
             objectName: "standaloneMenuItem"
+            // Outside a Menu, this preview owns the pointer highlight.
+            highlighted: hovered
             width: card.availableWidth
             theme: tokens
             text: root.args.text ?? "Open workspace"

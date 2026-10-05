@@ -23,6 +23,7 @@ Item {
         Column {
             width: card.availableWidth
             UI.MenuItem {
+                highlighted: hovered
                 width: parent.width
                 theme: tokens
                 text: "Workspace actions"
@@ -34,6 +35,7 @@ Item {
                 theme: tokens
             }
             UI.MenuItem {
+                highlighted: hovered
                 width: parent.width
                 theme: tokens
                 text: "Preferences"

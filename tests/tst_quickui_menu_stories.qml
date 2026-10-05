@@ -92,6 +92,10 @@ Item {
         function test_standaloneItemInteractionAndReset() {
             const story = make(itemFactory, {args: {checkable: true, checked: true}});
             events.target = story;
+            mouseMove(story.control, story.control.width / 2, story.control.height / 2);
+            tryCompare(story.control, "highlighted", true);
+            mouseMove(parent, parent.width - 1, parent.height - 1);
+            tryCompare(story.control, "highlighted", false);
             story.control.forceActiveFocus(Qt.TabFocusReason);
             keyClick(Qt.Key_Space);
             compare(story.localChecked, false);
