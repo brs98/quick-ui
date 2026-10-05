@@ -62,7 +62,7 @@ Item {
     TestCase {
         name: "QuickUIMenus"
         when: windowShown
-        function init() { failOnWarning(/.*/); }
+        function init() { failOnWarning(/.*/); mouseMove(fixture, 790, 590); }
         function make(factory) {
             const item = createTemporaryObject(factory, fixture);
             verify(item); item.theme.motionDuration = 0;
@@ -81,6 +81,23 @@ Item {
             tryCompare(menu, "visible", false);
             open(menu); keyClick(Qt.Key_Escape); tryCompare(menu, "visible", false);
             open(menu); mouseClick(fixture, 780, 580); tryCompare(menu, "visible", false);
+        }
+        function test_keyboardMovesHighlightAwayFromStationaryPointer() {
+            const menu = make(basicFactory);
+            open(menu);
+            const first = menu.itemAt(0);
+            const last = menu.itemAt(3);
+            mouseMove(first, first.width / 2, first.height / 2);
+            tryCompare(first, "hovered", true);
+            tryCompare(menu, "currentIndex", 0);
+            keyClick(Qt.Key_Down);
+            compare(menu.currentIndex, 3);
+            verify(first.hovered, "Pointer remains over the previous row");
+            verify(!first.hot, "Keyboard selection clears the stationary pointer row's highlight");
+            verify(last.hot);
+            compare(first.background.color, "#00000000");
+            compare(last.background.color, menu.theme.selection);
+            menu.close();
         }
         function test_nativeActionAndAutomaticDelegate() {
             const menu = make(actionFactory);

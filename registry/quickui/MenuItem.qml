@@ -11,7 +11,9 @@ Controls.MenuItem {
     property string indicatorType: "auto" // auto, check, radio; auto uses autoExclusive.
     property bool partiallyChecked: false // Presentation only; checked/checkable stay native.
     readonly property bool radioIndicator: indicatorType === "radio" || (indicatorType === "auto" && autoExclusive)
-    readonly property bool hot: highlighted || hovered || down
+    // Menu owns hover/keyboard selection through highlighted. Standalone hosts
+    // may bind highlighted to their cursor, or to hovered for pointer-only rows.
+    readonly property bool hot: highlighted || down || visualFocus
     readonly property color foregroundColor: hot ? (variant === "destructive" ? theme.destructiveForeground : theme.selectionForeground)
         : variant === "destructive" ? theme.destructive : theme.popupForeground
 
