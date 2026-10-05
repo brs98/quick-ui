@@ -171,7 +171,10 @@ Native submenus display a chevron automatically. `hasSubmenu` also allows adapte
 to display one while managing navigation in their own host. Standalone MenuItem
 and MenuSeparator rows can be installed separately for those hosts; the adapter
 then owns focus, navigation, dismissal, and external state synchronization. The
-Omarchy tray is one such adapter, keeping D-Bus menu entries and opener lifetimes
+host also owns `highlighted`: synchronize it with a shared cursor when mixing
+pointer and keyboard navigation, or bind it to `hovered` for a pointer-only row.
+MenuItem does not independently highlight a hovered row after the keyboard cursor
+moves elsewhere. The Omarchy tray is one such adapter, keeping D-Bus menu entries and opener lifetimes
 outside the library. See [the standalone example](../templates/menu.qml).
 
 ## Audio controls and blocks
