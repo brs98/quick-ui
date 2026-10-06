@@ -1,4 +1,4 @@
-# QuickUI + Quickbook
+# QuickUI
 
 QuickUI is an editable-source component library for Quickshell. Quickbook is its
 native workbench: browse the real components, change inputs and themes, try presets,
@@ -6,10 +6,12 @@ and inspect events.
 
 ## Install components into your shell
 
-Requires Python 3 for the CLI, and Quickshell with Qt 6 Quick Controls at runtime.
-From this repository:
+Requires Git and Python 3.8+ for installation, and Quickshell with Qt 6.10+ Quick Controls
+to run your shell. Tested on Quickshell 0.3.1 / Qt 6.11.2 on Linux/Wayland.
 
 ```sh
+git clone https://github.com/brs98/quick-ui.git
+cd quick-ui
 mkdir -p ~/my-shell
 ./quickui init --cwd ~/my-shell
 ./quickui add button text-field switch --cwd ~/my-shell
@@ -18,6 +20,7 @@ mkdir -p ~/my-shell
 This copies QML into `~/my-shell/ui/` and records installed components in
 `quickui.json`. The files belong to your project; edit them freely. No Quickbook,
 Omarchy, build step, network service, or registry is needed to run the installed UI.
+Keep the checkout to add more components later; you do not need it at runtime.
 
 Inside your own window, use ordinary QML imports and share a theme:
 
@@ -44,22 +47,27 @@ and `separator`. Audio adds **five components**: `tooltip`, `level-meter`,
 
 `add` preserves recorded, customized dependencies and refuses to overwrite edited
 explicit targets or unrelated files. `--dry-run` previews installation. This is a
-local bundled registry; remote publishing and automated upgrades are future work.
+local bundled registry: clone the repository and run its CLI. There is no
+package-manager install command or remote-registry fetch yet. Automated upgrades
+remain future work.
 See [installer behavior](docs/installer.md), [component APIs](docs/components.md),
 and [the library contract](docs/library-contract.md).
 
 ## Try a standalone shell
 
-A ready-to-run installation lives at `~/personal/quickui-demo` on this machine:
+From the cloned repository, install the foundation into a new directory and copy
+its runnable example:
 
 ```sh
-WAYLAND_DISPLAY=wayland-1 quickshell -p ~/personal/quickui-demo
+mkdir -p ~/my-quickui-demo
+./quickui init --cwd ~/my-quickui-demo
+./quickui add button icon-button text-field field switch checkbox slider range-slider select card badge separator --cwd ~/my-quickui-demo
+cp templates/starter.qml ~/my-quickui-demo/shell.qml
+quickshell -p ~/my-quickui-demo
 ```
 
-Alternatively, run `quickshell -p ~/personal/quickui-demo` from a graphical terminal.
-To reproduce the installation elsewhere, create a directory, run `quickui init`,
-add all twelve foundation components, and copy `templates/starter.qml` to that directory as
-`shell.qml`. The starter uses mock data and has no desktop service side effects.
+The starter uses mock data and has no desktop service side effects. For a component
+browser with editable controls, run `./quickbook` from this checkout instead.
 
 ## Build an audio panel
 
@@ -76,10 +84,7 @@ a microphone level meter, application streams, and keyboard navigation. This dem
 uses mock data; the reusable components never access your audio services.
 See [mixer API](docs/audio-mixer.md), [audio controls](docs/audio-controls.md), and
 [Omarchy integration](integrations/omarchy-audio/README.md).
-[Milestone verification and rollback](docs/audio-milestone.md) records the installed result.
-
-Your installed `brandon.audio` plugin uses the same copied mixer source, with a
-separate adapter retaining PipeWire/MPRIS and Omarchy's native popup hosting.
+[Audio verification](docs/audio-milestone.md) records the tested integration boundary.
 
 ## Build a menu
 
@@ -96,25 +101,21 @@ local actions, a checked item, and an appearance submenu. Menu rows can also be
 used inside a shell-owned popup, as in the tray adapter. See the
 [menu APIs and ownership rules](docs/components.md#menus).
 
-## Installed shell consumers
+## Integrate with your shell
 
-The shared Omarchy setup bundles QuickUI sources with the audio panel, custom bar,
-News, and Blip. Local theme adapters follow Omarchy colors and sizing; services,
-window hosting, and keyboard routing remain in each plugin. News uses QuickUI for
-its footer, refresh action, unread badge, and tooltip; the bar uses it for category
-and tray actions; Blip uses it for its editors and action controls.
-
-These plugins are deployed through the private shared-configuration workflow in
-`~/omarchy-config`, including both machines. Omamail is excluded from the plugin
-inventory; uninstalling it preserves its machine-local data. The original Blip
-checkout is backed up before replacing its installation with the reviewed bundle.
+Components render state and emit interaction signals. Keep PipeWire, compositor,
+notification, and other service connections in your own adapters. QuickUI works
+without Omarchy; the optional [Omarchy audio adapter](integrations/omarchy-audio/README.md)
+is an example of connecting the same components to real desktop services.
 
 ## Run the workbench
 
-Requires **Quickshell 0.3.1** and **Qt 6 with Qt Quick Controls**. These are already installed on the machine where this project was built. No Node dependencies or build step.
+Tested with **Quickshell 0.3.1** and **Qt 6.11.2 with Qt Quick Controls**.
+No Node dependencies or build step. Install Quickshell and its Qt runtime
+dependencies using your Linux distribution's packages before launching.
 
 ```sh
-cd ~/personal/quickbook
+cd quick-ui
 ./quickbook
 ```
 
@@ -273,9 +274,19 @@ stories, including icons, Field feedback, RangeSlider, and RTL audio controls.
 
 This first version previews visual Qt Quick items. Actual `PanelWindow`/`PopupWindow` stories need a separate window harness and are not embedded in the canvas. Story discovery and control metadata are explicit; automatic introspection, persisted sessions, screenshot diffing, and web publishing are not included.
 
-## Remaining distribution work
+## Current scope
 
-The registry is still bundled locally. Public distribution needs an explicit
-license, a versioned remote registry, reviewed update/diff handling, and a tested
-Qt/Quickshell/compositor compatibility matrix. Full screen-reader verification and
-additional reusable shell blocks remain future work.
+This is an early source-library release. Installation uses the registry bundled
+with your checkout; use a Git tag or commit to choose a consistent source revision.
+A remotely installable CLI, remote registries, reviewed update/diff handling, and
+a broader Qt/Quickshell/compositor compatibility matrix remain future work.
+Full screen-reader verification and additional reusable shell blocks also remain
+future work.
+
+## License
+
+QuickUI and Quickbook are [MIT licensed](LICENSE). Installed QuickUI source files
+include the license notice so it travels with copied components. Keep these
+notices when redistributing the source or substantial portions of it.
+The optional Omarchy integration retains its upstream MIT attribution; see
+[third-party notices](THIRD_PARTY_NOTICES.md).

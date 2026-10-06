@@ -1,7 +1,7 @@
 # QuickUI component APIs
 
 Install from the repository with `./quickui add <name> --cwd <project>` and import
-with `import "ui" as UI`. Qt Quick and Qt Quick Controls are runtime dependencies;
+with `import "ui" as UI`. Qt 6.10+ Quick and Quick Controls are runtime dependencies;
 there is no Omarchy dependency. Tested on Quickshell 0.3.1 / Qt 6.11.2. Other Qt 6
 versions are not yet in a compatibility matrix.
 

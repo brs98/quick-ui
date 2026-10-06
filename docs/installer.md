@@ -1,9 +1,18 @@
 # Installing QuickUI source
 
 QuickUI copies editable QML files from this checkout's bundled registry into your
-Quickshell project. The installer needs Python 3 and no Python packages or network
-access. Run it from this repository; the resulting QML files work independently
-of this checkout.
+Quickshell project. The installer needs Python 3.8+ and no Python packages or network
+access after cloning. Get the installer and its bundled registry together:
+
+```sh
+git clone https://github.com/brs98/quick-ui.git
+cd quick-ui
+```
+
+Run it from this repository; the resulting QML files work independently of this
+checkout. Do not copy the `quickui` executable by itself: it needs the neighboring
+`registry.json` and `registry/quickui/` sources. You can also run the executable by
+its absolute path from another directory.
 
 ## Start with an existing project directory
 
@@ -21,8 +30,9 @@ and `theme`. Commands accept multiple component names, and `--cwd` defaults to
 the current directory. The project directory must already exist. The installer
 does not create or edit `shell.qml`.
 
-Available entries are `theme`, `button`, `icon-button`, `text-field`, `switch`,
-`checkbox`, `slider`, `select`, `card`, `badge`, and `separator`.
+Run `./quickui list` for the complete catalog of 20 public components, Theme,
+and the internal icon dependency. See [component APIs](components.md) for the
+controls and composition recipes.
 
 Import the copied directory from your QML file and pass a shared theme:
 
@@ -79,7 +89,8 @@ your installed dependencies from unrelated files. Other configuration fields are
 preserved.
 
 Customize theme properties on a shared `UI.Theme` instance, or edit the installed
-source. You own those files. There is no managed runtime module or updater.
+source. You own those files. Keep their included MIT license notices when
+redistributing. There is no managed runtime module or updater.
 Re-adding byte-identical files is a no-op that preserves their modification times.
 Previously installed dependencies are retained even after you customize them:
 editing `ui/Theme.qml` and then running `add slider` installs Slider while keeping
@@ -112,8 +123,8 @@ a symlink; it is resolved to its real location before validation.
 
 The registry graph must contain only known dependencies and no cycles. Malformed
 JSON and duplicate JSON keys are rejected. The CLI uses only the bundled local
-registry; fetching, publishing, version selection, and automatic source merging
-are future work.
+registry. Select a source revision by checking out a Git tag or commit before
+installing. Remote-registry fetching and automatic source merging are future work.
 
 Exit codes: `0` for success (including no-ops and valid dry runs), `1` for an
 installation/registry/filesystem error, and `2` for invalid command-line usage.

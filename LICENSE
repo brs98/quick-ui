@@ -1,5 +1,3 @@
-// SPDX-License-Identifier: MIT
-/*
 MIT License
 
 Copyright (c) 2026 brs98
@@ -21,18 +19,3 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-*/
-
-import QtQuick
-
-Button {
-    // Always describe the action ("Add workspace"), not its glyph ("+").
-    // A consumer may also override Accessible.name directly.
-    property string accessibleLabel: text
-    Accessible.name: accessibleLabel
-    implicitWidth: implicitHeight
-    horizontalPadding: theme.spacing
-    // Native icons keep text available as the accessible name. Existing glyphs
-    // remain the fallback when neither icon.name nor icon.source is supplied.
-    display: icon.name.length > 0 || icon.source.toString().length > 0 ? Button.IconOnly : Button.TextOnly
-}
