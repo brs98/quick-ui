@@ -1,3 +1,9 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) David Heinemeier Hansson
+// Adapted from Omarchy 4.0.4, shell/plugins/panels/audio/Panel.qml.
+// QuickUI integration changes are covered by the project LICENSE.
+// Preserve the upstream permission notice in LICENSE.omarchy when redistributing.
+
 // Adapter actions are service-aware; reusable QuickUI components are not.
 function setVolume(node, value, maximum) {
     if (!node || !node.audio) return 0

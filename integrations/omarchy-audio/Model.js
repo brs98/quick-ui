@@ -1,3 +1,9 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) David Heinemeier Hansson
+// Adapted from Omarchy 4.0.4, shell/plugins/panels/audio/Model.js.
+// QuickUI integration changes are covered by the project LICENSE.
+// Preserve the upstream permission notice in LICENSE.omarchy when redistributing.
+
 function isPlaybackStream(node) {
   if (!node || !node.isStream) return false
   if (node.isSink === true) return true
