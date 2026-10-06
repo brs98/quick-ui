@@ -1,110 +1,86 @@
-# Audio milestone verification
+# Audio integration and validation
 
-Verified on 2026-10-04 with Quickshell 0.3.1, Qt 6.11.2, Omarchy 4.0.4, and
-Hyprland/Wayland on this machine.
+QuickUI's audio components accept plain data and emit requests; the consumer owns
+state and services. `VolumeControl` and `AudioMixer` do not import PipeWire,
+MPRIS, or Omarchy. The mixer reconciles device and stream snapshots by stable id
+so value updates can preserve focus and an ongoing slider drag.
 
-## Delivered
+Two examples exercise this boundary:
 
-Five installable entries extend the foundation to **15 components plus Theme**:
-`tooltip`, `level-meter`, `device-item`, `volume-control`, and `audio-mixer`.
-Quickbook includes direct canonical-source stories for all five, with 23 audio
-presets and executable usage examples. The complete catalog has 19 entries:
-15 components, Theme playground, and three legacy examples.
+- [The audio starter](../templates/audio.qml) owns mock device and stream state
+  and runs independently of Omarchy.
+- [The Omarchy adapter](../integrations/omarchy-audio/README.md) connects the mixer
+  to live services and uses Omarchy's window hosting and audio helpers.
 
-`VolumeControl` and `AudioMixer` expose controlled requests. They accept plain
-values/ids; PipeWire, MPRIS, process helpers, and Omarchy window hosting live in
-`integrations/omarchy-audio/`. Internal keyed models preserve delegates during
-backend updates, including while dragging a stream slider.
+Component APIs and usage recipes are documented in [the component guide](components.md).
 
-## Evidence
+## Reproduce automated validation
 
-- `./scripts/test`: 39 Python tests and 248 Qt test results passed; QML lint clean.
-  Includes request rejection, volume bounds, native Tab focus, shell cursor keys,
-  Escape signals, model removal/reorder, held dragging during array replacement,
-  adapter actions, every preset in both themes, and usage compilation.
-- `python3 scripts/audio_smoke.py`: actual source installation into a clean
-  directory, 11-source dependency closure, customized Theme preservation, exact
-  installed bytes, mock adapter actions, and native dark/light rendering passed.
-- `python3 scripts/installed_smoke.py` and `python3 scripts/smoke.py`: existing
-  foundation installation, workbench IPC, native screenshots, and hot reload passed.
-- Real `brandon.audio` plugin loaded against the machine's output/microphone.
-  Verified open/focus, first-arrow cursor reveal without changing volume,
-  Tab handoff to another shell panel, Escape close/focus release, and closed-list
-  detachment. Captured only the audio card with the active Omarchy theme.
-- A temporary silent playback stream exercised actual PipeWire integration:
-  it appeared in Applications, a keyboard volume request changed its backend
-  volume from 1.00 to 0.95, and `m` toggled its backend mute state. Removing the
-  stream updated the list and repaired the cursor without errors. The test stream
-  was terminated; master output and microphone levels/mute states were unchanged.
-- The installed adapter and all eleven installed QML files match the deliverable
-  sources byte for byte. The stock Model.js is preserved unchanged.
+From the repository root, with Python 3, Qt 6 development tools and QtTest
+installed, run:
 
-The native popup remains Omarchy's KeyboardPanel, preserving its outside-click
-handling and compositor focus policy. That host is not distributed as a QuickUI
-window primitive. The native checks above exercise focus, Escape, and panel
-handoff; multi-monitor outside-click behavior is inherited, not newly audited.
+```sh
+./scripts/test
+```
 
-## Installed state and rollback
+The suite runs installer tests, QML lint, and Qt tests using the offscreen
+software backend. Relevant audio coverage includes controlled requests that an
+owner may reject, volume bounds, native Tab traversal, panel cursor navigation,
+Escape/panel-switch signals, hot list removal and reorder, and array replacement
+during a held drag. It also checks long labels, theme changes, RTL, bounded
+scrolling, accessibility properties, story presets, and executable usage examples.
+The adapter's JavaScript tests use mock services to check device selection,
+stale ids, mute/volume actions, labels, and playback classification.
 
-The official clone command replaced `omarchy.audio` with `brandon.audio` at its
-existing position in `~/.config/omarchy/shell.json`. Plugin source lives in
-`~/.config/omarchy/plugins/brandon.audio`, now a local Git repository:
+For installation and native rendering, install Quickshell and run:
 
-- `b2d769a`: original stock clone baseline.
-- `38821ab`: QuickUI adoption.
+```sh
+python3 scripts/audio_smoke.py --output-dir /tmp/quickui-audio-validation
+```
 
-Revert the adoption commit there, then run `omarchy restart shell`, to restore
-stock visuals while keeping the same placement and IPC. The pre-adoption shell
-configuration is also backed up in
-`~/.local/state/quickui-audio-adoption/shell-before.json`; restoring it wholesale
-would discard later shell config edits, so prefer the plugin revert.
+This creates a temporary project, installs `audio-mixer` and its dependency
+closure, compares installed source bytes, and verifies that a customized Theme
+is preserved. It then launches an isolated Quickshell process with mock audio
+state on Qt's offscreen backend, exercises IPC requests, and captures dark and
+light previews. It does not launch an Omarchy panel or change real audio devices.
+The dependency closure is derived from `registry.json`; counts may change as
+components evolve.
 
-The shell retained a cached old component after plugin rescans during installation;
-a normal shell restart applied the replacement. No packaged Omarchy files changed.
+Additional integration checks are available through
+[`scripts/installed_smoke.py`](../scripts/installed_smoke.py) for the foundation
+starter and [`scripts/smoke.py`](../scripts/smoke.py) for Quickbook's IPC, rendering,
+and hot reload. These also use isolated offscreen processes.
 
-## Follow-up distribution work
+## Validate a live Omarchy installation
 
-The local milestone is complete. Public distribution still needs a license and
-upstream integration-source attribution review, a versioned remote registry,
-reviewed source updates/diffs, and compatibility testing across Qt/Quickshell and
-compositors. Screen-reader auditing and further shell blocks remain future work.
+The adapter was developed and exercised with Omarchy 4.0.4, Quickshell 0.3.1,
+Qt 6.11.2, and Hyprland/Wayland. This is a development baseline, not a compatibility
+guarantee for other shell versions or compositors. Follow the
+[adapter installation instructions](../integrations/omarchy-audio/README.md)
+before running live checks.
 
-## Component hardening follow-up — 2026-10-04
+Check that the panel opens, receives focus, and displays the expected devices.
+The first arrow should reveal its cursor without changing volume; subsequent
+navigation should keep the selected row visible. Tab/Shift+Tab should hand off to
+another shell panel, Escape should close and release focus, and outside clicks
+should follow the host's dismissal behavior. The diagnostic status command can
+confirm that displayed lists detach after closing.
 
-The component-by-component shadcn comparison is implemented in QuickUI revision
-`c364b94`. The public library now has 17 components plus Theme; IconGraphic is an
-internal dependency. Field and RangeSlider join the foundation, and the existing
-components gain the audited icons, sizes, validation, composition, focus,
-accessibility, RTL, typography, and rendering improvements. Quickbook exposes
-all the new states through presets and controls. See `docs/components.md` for
-the final APIs and recipes.
+To check the service boundary, use a disposable playback stream and verify that
+its volume and mute requests affect that stream, then remove it while the panel
+is open. Confirm that the list and cursor recover without warnings. Output,
+microphone, and default-device requests act on real hardware: test them
+intentionally and restore the prior settings afterward. Also check the bar's
+wheel/OSD and right-click mute behavior in the host.
 
-Verification on Qt 6.11.2 / Quickshell 0.3.1:
+Automated tests with mock services do not establish live PipeWire or compositor
+compatibility. Window placement, outside-click handling, and multi-monitor focus
+remain Omarchy host behavior. Accessibility property and activation tests do not
+constitute a complete screen-reader audit.
 
-- 39 Python tests and 444 Qt test results passed; QML lint and diff checks clean.
-- Foundation clean-install smoke renders all twelve foundation components,
-  preserves a customized Theme, and verifies Field naming and both range values.
-- Audio clean-install smoke verifies the new twelve-source dependency closure,
-  exact source bytes, mock request wiring, and dark/light captures.
-- Quickbook native smoke verifies IPC, SVG assets, new compositions, and reload.
-- Native QAccessible inspection checks bounded meter values/ranges, individual
-  range-handle limits, selected device semantics, and a named focused panel cursor.
-  Qt tests exercise accessibility activation; this is not a screen-reader audit.
-- Independent reviews reproduced and closed additional large-font Select,
-  unbroken-description/Card text, constrained-icon, RTL alignment, and range-bound
-  issues. The live installed audio panel opens, focuses, renders, and closes.
+## Source and attribution
 
-Installed-source updates preserve the existing adapters and user settings:
-
-- `~/personal/quickui-demo`: fourteen sources including both new components and
-  the expanded starter.
-- `~/personal/quickui-audio-demo`: twelve sources.
-- `~/.config/omarchy/plugins/brandon.audio`: commit `b1233c7`.
-- `~/src/omarchy-news`: commit `28ec7e9`.
-
-All previously installed source files matched their recorded hashes before the
-upgrade. Rollback copies of each `ui/`, installer manifest, and the changed starter
-are in `~/.cache/quickui-upgrades/hardening-20261004-155301`. Revert the respective
-plugin upgrade commit to undo only this follow-up. Native panel evidence is
-`artifacts/quickui-hardened-native-audio.png`; isolated captures include Field,
-RangeSlider, icon buttons, checkbox groups, card sections, and mirrored audio.
+Portable components live in `registry/quickui/`; the service adapter lives in
+`integrations/omarchy-audio/` and is installed separately. The latter contains code
+derived from Omarchy's audio plugin. See [third-party notices](../THIRD_PARTY_NOTICES.md)
+and the retained [Omarchy license](../integrations/omarchy-audio/LICENSE.omarchy).

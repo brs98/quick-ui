@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
-  "id": "brandon.audio",
+  "id": "quickui.audio",
   "name": "QuickUI Audio",
   "version": "1.0.0",
-  "author": "Omarchy",
-  "description": "Audio panel built from owned QuickUI source",
+  "author": "QuickUI contributors; derived from Omarchy",
+  "description": "Omarchy audio integration using QuickUI components",
   "kinds": [
     "bar-widget"
   ],

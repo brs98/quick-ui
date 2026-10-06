@@ -1,61 +1,73 @@
 # Omarchy audio adapter
 
-This user-owned replacement renders the complete audio panel with installed
-QuickUI source. `Panel.qml` hosts `UI.AudioMixer` inside Omarchy's existing
-`KeyboardPanel`; the packaged shell is unchanged. It retains the bar icon,
-right-click master mute, accumulated wheel volume/OSD, panel switching, outside
-click dismissal and the `omarchy.audio` IPC target.
+This optional integration renders Omarchy's audio panel with installed QuickUI
+source. `Panel.qml` hosts `UI.AudioMixer` inside Omarchy's existing `KeyboardPanel`
+and retains the bar icon, right-click master mute, wheel volume/OSD, panel
+switching, outside-click dismissal, and `omarchy.audio` IPC target. Installation
+uses a user-owned plugin clone; it does not replace packaged shell files.
 
-## Service boundary
+## Requirements and service boundary
 
-`Panel.qml`, `Model.js`, and `Actions.js` belong to the Omarchy integration, not the
-QuickUI registry. The adapter owns PipeWire/MPRIS, device filtering and friendly
-labels, default device helpers, physical output resolution through DSP sinks,
-node tracking, and the microphone monitor. The mixer receives plain values and
-stable string ids. Its requests are looked up against the current displayed
-snapshot before touching a node, so stale device requests are harmless.
+The adapter was developed against Omarchy 4.0.4, Quickshell 0.3.1, and Qt 6.11.2.
+It requires Omarchy's `qs.Ui` and `qs.Commons` modules, its audio helper commands,
+and Quickshell's PipeWire/MPRIS services. These are integration dependencies, not
+requirements of the portable QuickUI components. Other Omarchy versions need
+validation against their shell APIs; this is not a standalone Quickshell panel.
+For a service-free example, see [the mock audio starter](../../templates/audio.qml).
+
+`Panel.qml`, `Model.js`, and `Actions.js` own device filtering and friendly labels,
+default-device helpers, physical output resolution through DSP sinks, node
+tracking, and the microphone monitor. The mixer receives plain values and stable
+string ids. Requests resolve against the current displayed snapshot before
+changing a node, so requests for removed devices or streams are ignored.
 
 Output and microphone volumes clamp to 0–1; application streams allow 0–1.5.
 The microphone peak monitor runs only while open. Displayed lists are refreshed
 after a 75 ms delay and detached when closed, preserving the stock plugin's
-PipeWire removal safety measures. Physical output resolution also runs while
-closed so the bar wheel continues to control the actual speakers.
+PipeWire removal precautions. Physical output resolution also runs while closed
+so the bar wheel can control the physical output.
 
-This adapter derives from Omarchy 4.0.4's packaged
-`shell/plugins/panels/audio/Panel.qml` and `Model.js`. The model retains its upstream
-logic. Omarchy integration sources are separate from portable QuickUI source;
-review upstream licensing and choose a project license before public distribution.
+The integration derives from Omarchy 4.0.4's packaged audio plugin. See
+[third-party notices](../../THIRD_PARTY_NOTICES.md) and the retained
+[Omarchy MIT license](LICENSE.omarchy) for attribution and license terms.
 
-## Install on an Omarchy machine
+## Install into a user-owned clone
 
-From the QuickUI repository, first create the normal user-owned clone:
+Back up your existing audio plugin, if any, and shell configuration before
+installing. From the QuickUI repository, create a clone using Omarchy's command:
 
 ```sh
 omarchy plugin clone omarchy.audio
 ```
 
-Then install the mixer into that clone and replace its adapter files:
+This command also replaces the enabled stock plugin with the clone. Set the
+variable below to the clone directory reported by Omarchy, normally
+`~/.config/omarchy/plugins/<username>.audio`. If you already have a customized
+clone, use its directory and review the three adapter files before replacing them.
 
 ```sh
-./quickui init --cwd ~/.config/omarchy/plugins/brandon.audio
-./quickui add audio-mixer --cwd ~/.config/omarchy/plugins/brandon.audio
-cp integrations/omarchy-audio/{Panel.qml,Model.js,Actions.js} ~/.config/omarchy/plugins/brandon.audio/
+audio_plugin_dir="/absolute/path/to/your/audio-plugin"
+./quickui init --cwd "$audio_plugin_dir"
+./quickui add audio-mixer --cwd "$audio_plugin_dir"
+cp integrations/omarchy-audio/Panel.qml integrations/omarchy-audio/Model.js integrations/omarchy-audio/Actions.js "$audio_plugin_dir/"
+cp integrations/omarchy-audio/LICENSE.omarchy "$audio_plugin_dir/"
+cp LICENSE "$audio_plugin_dir/LICENSE.quickui"
 omarchy-shell shell rescanPlugins
 ```
 
-The clone command chooses `<username>.audio`; substitute your own username above.
-Keep its generated manifest: `omarchy.clonedFrom: "omarchy.audio"` routes existing
-shell commands to the clone. Do not change the module/IPC id inside `Panel.qml`.
-Back up the stock clone and shell configuration before replacing the files.
-If the shell retains the previous QML component after rescan, run
-`omarchy restart shell` to clear its component cache.
+Keep the clone-generated `manifest.json`. Its `omarchy.clonedFrom` value of
+`"omarchy.audio"` routes existing shell commands to the clone. The manifest in
+this directory uses the neutral example id `quickui.audio` and is a reference,
+not a replacement for your generated manifest. Keep the module and IPC identity
+inside `Panel.qml` as `omarchy.audio` as well.
 
-On this machine, the installed clone and its original baseline are tracked in a
-local Git repository. The adoption commit can be reverted to restore the original
-panel while retaining the same bar placement and IPC. To return to the packaged
-plugin entirely, enable `omarchy.audio` with the normal Omarchy plugin command.
+If a rescan retains the old QML component, `omarchy restart shell` clears the
+shell's component cache. To undo the replacement while keeping the clone and its
+bar placement, restore the plugin files from your backup and restart the shell.
+To return to the packaged plugin, enable `omarchy.audio` through Omarchy's plugin
+management. Restore shell configuration selectively if other settings have changed.
 
-## Verify
+## Inspect the installed panel
 
 ```sh
 omarchy-shell omarchy.audio open
@@ -64,7 +76,13 @@ omarchy-shell quickui-audio capture /absolute/path/audio.png
 omarchy-shell omarchy.audio close
 ```
 
-Diagnostics report counts and state, without application titles or device names.
-Capture renders only the audio card, not the desktop. Native window hosting and
-outside-click focus behavior remain the responsibility of Omarchy's KeyboardPanel;
-QuickUI's standalone mixer also supports ordinary Tab navigation.
+Status reports counts and state without application titles or device names.
+Capture requires an open panel and renders only the audio card, including its
+visible labels. It saves asynchronously; check that the image was written.
+
+Omarchy's `KeyboardPanel` owns window focus and outside-click dismissal. The
+adapter enables panel navigation: the first arrow reveals the cursor without
+changing volume, Tab/Shift+Tab switch panels, and Escape closes. The standalone
+mixer instead defaults to normal Tab traversal. See the
+[audio validation guide](../../docs/audio-milestone.md) for automated coverage
+and host checks.
