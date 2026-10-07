@@ -7,6 +7,7 @@ Missing or malformed inputs clear availability; the QML consumer never presents
 an old theme as live. Paths are reopened each poll to follow atomic replacements.
 """
 # SPDX-License-Identifier: MIT
+# Omarchy 4.0.4 Color/Style semantics adapted for QuickUI; see LICENSE.omarchy.
 # MIT License
 #
 # Copyright (c) 2026 brs98

@@ -2,9 +2,11 @@
 
 QuickUI and Quickbook work without Omarchy. This optional integration supplies resolved host tokens to the portable `HostTheme` component. It does not change the desktop theme or import Omarchy singletons into the component library.
 
+Tested against Omarchy 4.0.4, Quickshell 0.3.1, and Qt 6.11.2. Omarchy-specific mappings live entirely in this optional directory.
+
 ## Design and install
 
-In Quickbook's **Create** view, enable the Omarchy preview and choose which categories follow the host. Copy the recipe to `quickui-omarchy.json`, then install into an existing Quickshell project:
+In Quickbook's **Create** view, enable the Omarchy preview and choose which categories follow the host. Copy the recipe to `quickui-omarchy.json` (paste that JSON into the Open field to restore it), then install into an existing Quickshell project:
 
 ```sh
 /path/to/quick-ui/quickui init --cwd /path/to/project
@@ -94,9 +96,9 @@ Item {
 }
 ```
 
-The standalone bridge requires Quickshell and Python 3.11+ (`tomllib`). It starts disabled. When enabled, it polls the resolved active theme and user shell settings; changes become visible on the next refresh (default 1.5 seconds). It reopens paths so atomic theme-directory replacements are followed. Theme reads are bounded and read-only; it never activates a theme or runs configuration as code. Desktop font/compositor queries supplement the files when available.
+The standalone bridge requires Quickshell and Python 3.11+ (`tomllib`). It starts disabled. When enabled, it polls the resolved active theme and user shell settings; changes become visible on the next refresh (default 1.5 seconds). It reopens paths so atomic theme-directory replacements are followed. Theme reads are bounded and read-only; it never activates a theme or runs configuration as code. Desktop font/compositor queries supplement the files when available. A matching Wayland session or a sole Hyprland instance can be discovered when the launch environment lacks its instance signature. An ambiguous or unavailable compositor leaves the preset radius intact and reports a warning; it does not silently turn rounded themes square.
 
-The source exposes `tokens`, `available`, `error`, `name`, and `enabled`. When unavailable or malformed, it clears host tokens and the preset takes over. Disabling it stops refresh work. For a synthetic fixture, set `themeDirectory`, `userShellPath`, and `querySystem: false`. This also permits native preview tests without changing the live desktop.
+The source exposes `tokens`, `available`, `error`, `name`, and `enabled`. `error` can also contain a nonfatal warning while theme colors are available. When unavailable or malformed, it clears host tokens and the preset takes over. Disabling it stops refresh work. For a synthetic fixture, set `themeDirectory`, `userShellPath`, and `querySystem: false`. This also permits native preview tests without changing the live desktop.
 
 The standalone bridge reproduces supported resolved settings from the active theme, user shell configuration, and available desktop queries. A shell plugin should use `ShellThemeSource` for the authoritative live `Color`/`Style` objects, including shell-specific runtime changes.
 

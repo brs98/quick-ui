@@ -42,7 +42,7 @@ The foundation contains **12 components**: `button`, `icon-button`, `text-field`
 `field`, `switch`, `checkbox`, `slider`, `range-slider`, `select`, `card`, `badge`,
 and `separator`. Audio adds **five components**: `tooltip`, `level-meter`,
 `device-item`, `volume-control`, and `audio-mixer`. Menus add **three components**:
-`menu`, `menu-item`, and `menu-separator` — joined by `list-item`, `dialog`, and `alert-dialog` for **23 public components plus Theme**, with an internal `icon-graphic` rendering dependency.
+`menu`, `menu-item`, and `menu-separator` — joined by `list-item`, `dialog`, and `alert-dialog` for **23 public components plus Theme and HostTheme**, with an internal `icon-graphic` rendering dependency.
 `./quickui list` shows their source files and dependencies.
 
 `add` preserves recorded, customized dependencies and refuses to overwrite edited
@@ -150,6 +150,31 @@ See [presets and source ownership](docs/presets.md) for code stability, JSON
 round trips, applying changes, and theme integration. Copy a code or JSON before
 closing or reloading Quickbook; switching between Components and Create keeps
 your in-memory edits.
+
+## Preview your Omarchy theme
+
+In **Create**, turn on **Preview with Omarchy**. Quickbook reads your active theme
+without changing it and updates the preview as your theme changes. Follow host
+colors, font/scale, radius, and spacing independently; uncheck a group to use the
+preset choices instead. The radius multiplier stays relative to your host radius,
+including square themes. Motion always uses your selected preset preference.
+
+**Copy recipe** includes the fallback preset and all Omarchy follow settings.
+Save it as `quickui-omarchy.json`, or paste the JSON back into Quickbook's Open
+field. The compact `q1` code continues to describe only the original preset.
+
+```sh
+./quickui init --cwd ~/my-shell
+./quickui omarchy install --recipe quickui-omarchy.json --cwd ~/my-shell --dry-run
+./quickui omarchy install --recipe quickui-omarchy.json --cwd ~/my-shell
+```
+
+The optional integration supports both Omarchy shell plugins and standalone
+Quickshell projects. See [Omarchy theme integration](integrations/omarchy-theme/README.md)
+for wiring the installed source to `UI.OmarchyPreset.hostTokens`, supported versions,
+and source ownership. Without an available Omarchy theme, the preview uses its
+preset fallback. QuickUI components and ordinary Quickbook previews remain
+independent of Omarchy.
 
 ## Run the workbench
 
@@ -277,6 +302,7 @@ Qt 6 development tools and Python 3 are needed for the checks. On Arch, Qt 5 too
 ./scripts/test
 python3 scripts/smoke.py
 python3 scripts/create_smoke.py
+python3 scripts/omarchy_smoke.py
 python3 scripts/installed_smoke.py
 python3 scripts/audio_smoke.py
 python3 scripts/menu_smoke.py

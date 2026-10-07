@@ -12,7 +12,7 @@ if [[ -z "$linter" || ! -x "$linter" ]]; then
     echo "Qt 6 qmllint is required. Set QMLLINT to its path." >&2
     exit 1
 fi
-"$linter" "$root"/app/*.qml "$root"/examples/*.qml "$root"/stories/*.qml "$root/shell.qml" "$root"/registry/quickui/*.qml "$root"/stories/primitives/*.qml "$root"/stories/audio/*.qml
+"$linter" "$root"/integrations/omarchy-theme/*.qml "$root"/app/*.qml "$root"/examples/*.qml "$root"/stories/*.qml "$root/shell.qml" "$root"/registry/quickui/*.qml "$root"/stories/primitives/*.qml "$root"/stories/audio/*.qml
 
 runner=${QMLTESTRUNNER:-/usr/lib/qt6/bin/qmltestrunner}
 if [[ ! -x "$runner" ]]; then

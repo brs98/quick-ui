@@ -30,6 +30,19 @@ example, not an official Omarchy release.
 When copying the integration, include `LICENSE.omarchy` alongside its sources
 and retain the applicable QuickUI license notice.
 
+## Omarchy theme integration
+
+The optional `integrations/omarchy-theme/` adapter maps the palette, surface,
+control-state, font, and spacing semantics of Omarchy 4.0.4's
+`shell/Commons/Color.qml` and `shell/Commons/Style.qml` into QuickUI tokens.
+The standalone reader reimplements those parsing and resolution rules for a
+read-only Python bridge. It does not vendor or modify the Omarchy shell.
+
+Omarchy copyright (c) David Heinemeier Hansson; MIT license. Include the retained
+[integration license](integrations/omarchy-theme/LICENSE.omarchy) when distributing
+these sources. The optional installer copies this license alongside them.
+This integration is maintained independently of Omarchy.
+
 ## Runtime dependencies
 
 The QML components import Qt's public APIs, including `QtQuick.Controls.Basic`.

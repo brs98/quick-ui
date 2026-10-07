@@ -76,7 +76,7 @@ def main():
         config.mkdir()
         for path in ROOT.rglob("*"):
             relative = path.relative_to(ROOT)
-            if path.is_file() and path.suffix in (".qml", ".js", ".svg") and not any(p.startswith(".") for p in relative.parts):
+            if path.is_file() and path.suffix in (".qml", ".js", ".svg", ".py") and not any(p.startswith(".") for p in relative.parts):
                 dest = config / relative
                 dest.parent.mkdir(parents=True, exist_ok=True)
                 shutil.copy2(path, dest)

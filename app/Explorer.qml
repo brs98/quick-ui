@@ -11,7 +11,11 @@ Rectangle {
     property alias explorerState: modelState
     property alias preview: storyLoader
     property bool createMode: false
-    property alias createState: builder.createState
+    property var hostTokens: null
+    property bool hostAvailable: false
+    property string hostName: ""
+    property string hostError: ""
+    readonly property PresetState createState: builder.createState
     property alias presetBuilder: builder
     onCreateModeChanged: {
         if (browserPopup) browserPopup.close();
@@ -369,6 +373,10 @@ Rectangle {
         PresetBuilder {
             id: builder
             objectName: "presetBuilder"
+            hostTokens: root.hostTokens
+            hostAvailable: root.hostAvailable
+            hostName: root.hostName
+            hostError: root.hostError
             visible: root.createMode
             Layout.fillWidth: true
             Layout.fillHeight: true
@@ -384,7 +392,7 @@ Rectangle {
                 anchors.rightMargin: 18
                 Text { text: "QUICKBOOK / 0.1"; color: colors.muted; font.pixelSize: 9; font.letterSpacing: 0.8 }
                 Item { Layout.fillWidth: true }
-                Text { text: root.createMode ? "Copy your preset code to save or share it" : "Ctrl+K  search     Ctrl+R  reload     Ctrl+0  reset"; color: colors.muted; font.pixelSize: 10 }
+                Text { text: root.createMode ? (builder.omarchyPreview ? "Copy recipe to save host follow settings" : "Copy your preset code to save or share it") : "Ctrl+K  search     Ctrl+R  reload     Ctrl+0  reset"; color: colors.muted; font.pixelSize: 10 }
             }
         }
     }

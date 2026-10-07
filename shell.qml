@@ -3,10 +3,15 @@ import Quickshell
 import Quickshell.Io
 import "app"
 import "stories"
+import "integrations/omarchy-theme" as Omarchy
 
 ShellRoot {
     id: shell
     Catalog { id: catalog }
+    Omarchy.DesktopThemeSource {
+        id: omarchySource
+        enabled: explorer.createMode && explorer.presetBuilder.omarchyPreview
+    }
     FloatingWindow {
         id: window
         title: "Quickbook — Component Explorer"
@@ -18,6 +23,10 @@ ShellRoot {
             id: explorer
             anchors.fill: parent
             catalog: catalog.entries
+            hostTokens: omarchySource.tokens
+            hostAvailable: omarchySource.available
+            hostName: omarchySource.name
+            hostError: omarchySource.error
             onReloadRequested: Quickshell.reload(false)
         }
     }
@@ -50,6 +59,8 @@ ShellRoot {
         function createLoad(code: string): bool { return explorer.createState.loadCode(code); }
         function createTheme(dark: bool): void { explorer.presetBuilder.dark = dark; }
         function createExport(): string { return explorer.createState.exportJson(); }
+        function omarchyPreview(enabled: bool): void { explorer.presetBuilder.omarchyPreview = enabled; }
+        function omarchyRecipe(): string { return explorer.presetBuilder.exportRecipe(); }
         function preset(index: int): bool { return explorer.explorerState.preset(index); }
         function control(key: string, json: string): bool {
             try { return explorer.explorerState.setArg(key, JSON.parse(json)); }

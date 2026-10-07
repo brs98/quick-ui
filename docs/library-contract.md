@@ -18,6 +18,7 @@ Foundation registry entries:
 | Registry name | QML type | Dependencies |
 | --- | --- | --- |
 | theme | Theme | — |
+| host-theme | HostTheme (optional composition helper) | theme |
 | button | Button | theme, icon-graphic |
 | icon-button | IconButton | button |
 | text-field | TextField | theme |

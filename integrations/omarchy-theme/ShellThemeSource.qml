@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: MIT
+// Omarchy 4.0.4 Color/Style semantics adapted for QuickUI; see LICENSE.omarchy.
 /*
 MIT License
 
