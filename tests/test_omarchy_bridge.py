@@ -1,5 +1,7 @@
 """Read-only Omarchy bridge: parsing, source replacement and native polling."""
 import importlib.util
+import contextlib
+import io
 import json
 import os
 from pathlib import Path
@@ -38,6 +40,7 @@ class BridgeTests(unittest.TestCase):
         self.assertEqual(result["colors"]["muted"], "#888888")
         self.assertEqual(result["style"]["controlHeight"], 28)
         self.assertEqual(result["style"]["fontFamily"], "monospace")
+        self.assertEqual(result["style"]["radius"], 0)
 
     def test_explicit_accent_wins_and_user_overrides_layer(self):
         (self.theme / "shell.toml").write_text('[font]\nbase-size=18\n[spacing]\nscale=1.5\ncontrol-gap=7\n[controls]\nselected-color="accent"\nselected-fill-alpha=0.5\n')
@@ -108,7 +111,7 @@ class BridgeTests(unittest.TestCase):
         self.assertEqual(self.read()["colors"]["accent"], "#ffaa33")
 
     def test_read_only_system_commands_bounded_and_optional(self):
-        with patch.object(bridge.subprocess, "run") as run:
+        with patch.dict(os.environ, {"HYPRLAND_INSTANCE_SIGNATURE": "fixture"}), patch.object(bridge.subprocess, "run") as run:
             run.side_effect = [subprocess.CompletedProcess([], 0, "Fixture Mono", ""), subprocess.CompletedProcess([], 0, '{"int":17}', "")]
             result = bridge.snapshot(self.theme, self.user)
             self.assertEqual(result["style"]["fontFamily"], "Fixture Mono")
@@ -122,8 +125,39 @@ class BridgeTests(unittest.TestCase):
             run.assert_not_called()
         with patch.object(bridge.subprocess, "run", side_effect=subprocess.TimeoutExpired("fixture", .5)):
             result = bridge.snapshot(self.theme, self.user)
-            self.assertEqual(result["style"]["radius"], 0)
+            self.assertNotIn("radius", result["style"])
             self.assertEqual(result["style"]["fontFamily"], "monospace")
+
+    def test_rounding_discovers_matching_or_sole_instance(self):
+        cases = [
+            ({"WAYLAND_DISPLAY": "wayland-2"}, [{"instance": "a", "wl_socket": "wayland-1"}, {"instance": "b", "wl_socket": "wayland-2"}], "b"),
+            ({}, [{"instance": "only", "wl_socket": "wayland-1"}], "only"),
+        ]
+        for environment, instances, expected in cases:
+            with self.subTest(environment=environment), patch.dict(os.environ, environment, clear=True), patch.object(bridge, "command_output", side_effect=[json.dumps(instances), '{"int":12}']) as command:
+                self.assertEqual(bridge.desktop_radius(), 12)
+                self.assertEqual(command.call_args_list[0].args[0], ["hyprctl", "-j", "instances"])
+                self.assertEqual(command.call_args_list[1].args[0], ["hyprctl", "-i", expected, "-j", "getoption", "decoration:rounding"])
+
+    def test_rounding_does_not_guess_when_unavailable_or_ambiguous(self):
+        for raw in ('[]', 'invalid', '{}', '[{"instance":"a"},{"instance":"b"}]'):
+            with self.subTest(raw=raw), patch.dict(os.environ, {}, clear=True), patch.object(bridge, "command_output", return_value=raw) as command:
+                self.assertIsNone(bridge.desktop_radius())
+                self.assertEqual(command.call_count, 1)
+        for raw in ('{}', '{"int":-1}', '{"int":false}', 'bad', '{"int":"missing"}'):
+            with self.subTest(raw=raw), patch.dict(os.environ, {"HYPRLAND_INSTANCE_SIGNATURE": "fixture"}, clear=True), patch.object(bridge, "command_output", return_value=raw):
+                self.assertIsNone(bridge.desktop_radius())
+
+    def test_unavailable_rounding_preserves_colors_and_reports_fallback(self):
+        output = io.StringIO()
+        args = ["read_theme.py", "--theme-dir", str(self.theme), "--user-shell", str(self.user)]
+        with patch("sys.argv", args), patch.object(bridge, "command_output", return_value=""), contextlib.redirect_stdout(output):
+            bridge.main()
+        result = json.loads(output.getvalue())
+        self.assertTrue(result["available"])
+        self.assertNotIn("radius", result["snapshot"]["style"])
+        self.assertEqual(result["snapshot"]["colors"]["accent"], "#8899ff")
+        self.assertIn("preset radius", result["error"])
 
     @unittest.skipUnless(shutil.which("quickshell"), "Quickshell required for native bridge polling")
     def test_native_live_source_creation_replacement_failure_and_disable(self):

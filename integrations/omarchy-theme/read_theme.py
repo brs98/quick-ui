@@ -35,6 +35,7 @@ from __future__ import annotations
 import argparse
 import json
 import math
+import os
 from pathlib import Path
 import re
 import subprocess
@@ -128,6 +129,36 @@ def command_output(command: list[str]) -> str:
         return ""
 
 
+def desktop_radius() -> float | None:
+    command = ["hyprctl", "-j", "getoption", "decoration:rounding"]
+    if not os.environ.get("HYPRLAND_INSTANCE_SIGNATURE"):
+        # Multiplexers may lack Hyprland's environment. Choose only the current
+        # Wayland display or an unambiguous single instance; never guess among
+        # several sessions. Instance selection is read-only and argument-based.
+        try:
+            instances = json.loads(command_output(["hyprctl", "-j", "instances"]))
+        except ValueError:
+            return None
+        if not isinstance(instances, list):
+            return None
+        valid = [item for item in instances if isinstance(item, dict)
+                 and isinstance(item.get("instance"), str) and item["instance"]]
+        display = os.environ.get("WAYLAND_DISPLAY")
+        matches = [item for item in valid if display and item.get("wl_socket") == display]
+        selected = matches[0] if len(matches) == 1 else valid[0] if len(valid) == 1 else None
+        if selected is None:
+            return None
+        command = ["hyprctl", "-i", selected["instance"], "-j", "getoption", "decoration:rounding"]
+    try:
+        result = json.loads(command_output(command))
+        value = result.get("int") if isinstance(result, dict) else None
+        if type(value) in (int, float) and math.isfinite(value) and value >= 0:
+            return value
+    except ValueError:
+        pass
+    return None
+
+
 def snapshot(theme_dir: Path, user_shell: Path, *, system: bool = True) -> dict:
     initial = theme_dir.stat()
     base = read_toml(theme_dir / "colors.toml", required=True)
@@ -197,17 +228,16 @@ def snapshot(theme_dir: Path, user_shell: Path, *, system: bool = True) -> dict:
     family = "monospace"
     if system:
         family = command_output(["fc-match", "-f", "%{family[0]}", "monospace"]) or family
-        try:
-            radius = max(0, number(json.loads(command_output(["hyprctl", "-j", "getoption", "decoration:rounding"]) or "{}").get("int"), 0))
-        except (ValueError, AttributeError):
-            pass
+        radius = desktop_radius()
     normal_width = max(0, rounded(number(controls.get("normal-border-width"), 1)))
     focus_width = max(0, rounded(number(controls.get("focus-border-width"), number(controls.get("hover-cursor-border-width"), normal_width))))
     style = dict(fontFamily=family, fontScale=font_scale, fontSize=font("body", 1),
-                 smallFontSize=font("body-small", .917), radius=radius,
+                 smallFontSize=font("body-small", .917),
                  spacing=spacing("control-gap", 8), padding=spacing("control-padding-x", 10),
                  controlHeight=spacing("control-height", 28), handleSize=space(14),
                  borderWidth=normal_width, focusWidth=focus_width)
+    if radius is not None:
+        style["radius"] = radius
     return {"colors": colors, "style": style}
 
 
@@ -235,7 +265,8 @@ def main():
     user = args.user_shell or home / ".config/omarchy/shell.toml"
     try:
         data = snapshot(theme, user, system=not args.no_system)
-        result = {"schemaVersion": 1, "available": True, "name": theme_name(theme), "error": "", "snapshot": data}
+        warning = "" if "radius" in data["style"] else "Host rounding unavailable; using preset radius"
+        result = {"schemaVersion": 1, "available": True, "name": theme_name(theme), "error": warning, "snapshot": data}
     except (OSError, ValueError, UnicodeError, tomllib.TOMLDecodeError) as error:
         # Do not echo file contents or arbitrary TOML diagnostics into UI/logs.
         message = str(error) if isinstance(error, ValueError) and not isinstance(error, (tomllib.TOMLDecodeError, UnicodeError)) else "Omarchy theme could not be read"
