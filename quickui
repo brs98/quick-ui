@@ -312,6 +312,103 @@ def install_preset(entries, args, code, initialize=False):
         print("Host colors: bind systemTheme to your host Theme object; the palette is the standalone fallback.")
 
 
+
+def install_omarchy(args):
+    import omarchy_recipe
+    import presetlib
+    recipe = omarchy_recipe.validate(read_json(Path(args.recipe).expanduser()))
+    project = Path(args.cwd).expanduser().resolve()
+    if not project.is_dir():
+        raise InstallError(f"Project directory does not exist: {project}")
+    directory, config, original_config = project_config(project, False)
+    checked_path(project, directory, directory=True)
+    # A generated preset is shared with `preset apply`; validate its ownership
+    # separately, then commit all integration files and metadata in one plan.
+    preset_relative = directory / "PresetTheme.qml"
+    previous_preset = config.get("preset")
+    if previous_preset is not None:
+        if (not isinstance(previous_preset, dict)
+                or set(previous_preset) != {"schemaVersion", "code", "config", "path", "sha256"}
+                or not isinstance(previous_preset["sha256"], str)
+                or not re.fullmatch(r"[0-9a-f]{64}", previous_preset["sha256"])):
+            raise InstallError("Invalid preset origin record in quickui.json")
+        presetlib.import_config({key: previous_preset[key] for key in ("schemaVersion", "code", "config")})
+        if relative_path(previous_preset["path"], "preset.path") != preset_relative:
+            raise InstallError("Preset destination changed; preserve/move owned files deliberately first")
+    optional_sources = ("DesktopThemeSource.qml", "read_theme.py", "OmarchyTokens.js", "ShellThemeSource.qml", "LICENSE.omarchy")
+    contents = {}
+    for name in optional_sources:
+        source = checked_path(ROOT, PurePosixPath("integrations/omarchy-theme") / name)
+        contents[PurePosixPath("quickui-omarchy") / name] = source.read_bytes()
+    contents[directory / "HostTheme.qml"] = checked_path(ROOT, PurePosixPath("registry/quickui/HostTheme.qml")).read_bytes()
+    contents[directory / "OmarchyPreset.qml"] = omarchy_recipe.qml_theme(recipe)
+    record = config.get("omarchy")
+    previous_files = {}
+    if record is not None:
+        if (not isinstance(record, dict) or set(record) != {"schemaVersion", "recipe", "files"}
+                or type(record["schemaVersion"]) is not int or record["schemaVersion"] != 1
+                or not isinstance(record["files"], dict)):
+            raise InstallError("Invalid Omarchy origin record in quickui.json")
+        omarchy_recipe.validate(record["recipe"])
+        previous_files = record["files"]
+        if set(previous_files) != {str(path) for path in contents}:
+            raise InstallError("Omarchy destinations changed; preserve/move owned files deliberately first")
+        for path, fingerprint in previous_files.items():
+            relative_path(path, "omarchy.files path")
+            if not isinstance(fingerprint, str) or not re.fullmatch(r"[0-9a-f]{64}", fingerprint):
+                raise InstallError("Invalid Omarchy file fingerprint in quickui.json")
+    planned = []
+    fingerprints = {}
+    for relative, content in contents.items():
+        target = checked_path(project, relative)
+        original = target.read_bytes() if target.exists() else None
+        fingerprint = previous_files.get(str(relative))
+        # A HostTheme copied with `quickui add host-theme` is already owned.
+        if relative == directory / "HostTheme.qml" and not fingerprint:
+            host_record = config["installed"].get("host-theme")
+            if host_record and host_record["path"] == str(relative):
+                fingerprint = host_record["sha256"]
+        if original is not None and (not fingerprint or hashlib.sha256(original).hexdigest() != fingerprint):
+            raise InstallError(f"Refusing to overwrite edited or unowned Omarchy file: {target}")
+        if original != content:
+            planned.append((target, content, original))
+        fingerprints[str(relative)] = hashlib.sha256(content).hexdigest()
+    preset_content = presetlib.qml_theme(recipe["preset"])
+    preset_target = checked_path(project, preset_relative)
+    preset_original = preset_target.read_bytes() if preset_target.exists() else None
+    if preset_original is not None and (not previous_preset
+            or hashlib.sha256(preset_original).hexdigest() != previous_preset["sha256"]):
+        raise InstallError(f"Refusing to overwrite edited or unowned preset theme: {preset_target}")
+    if preset_original != preset_content:
+        planned.append((preset_target, preset_content, preset_original))
+    theme_relative = directory / "Theme.qml"
+    theme_target = checked_path(project, theme_relative)
+    if not theme_target.exists():
+        theme_content = checked_path(ROOT, PurePosixPath("registry/quickui/Theme.qml")).read_bytes()
+        planned.append((theme_target, theme_content, None))
+        config["installed"]["theme"] = {"path": str(theme_relative), "sha256": hashlib.sha256(theme_content).hexdigest()}
+    config["preset"] = dict(presetlib.export(recipe["preset"]), path=str(preset_relative),
+                            sha256=hashlib.sha256(preset_content).hexdigest())
+    host_record = config["installed"].get("host-theme")
+    host_relative = directory / "HostTheme.qml"
+    if host_record and host_record["path"] == str(host_relative):
+        host_record["sha256"] = fingerprints[str(host_relative)]
+    config["omarchy"] = {"schemaVersion": 1, "recipe": recipe, "files": fingerprints}
+    if json.loads(original_config) != config:
+        planned.append((project / CONFIG_NAME, (json.dumps(config, indent=2) + "\n").encode(), original_config))
+    # Every source, destination and ownership record is checked before writing.
+    if not args.dry_run:
+        commit_plan(project, planned)
+    for path, _, previous in planned:
+        action = "create" if previous is None else "update"
+        print(f"{'Would ' + action if args.dry_run else action.capitalize() + 'd'} {path.relative_to(project)}")
+    if not planned:
+        print("Omarchy integration unchanged; owned sources preserved.")
+    if args.dry_run:
+        print("Dry run: no files changed.")
+    print(f'Use: import "{directory}" as UI; UI.OmarchyPreset {{ hostTokens: source.tokens }}')
+
+
 def preset_command(args):
     import presetlib
     if args.preset_command == "encode":
@@ -332,6 +429,12 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     commands = parser.add_subparsers(dest="command", required=True)
     commands.add_parser("list", help="list bundled components and their dependencies")
+    omarchy = commands.add_parser("omarchy", help="install an optional Omarchy theme recipe")
+    omarchy_commands = omarchy.add_subparsers(dest="omarchy_command", required=True)
+    omarchy_install = omarchy_commands.add_parser("install", help="copy optional adapters and compose a preset")
+    omarchy_install.add_argument("--recipe", required=True, metavar="FILE")
+    omarchy_install.add_argument("--cwd", default=".", metavar="PROJECT")
+    omarchy_install.add_argument("--dry-run", action="store_true")
     preset = commands.add_parser("preset", help="inspect, export, encode, or apply a versioned preset")
     preset_commands = preset.add_subparsers(dest="preset_command", required=True)
     for name in ("inspect", "export", "apply"):
@@ -354,6 +457,9 @@ def main():
         child.add_argument("--dry-run", action="store_true", help="validate and show changes without writing")
     args = parser.parse_args()
     try:
+        if args.command == "omarchy":
+            install_omarchy(args)
+            return 0
         if args.command == "preset":
             preset_command(args)
             return 0
