@@ -160,6 +160,12 @@
         "theme",
         "icon-graphic"
       ]
+    },
+    "host-theme": {
+      "file": "HostTheme.qml",
+      "dependencies": [
+        "theme"
+      ]
     }
   }
 }
