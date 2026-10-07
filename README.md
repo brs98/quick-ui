@@ -323,6 +323,11 @@ python3 scripts/accessibility_smoke.py
 python3 scripts/persistence_smoke.py
 ```
 
+CI uses the complete Arch Linux package snapshot from **2026-10-01** so
+Quickshell and its Qt private ABI stay matched. Advance that snapshot only after
+checking the native suite; mixing a newer Qt runtime with an older Quickshell build
+is unsupported.
+
 The first command runs launcher and installer regressions, QML lint, and Qt Quick interaction tests, including all primitive presets and both themes. The launcher tests use temporary sockets and a stub executable to verify display discovery and command forwarding without starting Qt. The smoke check starts a separate Quickshell process using the software offscreen renderer, exercises IPC and hot reload in a temporary config, and writes `artifacts/quickbook-dark.png` and `artifacts/quickbook-light.png`. It does not need an active desktop and does not affect any running Quickbook instance. The installed-source smoke test independently copies all twelve foundation components into a fresh project, edits its Theme, launches the standalone starter, and captures `artifacts/quickui-starter.png`.
 
 The Create smoke renders desktop dark/light and narrow layouts, exercises locked shuffle and undo, and checks a native-editor-to-CLI round trip with owned-source preservation. It uses a disposable configuration and does not require an IPC socket.
