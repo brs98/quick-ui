@@ -18,6 +18,8 @@ built-in variant, explorer light/dark mode, grid, and canvas dimensions. Event
 logs, search text, arbitrary component control values, and gallery form inputs
 are deliberately not saved. Undo history starts fresh after reopening a design.
 
+![Saved designs in the native workbench](images/quickbook-saved-designs.png)
+
 ## Storage
 
 State lives in `$XDG_STATE_HOME/quickbook/state.json`, normally
