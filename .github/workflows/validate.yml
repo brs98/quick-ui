@@ -46,6 +46,8 @@ jobs:
           else
             python3 scripts/package.py
           fi
+      - name: Verify extracted release installation
+        run: python3 scripts/release_smoke.py
       - uses: actions/upload-artifact@v4
         if: always()
         with:
