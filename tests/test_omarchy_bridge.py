@@ -59,6 +59,20 @@ class BridgeTests(unittest.TestCase):
         self.assertEqual(result["colors"]["focus"], "#408899ff")
         self.assertEqual(result["style"]["controlHeight"], 28)
 
+    def test_legacy_style_and_controls_follow_merged_insertion_order(self):
+        (self.theme / "shell.toml").write_text('[controls]\nselected-fill-alpha=0.2\n')
+        self.user.write_text('[style]\nselected-fill-alpha=0.8\n')
+        self.assertEqual(self.read()["colors"]["selection"], "#cceeeeff")
+        # Reversing section names retains the same last-inserted-key behavior.
+        (self.theme / "shell.toml").write_text('[style]\nselected-fill-alpha=0.2\n')
+        self.user.write_text('[controls]\nselected-fill-alpha=0.8\n')
+        self.assertEqual(self.read()["colors"]["selection"], "#cceeeeff")
+        # Replacing an existing merged key does not move its insertion position,
+        # matching Color.mergeShell followed by Style.applyShellValues.
+        (self.theme / "shell.toml").write_text('[controls]\nselected-fill-alpha=0.2\n[style]\nselected-fill-alpha=0.4\n')
+        self.user.write_text('[controls]\nselected-fill-alpha=0.8\n')
+        self.assertEqual(self.read()["colors"]["selection"], "#66eeeeff")
+
     def test_invalid_and_oversize_sources(self):
         for invalid in ('background = "broken"\nforeground="#fff"', 'background=[\n', 'x="' + 'a' * bridge.MAX_BYTES):
             (self.theme / "colors.toml").write_text(invalid)

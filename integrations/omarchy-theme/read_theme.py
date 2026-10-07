@@ -154,8 +154,10 @@ def snapshot(theme_dir: Path, user_shell: Path, *, system: bool = True) -> dict:
     final = theme_dir.stat()
     if (initial.st_dev, initial.st_ino) != (final.st_dev, final.st_ino):
         raise ValueError("Omarchy theme changed while being read; retrying")
-    controls = {k.split(".", 1)[1]: v for k, v in flat.items() if k.startswith("style.")}
-    controls.update({k.split(".", 1)[1]: v for k, v in flat.items() if k.startswith("controls.")})
+    # Style.applyShellValues walks the merged keys in insertion order, treating
+    # legacy [style] and [controls] as aliases without preferring either name.
+    controls = {k.split(".", 1)[1]: v for k, v in flat.items()
+                if k.startswith(("style.", "controls."))}
 
     def composed(key, fallback, opacity=1):
         return alpha(color(flat.get(key), fallback, palette, flat), flat.get(key + "-alpha", opacity))
