@@ -59,8 +59,8 @@ function resolve(snapshot) {
     var urgent = c.urgent || "#ba2948";
     var popup = c.popup || background;
     var popupText = c.popupForeground || foreground;
-    var radius = Math.round(number(s.radius, 0, 0));
-    return {
+    var radius = number(s.radius, null, 0);
+    var tokens = {
         dark: luminance(rgba(background)) < 0.5,
         background: background, surface: popup, surfaceHover: c.surfaceHover || popup,
         foreground: foreground, mutedForeground: c.muted || foreground,
@@ -73,10 +73,17 @@ function resolve(snapshot) {
         popup: popup, popupForeground: popupText, card: popup, cardForeground: popupText,
         fontFamily: s.fontFamily || "monospace", fontScale: number(s.fontScale, 1, 0.01),
         fontSize: Math.round(number(s.fontSize, 12, 1)), smallFontSize: Math.round(number(s.smallFontSize, 11, 1)),
-        radius: radius, radiusSmall: Math.round(radius * 0.6), radiusLarge: Math.round(radius * 1.4),
         spacing: Math.round(number(s.spacing, 8, 0)), padding: Math.round(number(s.padding, 10, 0)),
         controlHeight: Math.round(number(s.controlHeight, 28, 1)), handleSize: Math.round(number(s.handleSize, 14, 1)),
         borderWidth: Math.round(number(s.borderWidth, 1, 0)), focusWidth: Math.round(number(s.focusWidth, 1, 0)),
         density: "default", motionDuration: 120, disabledOpacity: 0.45
     };
+    // An unavailable compositor value is not a square theme. Omit the group
+    // so HostTheme preserves preset geometry until a real value is available.
+    if (radius !== null) {
+        tokens.radius = Math.round(radius);
+        tokens.radiusSmall = Math.round(tokens.radius * 0.6);
+        tokens.radiusLarge = Math.round(tokens.radius * 1.4);
+    }
+    return tokens;
 }

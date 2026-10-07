@@ -95,9 +95,31 @@ Item {
             compare(Mapper.resolve(null),null); compare(Mapper.resolve({}),null);
             compare(Mapper.resolve({colors:{background:"oops",foreground:"#fff"}}),null);
             const tokens=Mapper.resolve({colors:{background:"#fff",foreground:"#111"},style:{radius:-1,fontSize:NaN}});
-            compare(tokens.dark,false); compare(tokens.radius,0); compare(tokens.fontSize,12);
+            compare(tokens.dark,false); compare(tokens.radius,undefined); compare(tokens.fontSize,12);
             const t=make(); t.hostTokens={radius:4}; compare(t.radius,4); compare(t.fontSize,preset.fontSize); compare(t.background,preset.background);
             t.hostTokens={radius:null}; t.radiusMultiplier=2; compare(t.radius,preset.radius);
+        }
+        function test_unavailableRadiusPreservesPresetGeometry_data() {
+            return [{tag:"missing",value:undefined},{tag:"null",value:null},
+                    {tag:"negative",value:-1},{tag:"NaN",value:NaN},
+                    {tag:"infinite",value:Infinity},{tag:"string",value:"0"}];
+        }
+        function test_unavailableRadiusPreservesPresetGeometry(data) {
+            const tokens=Mapper.resolve({colors:{background:"#111",foreground:"#eee"},style:{radius:data.value}});
+            const t=make(); t.hostTokens=tokens; t.radiusMultiplier=2;
+            for (const key of ["radius","radiusSmall","radiusLarge"]) {
+                verify(!Object.prototype.hasOwnProperty.call(tokens,key),key+" must remain absent");
+                compare(t[key],preset[key],key);
+            }
+            t.hostTokens={radius:data.value};
+            compare(t.radius,preset.radius); compare(t.radiusSmall,preset.radiusSmall); compare(t.radiusLarge,preset.radiusLarge);
+        }
+        function test_explicitZeroRadiusRemainsSquare() {
+            const tokens=Mapper.resolve({colors:{background:"#111",foreground:"#eee"},style:{radius:0}});
+            const t=make(); t.hostTokens=tokens; t.radiusMultiplier=2;
+            for (const key of ["radius","radiusSmall","radiusLarge"]) {
+                verify(Object.prototype.hasOwnProperty.call(tokens,key)); compare(tokens[key],0); compare(t[key],0);
+            }
         }
         function test_sourceDisconnectFallsBack() {
             const disconnected=createTemporaryObject(Qt.createComponent("../integrations/omarchy-theme/ShellThemeSource.qml"),this);
