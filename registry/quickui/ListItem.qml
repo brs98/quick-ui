@@ -82,8 +82,9 @@ Controls.ItemDelegate {
         Loader {
             id: leadingSlot
             objectName: "listLeading"
+            // Null sourceComponent already unloads the slot; keep native active
+            // state to avoid re-entrant activation during a component swap.
             sourceComponent: control.leading
-            active: sourceComponent !== null
             readonly property Item visualItem: item as Item
             readonly property real naturalWidth: visualItem ? visualItem.implicitWidth : 0
             readonly property real naturalHeight: visualItem ? visualItem.implicitHeight : 0
@@ -141,7 +142,6 @@ Controls.ItemDelegate {
             id: trailingSlot
             objectName: "listTrailing"
             sourceComponent: control.trailing
-            active: sourceComponent !== null
             readonly property Item visualItem: item as Item
             readonly property real naturalWidth: visualItem ? visualItem.implicitWidth : 0
             readonly property real naturalHeight: visualItem ? visualItem.implicitHeight : 0

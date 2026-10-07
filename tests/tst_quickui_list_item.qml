@@ -45,6 +45,34 @@ Item {
         }
     }
     Component {
+        id: dynamicSlotFactory
+        Item {
+            id: owner
+            width: 320; height: 200
+            property var args: ({})
+            UI.ListItem {
+                id: row
+                objectName: "dynamicRow"
+                width: parent.width
+                text: "Dynamic slots"
+                leading: owner.args.slots === true ? leadingContent : null
+                trailing: owner.args.slots === true ? trailingContent : null
+            }
+            Component {
+                id: leadingContent
+                Rectangle {
+                    implicitWidth: row.theme.handleSize * 1.5
+                    implicitHeight: implicitWidth
+                    color: row.theme.surfaceHover
+                }
+            }
+            Component {
+                id: trailingContent
+                Text {text: "3 new";font.pixelSize: row.theme.smallFontSize;color: row.descriptionColor}
+            }
+        }
+    }
+    Component {
         id: customFactory
         UI.ListItem {
             width: 280
@@ -166,6 +194,21 @@ Item {
             compare(row.contentItem.objectName,"customContent"); compare(row.height,92);
             compare(row.contentItem.width,280); compare(row.Accessible.name,"Full article title");
             verify(!findChild(row.contentItem,"listTitle")); mouseClick(row); compare(row.activations,1);
+        }
+        function test_dynamicSlotEnableDisableAndReenable() {
+            const owner = make(dynamicSlotFactory);
+            const row = findChild(owner,"dynamicRow");
+            const leading = findChild(row,"listLeading"), trailing = findChild(row,"listTrailing");
+            compare(leading.item,null);compare(trailing.item,null);
+            for (let index=0;index<3;index++) {
+                owner.args = {slots:true};
+                verify(leading.item);verify(trailing.item);
+                verify(leading.width>0);verify(trailing.width>0);
+                row.theme.fontScale = index + 1;
+                row.selected = index % 2 === 0;
+                owner.args = {slots:false};
+                compare(leading.item,null);compare(trailing.item,null);
+            }
         }
         function test_selectedKeyboardFocusHasSeparatedRing() {
             const row = make(rowFactory);
