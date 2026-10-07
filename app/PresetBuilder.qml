@@ -24,6 +24,8 @@ Item {
     property alias createState: state
     property alias generatedTheme: previewTheme
     property string notice: ""
+    property var sessionStore: null
+    property bool savedDesignsOpen: false
     implicitWidth: 1200
     implicitHeight: 760
 
@@ -38,6 +40,21 @@ Item {
         followRadius: root.followRadius
         followSpacing: root.followSpacing
         radiusMultiplier: root.radiusMultiplier
+    }
+    function designSnapshot() {
+        return {code: state.code, locks: state.copy(state.locks), dark: dark, omarchy: omarchyPreview,
+            follow: {colors: followColors, typography: followTypography, radius: followRadius, spacing: followSpacing},
+            radiusMultiplier: radiusMultiplier};
+    }
+    function restoreDesign(design) {
+        if (!state.loadCode(design.code)) return false;
+        state.locks = state.copy(design.locks);
+        state.history = [];
+        dark = design.dark; omarchyPreview = design.omarchy;
+        followColors = design.follow.colors; followTypography = design.follow.typography;
+        followRadius = design.follow.radius; followSpacing = design.follow.spacing;
+        radiusMultiplier = design.radiusMultiplier;
+        return true;
     }
     function exportRecipe() {
         return JSON.stringify({schemaVersion: 1, kind: "quickui-omarchy", preset: state.code,
@@ -83,6 +100,16 @@ Item {
         notice = root.omarchyPreview ? "Recipe copied · save as quickui-omarchy.json" : "JSON copied · paste into a preset file";
     }
     TextEdit { id: clipboardText; visible: false }
+    UI.AlertDialog {
+        id: deleteDesignDialog
+        parent: Controls.Overlay.overlay
+        property int designIndex: -1
+        theme: root.theme
+        title: "Delete saved design?"
+        description: "This removes the saved copy. Your current preview stays open."
+        confirmText: "Delete design"
+        onAccepted: root.sessionStore.deleteDesign(designIndex)
+    }
 
     ColumnLayout {
         anchors.fill: parent
@@ -169,6 +196,56 @@ Item {
                             font.pixelSize: 12
                             wrapMode: Text.Wrap
                             Accessible.role: Accessible.StaticText
+                        }
+                    }
+                }
+                UI.Card {
+                    theme: root.theme
+                    Layout.fillWidth: true
+                    visible: root.sessionStore !== null
+                    padding: 16
+                    ColumnLayout {
+                        anchors.fill: parent
+                        spacing: 10
+                        UI.Button {
+                            objectName: "savedDesignsToggle"; theme: root.theme; variant: "ghost"
+                            text: (root.savedDesignsOpen ? "Hide saved designs" : "Saved designs") + " (" + (root.sessionStore ? root.sessionStore.designs.length : 0) + ")"
+                            onClicked: root.savedDesignsOpen = !root.savedDesignsOpen
+                        }
+                        ColumnLayout {
+                        Layout.fillWidth: true
+                        visible: root.savedDesignsOpen
+                        spacing: 10
+                        Text {
+                            Layout.fillWidth: true; wrapMode: Text.Wrap; font.pixelSize: 12
+                            color: root.theme.mutedForeground
+                            text: root.sessionStore && root.sessionStore.enabled ? "Your session is saved automatically on this computer. Save a named design to keep another version."
+                                : "Session saving is disabled for this preview."
+                        }
+                        RowLayout {
+                            Layout.fillWidth: true
+                            UI.TextField { id: designName; objectName: "savedDesignName"; theme: root.theme; Layout.fillWidth: true; placeholderText: "Design name…"; Accessible.name: "Saved design name" }
+                            UI.Button { objectName: "savedDesignSave"; theme: root.theme; text: "Save new"; enabled: root.sessionStore && root.sessionStore.ready; onClicked: root.sessionStore.saveDesign(designName.text) }
+                        }
+                        RowLayout {
+                            Layout.fillWidth: true
+                            UI.Select {
+                                id: savedChoice; objectName: "savedDesignSelect"; theme: root.theme; Layout.fillWidth: true
+                                model: root.sessionStore ? root.sessionStore.designs.map(row => row.name) : []
+                                Accessible.name: "Saved designs"
+                            }
+                            UI.Button { objectName: "savedDesignOpen"; theme: root.theme; variant: "outline"; text: "Open"; enabled: savedChoice.currentIndex >= 0 && savedChoice.model.length > 0; onClicked: root.sessionStore.loadDesign(savedChoice.currentIndex) }
+                        }
+                        RowLayout {
+                            Layout.fillWidth: true
+                            UI.Button { objectName: "savedDesignRename"; theme: root.theme; variant: "ghost"; text: "Rename to name above"; enabled: savedChoice.currentIndex >= 0 && savedChoice.model.length > 0; onClicked: root.sessionStore.renameDesign(savedChoice.currentIndex, designName.text) }
+                            UI.Button { objectName: "savedDesignDelete"; theme: root.theme; variant: "ghost"; text: "Delete…"; enabled: savedChoice.currentIndex >= 0 && savedChoice.model.length > 0; onClicked: { deleteDesignDialog.designIndex = savedChoice.currentIndex; deleteDesignDialog.open(); } }
+                        }
+                        Text {
+                            Layout.fillWidth: true; visible: text !== ""; wrapMode: Text.Wrap; textFormat: Text.PlainText
+                            text: root.sessionStore ? root.sessionStore.error || root.sessionStore.notice : ""
+                            color: root.sessionStore && root.sessionStore.error ? root.theme.destructive : root.theme.mutedForeground; font.pixelSize: 12
+                        }
                         }
                     }
                 }

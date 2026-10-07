@@ -11,6 +11,9 @@ Rectangle {
     property alias explorerState: modelState
     property alias preview: storyLoader
     property bool createMode: false
+    property alias sessionState: session
+    property string persistenceError: ""
+    signal recoverStateRequested()
     property var hostTokens: null
     property bool hostAvailable: false
     property string hostName: ""
@@ -27,6 +30,7 @@ Rectangle {
     implicitWidth: 1320
     implicitHeight: 840
 
+    SessionState { id: session; explorer: root }
     Theme { id: colors; dark: modelState.dark }
     ExplorerState { id: modelState; entries: root.catalog }
     function focusSearch() {
@@ -63,6 +67,12 @@ Rectangle {
     ColumnLayout {
         anchors.fill: parent
         spacing: 0
+        RowLayout {
+            Layout.fillWidth: true
+            visible: root.persistenceError !== ""
+            Text { Layout.fillWidth: true; Layout.leftMargin: 16; text: root.persistenceError; wrapMode: Text.Wrap; color: colors.foreground; textFormat: Text.PlainText }
+            UI.Button { theme: colors; text: "Back up and reset saved state"; onClicked: root.recoverStateRequested() }
+        }
         Rectangle {
             Layout.fillWidth: true
             Layout.preferredHeight: 70
@@ -372,6 +382,7 @@ Rectangle {
         }
         PresetBuilder {
             id: builder
+            sessionStore: session
             objectName: "presetBuilder"
             hostTokens: root.hostTokens
             hostAvailable: root.hostAvailable
@@ -390,9 +401,9 @@ Rectangle {
                 anchors.fill: parent
                 anchors.leftMargin: 18
                 anchors.rightMargin: 18
-                Text { text: "QUICKBOOK / 0.1"; color: colors.muted; font.pixelSize: 9; font.letterSpacing: 0.8 }
+                Text { text: "QUICKBOOK / 0.2"; color: colors.muted; font.pixelSize: 9; font.letterSpacing: 0.8 }
                 Item { Layout.fillWidth: true }
-                Text { text: root.createMode ? (builder.omarchyPreview ? "Copy recipe to save host follow settings" : "Copy your preset code to save or share it") : "Ctrl+K  search     Ctrl+R  reload     Ctrl+0  reset"; color: colors.muted; font.pixelSize: 10 }
+                Text { text: root.createMode ? (session.enabled ? "Session saved locally · Copy code or recipe to share" : "Copy code or recipe to keep this preview") : "Ctrl+K  search     Ctrl+R  reload     Ctrl+0  reset"; color: colors.muted; font.pixelSize: 10 }
             }
         }
     }

@@ -8,6 +8,11 @@ import "integrations/omarchy-theme" as Omarchy
 ShellRoot {
     id: shell
     Catalog { id: catalog }
+    SessionBridge {
+        id: sessionBridge
+        state: explorer.sessionState
+        onCloseReady: { if (reloading) Quickshell.reload(false); else Qt.quit(); }
+    }
     Omarchy.DesktopThemeSource {
         id: omarchySource
         enabled: explorer.createMode && explorer.presetBuilder.omarchyPreview
@@ -27,10 +32,12 @@ ShellRoot {
             hostAvailable: omarchySource.available
             hostName: omarchySource.name
             hostError: omarchySource.error
-            onReloadRequested: Quickshell.reload(false)
+            persistenceError: sessionBridge.error
+            onRecoverStateRequested: sessionBridge.recover()
+            onReloadRequested: sessionBridge.reload()
         }
     }
-    Connections { target: Quickshell; function onLastWindowClosed() { Qt.quit(); } }
+    Connections { target: Quickshell; function onLastWindowClosed() { sessionBridge.close(); } }
     IpcHandler {
         id: automation
         target: "quickbook"
