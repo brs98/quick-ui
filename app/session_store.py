@@ -30,8 +30,8 @@ def validate(value):
         if not isinstance(row, dict) or set(row) != {'name', 'design'}: raise ValueError('Invalid saved design')
         name = row['name']
         if not isinstance(name, str) or not name.strip() or name != name.strip() or len(name) > 80 or any(ord(c) < 32 for c in name): raise ValueError('Invalid design name')
-        if name.casefold() in names: raise ValueError('Duplicate design names')
-        names.add(name.casefold())
+        if name.lower() in names: raise ValueError('Duplicate design names')
+        names.add(name.lower())
         design(row['design'])
     return value
 

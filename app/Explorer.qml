@@ -403,7 +403,7 @@ Rectangle {
                 anchors.rightMargin: 18
                 Text { text: "QUICKBOOK / 0.2"; color: colors.muted; font.pixelSize: 9; font.letterSpacing: 0.8 }
                 Item { Layout.fillWidth: true }
-                Text { text: root.createMode ? (session.enabled ? "Session saved locally · Copy code or recipe to share" : "Copy code or recipe to keep this preview") : "Ctrl+K  search     Ctrl+R  reload     Ctrl+0  reset"; color: colors.muted; font.pixelSize: 10 }
+                Text { text: root.createMode ? (session.enabled ? "Session saves locally · Copy code or recipe to share" : "Copy code or recipe to keep this preview") : "Ctrl+K  search     Ctrl+R  reload     Ctrl+0  reset"; color: colors.muted; font.pixelSize: 10 }
             }
         }
     }
