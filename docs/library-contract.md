@@ -33,6 +33,9 @@ Foundation registry entries:
 | menu | Menu | theme, menu-item, menu-separator |
 | menu-item | MenuItem | theme, icon-graphic |
 | menu-separator | MenuSeparator | theme |
+| list-item | ListItem | theme, icon-graphic |
+| dialog | Dialog | theme, button |
+| alert-dialog | AlertDialog | dialog |
 
 Button variants: `primary`, `secondary`, `ghost`, `outline`, `destructive`. IconButton extends
 Button and accepts `accessibleLabel` for its nonvisual name. TextField, Switch,

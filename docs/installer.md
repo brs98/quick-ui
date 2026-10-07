@@ -30,7 +30,7 @@ and `theme`. Commands accept multiple component names, and `--cwd` defaults to
 the current directory. The project directory must already exist. The installer
 does not create or edit `shell.qml`.
 
-Run `./quickui list` for the complete catalog of 20 public components, Theme,
+Run `./quickui list` for the complete catalog of 23 public components, Theme,
 and the internal icon dependency. See [component APIs](components.md) for the
 controls and composition recipes.
 

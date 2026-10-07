@@ -18,6 +18,8 @@ plain, wrapped text. The default footer styles native standard buttons with
 QuickUI Button and retains Qt's platform button order and button roles. Return,
 keypad Enter, and Space activate a focused footer button.
 
+For the editable example, also install `quickui add text-field`.
+
 ```qml
 import QtQuick
 import "ui" as UI

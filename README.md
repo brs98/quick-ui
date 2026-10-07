@@ -42,7 +42,7 @@ The foundation contains **12 components**: `button`, `icon-button`, `text-field`
 `field`, `switch`, `checkbox`, `slider`, `range-slider`, `select`, `card`, `badge`,
 and `separator`. Audio adds **five components**: `tooltip`, `level-meter`,
 `device-item`, `volume-control`, and `audio-mixer`. Menus add **three components**:
-`menu`, `menu-item`, and `menu-separator` — **20 public components plus Theme**, with an internal `icon-graphic` rendering dependency.
+`menu`, `menu-item`, and `menu-separator` — joined by `list-item`, `dialog`, and `alert-dialog` for **23 public components plus Theme**, with an internal `icon-graphic` rendering dependency.
 `./quickui list` shows their source files and dependencies.
 
 `add` preserves recorded, customized dependencies and refuses to overwrite edited
@@ -86,6 +86,19 @@ See [mixer API](docs/audio-mixer.md), [audio controls](docs/audio-controls.md), 
 [Omarchy integration](integrations/omarchy-audio/README.md).
 [Audio verification](docs/audio-milestone.md) records the tested integration boundary.
 
+## Build rows and confirmations
+
+```sh
+./quickui add list-item alert-dialog text-field --cwd ~/my-shell
+cp templates/dialogs.qml ~/my-shell/shell.qml
+quickshell -p ~/my-shell
+```
+
+ListItem provides native row activation with caller-owned selection and custom
+content slots. Dialog accepts your content and standard Qt actions; AlertDialog
+starts on Cancel and ignores outside clicks. Actions remain application-owned.
+See the [component APIs](docs/components.md) for sizing and focus ownership.
+
 ## Build a menu
 
 ```sh
@@ -125,7 +138,7 @@ Explicit display and Qt platform settings are preserved, including `QT_QPA_PLATF
 
 ## What’s included
 
-- Direct previews for all 20 QuickUI components, including the complete audio mixer, a shared-theme playground, and three example compositions.
+- Direct previews for all 23 QuickUI components, including the complete audio mixer, a shared-theme playground, and three example compositions.
 - Compact layout for narrow tiled windows; use **Components** or `Ctrl+K` to browse.
 - Light/dark presets and explicit text, boolean, number, and select controls.
 - A Usage tab with install commands and QML snippets for every library entry.
@@ -236,6 +249,7 @@ python3 scripts/smoke.py
 python3 scripts/installed_smoke.py
 python3 scripts/audio_smoke.py
 python3 scripts/menu_smoke.py
+python3 scripts/dialog_smoke.py
 python3 scripts/accessibility_smoke.py
 ```
 
@@ -262,6 +276,7 @@ stories, including icons, Field feedback, RangeSlider, and RTL audio controls.
 - `registry.json` and `quickui`: dependency registry and source installer.
 - `templates/starter.qml`: standalone consumer using all twelve foundation components.
 - `templates/audio.qml`: standalone mock audio panel.
+- `templates/dialogs.qml`: editable workspace dialog and safe confirmation with local state.
 - `templates/menu.qml`: standalone menu with local actions, checks, and a submenu.
 - `integrations/omarchy-audio/`: real audio service adapter and installation notes.
 - `shell.qml`: native workbench window and IPC bridge.

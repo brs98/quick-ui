@@ -221,3 +221,9 @@ The original action, volume, and notification examples now compose QuickUI primi
 under `examples/`, retaining their demonstration APIs; they are not separate entries in the QuickUI installer. The new `audio-mixer` is an installable block; window hosting remains in its consumer.
 Native window primitives, remote registries, updates/diffs, and further blocks remain
 later milestones.
+
+## Rows and dialogs
+
+See [ListItem](list-item.md) for row selection, custom slots, and external navigation ownership.
+See [Dialog and AlertDialog](dialogs.md) for native modal focus, responsive confirmation actions,
+and captured-request validation in host adapters.

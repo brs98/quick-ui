@@ -1923,6 +1923,308 @@ QtObject {
             }
         ]
     },
+{
+    "id": "ui-dialog",
+    "installName": "dialog",
+    "usage": "./quickui init --cwd ~/my-shell\n./quickui add dialog button text-field --cwd ~/my-shell\n\n// In your shell.qml (inside a window):\nimport \"ui\" as UI\n\nUI.Theme { id: tokens; dark: true; accent: \"#72dce8\" }\nUI.Button { theme: tokens; text: \"Edit workspace\"; onClicked: editor.open() }\nUI.Dialog { id: editor; theme: tokens; title: \"Edit workspace\"; contentItem: UI.TextField { theme: tokens; placeholderText: \"Workspace name\" } }\n\nSource: registry/quickui/Dialog.qml\nInstalled source is yours to edit. Shared dependencies are preserved.",
+    "group": "QuickUI",
+    "title": "Dialog",
+    "description": "A themed native modal with caller-owned content and standard action buttons.",
+    "source": Qt.resolvedUrl("DialogStory.qml"),
+    "controls": [
+        {
+            "key": "title",
+            "label": "Title",
+            "type": "text"
+        },
+        {
+            "key": "name",
+            "label": "Workspace name",
+            "type": "text"
+        },
+        {
+            "key": "density",
+            "label": "Density",
+            "type": "select",
+            "options": [
+                "compact",
+                "default",
+                "comfortable"
+            ]
+        },
+        {
+            "key": "fontScale",
+            "label": "Text scale",
+            "type": "number",
+            "min": 1,
+            "max": 2,
+            "step": 0.25
+        },
+        {
+            "key": "radius",
+            "label": "Corner radius",
+            "type": "number",
+            "min": 0,
+            "max": 20,
+            "step": 1
+        }
+    ],
+    "presets": [
+        {
+            "name": "Default",
+            "args": {
+                "title": "Edit workspace",
+                "name": "Personal workspace"
+            }
+        },
+        {
+            "name": "Large text",
+            "args": {
+                "title": "Edit workspace",
+                "name": "A longer workspace name",
+                "fontScale": 1.5,
+                "density": "comfortable"
+            }
+        },
+        {
+            "name": "Sharp",
+            "args": {
+                "title": "Edit workspace",
+                "name": "Personal workspace",
+                "radius": 0
+            }
+        }
+    ]
+},
+{
+    "id": "ui-alert-dialog",
+    "installName": "alert-dialog",
+    "usage": "./quickui init --cwd ~/my-shell\n./quickui add alert-dialog button --cwd ~/my-shell\n\n// In your shell.qml (inside a window):\nimport \"ui\" as UI\n\nUI.Theme { id: tokens; dark: true; accent: \"#72dce8\" }\nUI.Button { theme: tokens; text: \"Remove workspace\"; onClicked: confirmation.open() }\nUI.AlertDialog { id: confirmation; theme: tokens; title: \"Remove workspace?\"; description: \"Only a demonstration event is emitted.\"; confirmText: \"Remove\"; onAccepted: console.log(\"removal requested\") }\n\nSource: registry/quickui/AlertDialog.qml\nInstalled source is yours to edit. Shared dependencies are preserved.",
+    "group": "QuickUI",
+    "title": "Alert dialog",
+    "description": "A confirmation with Cancel focused on open; outside clicks do not dismiss it.",
+    "source": Qt.resolvedUrl("AlertDialogStory.qml"),
+    "controls": [
+        {
+            "key": "title",
+            "label": "Title",
+            "type": "text"
+        },
+        {
+            "key": "description",
+            "label": "Description",
+            "type": "text"
+        },
+        {
+            "key": "confirmText",
+            "label": "Confirm label",
+            "type": "text"
+        },
+        {
+            "key": "variant",
+            "label": "Action variant",
+            "type": "select",
+            "options": [
+                "destructive",
+                "primary"
+            ]
+        },
+        {
+            "key": "disabled",
+            "label": "Disable confirmation",
+            "type": "boolean"
+        },
+        {
+            "key": "density",
+            "label": "Density",
+            "type": "select",
+            "options": [
+                "compact",
+                "default",
+                "comfortable"
+            ]
+        },
+        {
+            "key": "fontScale",
+            "label": "Text scale",
+            "type": "number",
+            "min": 1,
+            "max": 2,
+            "step": 0.25
+        },
+        {
+            "key": "radius",
+            "label": "Corner radius",
+            "type": "number",
+            "min": 0,
+            "max": 20,
+            "step": 1
+        }
+    ],
+    "presets": [
+        {
+            "name": "Destructive",
+            "args": {
+                "title": "Remove workspace?",
+                "confirmText": "Remove",
+                "variant": "destructive"
+            }
+        },
+        {
+            "name": "Primary",
+            "args": {
+                "title": "Apply changes?",
+                "confirmText": "Apply",
+                "variant": "primary"
+            }
+        },
+        {
+            "name": "Unavailable",
+            "args": {
+                "title": "Remove workspace?",
+                "confirmText": "Remove",
+                "disabled": true
+            }
+        },
+        {
+            "name": "Large text",
+            "args": {
+                "title": "Remove this workspace?",
+                "confirmText": "Remove workspace",
+                "fontScale": 1.5,
+                "density": "comfortable",
+                "description": "This is a synthetic example. The component emits a request; the application decides whether and how to perform it."
+            }
+        }
+    ]
+},
+{
+    "id": "ui-list-item",
+    "installName": "list-item",
+    "usage": "./quickui init --cwd ~/my-shell\n./quickui add list-item --cwd ~/my-shell\n\n// In your shell.qml (inside a window):\nimport \"ui\" as UI\n\nUI.Theme { id: tokens; dark: true; accent: \"#72dce8\" }\nUI.ListItem { theme: tokens; width: 320; text: \"Design notes\"; description: \"Shared workspace\"; onClicked: console.log(\"open requested\") }\n\nSource: registry/quickui/ListItem.qml\nInstalled source is yours to edit. Shared dependencies are preserved.",
+    "group": "QuickUI",
+    "title": "List item",
+    "description": "Native row activation, caller-owned selection, and replaceable content.",
+    "source": Qt.resolvedUrl("ListItemStory.qml"),
+    "controls": [
+        {
+            "key": "text",
+            "label": "Title",
+            "type": "text"
+        },
+        {
+            "key": "description",
+            "label": "Description",
+            "type": "text"
+        },
+        {
+            "key": "selected",
+            "label": "Selected",
+            "type": "boolean"
+        },
+        {
+            "key": "highlighted",
+            "label": "Cursor highlight",
+            "type": "boolean"
+        },
+        {
+            "key": "disabled",
+            "label": "Disabled",
+            "type": "boolean"
+        },
+        {
+            "key": "slots",
+            "label": "Leading and trailing slots",
+            "type": "boolean"
+        },
+        {
+            "key": "rtl",
+            "label": "Right to left",
+            "type": "boolean"
+        },
+        {
+            "key": "size",
+            "label": "Size",
+            "type": "select",
+            "options": [
+                "sm",
+                "default",
+                "lg"
+            ]
+        },
+        {
+            "key": "density",
+            "label": "Density",
+            "type": "select",
+            "options": [
+                "compact",
+                "default",
+                "comfortable"
+            ]
+        },
+        {
+            "key": "fontScale",
+            "label": "Text scale",
+            "type": "number",
+            "min": 1,
+            "max": 2,
+            "step": 0.25
+        },
+        {
+            "key": "radius",
+            "label": "Corner radius",
+            "type": "number",
+            "min": 0,
+            "max": 20,
+            "step": 1
+        }
+    ],
+    "presets": [
+        {
+            "name": "Default",
+            "args": {
+                "text": "Design notes",
+                "description": "Shared notes for the next iteration."
+            }
+        },
+        {
+            "name": "Selected with slots",
+            "args": {
+                "selected": true,
+                "slots": true
+            }
+        },
+        {
+            "name": "Cursor",
+            "args": {
+                "highlighted": true
+            }
+        },
+        {
+            "name": "Disabled",
+            "args": {
+                "disabled": true
+            }
+        },
+        {
+            "name": "Large RTL",
+            "args": {
+                "slots": true,
+                "fontScale": 1.5,
+                "density": "comfortable",
+                "rtl": true
+            }
+        },
+        {
+            "name": "Sharp compact",
+            "args": {
+                "radius": 0,
+                "density": "compact",
+                "size": "sm"
+            }
+        }
+    ]
+},
     {
         "id": "ui-theme",
         "installName": "theme",
