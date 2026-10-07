@@ -10,6 +10,13 @@ Rectangle {
     required property var catalog
     property alias explorerState: modelState
     property alias preview: storyLoader
+    property bool createMode: false
+    property alias createState: builder.createState
+    property alias presetBuilder: builder
+    onCreateModeChanged: {
+        if (browserPopup) browserPopup.close();
+        if (storyLoader) storyLoader.loadStory();
+    }
     readonly property bool compact: width < 1050
     signal reloadRequested()
     color: colors.bg
@@ -19,6 +26,7 @@ Rectangle {
     Theme { id: colors; dark: modelState.dark }
     ExplorerState { id: modelState; entries: root.catalog }
     function focusSearch() {
+        createMode = false;
         if (compact) {
             browserPopup.open();
             compactBrowser.focusSearch();
@@ -26,7 +34,7 @@ Rectangle {
     }
     Shortcut { sequence: "Ctrl+K"; onActivated: root.focusSearch() }
     Shortcut { sequence: "Ctrl+R"; onActivated: root.reloadRequested() }
-    Shortcut { sequence: "Ctrl+0"; onActivated: modelState.reset() }
+    Shortcut { sequence: "Ctrl+0"; onActivated: root.createMode ? builder.createState.reset() : modelState.reset() }
 
     Popup {
         id: browserPopup
@@ -66,11 +74,19 @@ Rectangle {
                 }
                 Text { text: "Quickbook"; color: colors.text; font.pixelSize: 20; font.weight: Font.DemiBold }
                 UI.Separator { theme: colors; visible: !root.compact; vertical: true; Layout.preferredHeight: 20; Layout.leftMargin: 10; Layout.rightMargin: 10 }
-                Text { visible: !root.compact; text: "A little space for your components."; color: colors.muted; font.pixelSize: 12; Layout.fillWidth: true }
-                UI.Button { variant: "outline"; theme: colors; text: "Components"; visible: root.compact; onClicked: root.focusSearch() }
+                Text { visible: !root.compact; text: root.createMode ? "Build a preset. Make it yours." : "A little space for your components."; color: colors.muted; font.pixelSize: 12; Layout.fillWidth: true }
+                UI.Button { variant: "outline"; theme: colors; text: "Components"; visible: root.compact && !root.createMode; onClicked: root.focusSearch() }
                 Item { visible: root.compact; Layout.fillWidth: true }
                 Rectangle { visible: !root.compact; implicitWidth: 6; implicitHeight: 6; radius: 3; color: colors.green }
                 Text { visible: !root.compact; text: "LIVE QML"; color: colors.muted; font.pixelSize: 10; font.letterSpacing: 1; Layout.rightMargin: 12 }
+                UI.Button {
+                    objectName: "createModeButton"
+                    theme: colors
+                    variant: root.createMode ? "primary" : "outline"
+                    text: root.createMode ? "Components" : "Create"
+                    Accessible.description: root.createMode ? "Return to component stories" : "Build a shareable QuickUI preset"
+                    onClicked: root.createMode = !root.createMode
+                }
                 UI.Button { variant: "outline"; theme: colors; text: modelState.dark ? "Light theme" : "Dark theme"; onClicked: modelState.dark = !modelState.dark }
                 UI.Button {
                     id: reloadButton
@@ -83,6 +99,7 @@ Rectangle {
         }
         UI.Separator { theme: colors; Layout.fillWidth: true }
         RowLayout {
+            visible: !root.createMode
             Layout.fillWidth: true
             Layout.fillHeight: true
             spacing: 0
@@ -187,7 +204,7 @@ Rectangle {
                             height: item ? Math.min((item as Item).implicitHeight || frame.height - 32, frame.height - 32) : 0
                             function loadStory() {
                                 source = "";
-                                if (modelState.story) setSource(modelState.story.source, {args: modelState.args, dark: modelState.dark});
+                                if (!root.createMode && modelState.story) setSource(modelState.story.source, {args: modelState.args, dark: modelState.dark});
                             }
                             Component.onCompleted: loadStory()
                             Connections {
@@ -349,6 +366,14 @@ Rectangle {
                 }
             }
         }
+        PresetBuilder {
+            id: builder
+            objectName: "presetBuilder"
+            visible: root.createMode
+            Layout.fillWidth: true
+            Layout.fillHeight: true
+            theme: colors
+        }
         UI.Separator { theme: colors; Layout.fillWidth: true }
         Item {
             Layout.fillWidth: true
@@ -359,7 +384,7 @@ Rectangle {
                 anchors.rightMargin: 18
                 Text { text: "QUICKBOOK / 0.1"; color: colors.muted; font.pixelSize: 9; font.letterSpacing: 0.8 }
                 Item { Layout.fillWidth: true }
-                Text { text: "Ctrl+K  search     Ctrl+R  reload     Ctrl+0  reset"; color: colors.muted; font.pixelSize: 10 }
+                Text { text: root.createMode ? "Copy your preset code to save or share it" : "Ctrl+K  search     Ctrl+R  reload     Ctrl+0  reset"; color: colors.muted; font.pixelSize: 10 }
             }
         }
     }

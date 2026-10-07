@@ -121,6 +121,36 @@ notification, and other service connections in your own adapters. QuickUI works
 without Omarchy; the optional [Omarchy audio adapter](integrations/omarchy-audio/README.md)
 is an example of connecting the same components to real desktop services.
 
+## Create a preset natively
+
+Open Quickbook and choose **Create** in the header. Adjust the palette, accent,
+font, density, radius, border, selection treatment, and motion while interacting
+with real QuickUI controls. Lock settings you want to keep, then shuffle the rest.
+Undo returns to the previous configuration.
+
+Copy the versioned preset code to save or share the design. Paste a code into
+Create to restore it. You can also copy the preset JSON for a file-based handoff.
+The editor does not apply changes to your desktop or shell project.
+
+Use the same code with the source installer:
+
+```sh
+./quickui init --preset CODE --cwd ~/my-shell
+./quickui preset inspect CODE
+./quickui preset apply CODE --cwd ~/my-shell --dry-run
+```
+
+A generated `PresetTheme.qml` keeps the preset separate from your owned
+`Theme.qml` and components. Applying another preset refuses to overwrite edits
+to the generated theme. **Host colors** retains preset typography and
+geometry while allowing a shell adapter to provide its colors; standalone
+Quickbook shows the fallback palette until a host theme is supplied.
+
+See [presets and source ownership](docs/presets.md) for code stability, JSON
+round trips, applying changes, and theme integration. Copy a code or JSON before
+closing or reloading Quickbook; switching between Components and Create keeps
+your in-memory edits.
+
 ## Run the workbench
 
 Tested with **Quickshell 0.3.1** and **Qt 6.11.2 with Qt Quick Controls**.
@@ -153,7 +183,7 @@ The explorer itself and its previews use the exact QML files distributed by the 
 | --- | --- |
 | `Ctrl+K` | Focus component search |
 | `Ctrl+R` | Reload the QML configuration |
-| `Ctrl+0` | Reset the selected preset |
+| `Ctrl+0` | Reset the active story or Create preset |
 
 Selecting a different component clears its event log and selects its first preset. Reset restores arguments and story-local state. Reloading starts a fresh explorer session, including selection and theme.
 
@@ -246,6 +276,7 @@ Qt 6 development tools and Python 3 are needed for the checks. On Arch, Qt 5 too
 ```sh
 ./scripts/test
 python3 scripts/smoke.py
+python3 scripts/create_smoke.py
 python3 scripts/installed_smoke.py
 python3 scripts/audio_smoke.py
 python3 scripts/menu_smoke.py
@@ -254,6 +285,8 @@ python3 scripts/accessibility_smoke.py
 ```
 
 The first command runs launcher and installer regressions, QML lint, and Qt Quick interaction tests, including all primitive presets and both themes. The launcher tests use temporary sockets and a stub executable to verify display discovery and command forwarding without starting Qt. The smoke check starts a separate Quickshell process using the software offscreen renderer, exercises IPC and hot reload in a temporary config, and writes `artifacts/quickbook-dark.png` and `artifacts/quickbook-light.png`. It does not need an active desktop and does not affect any running Quickbook instance. The installed-source smoke test independently copies all twelve foundation components into a fresh project, edits its Theme, launches the standalone starter, and captures `artifacts/quickui-starter.png`.
+
+The Create smoke renders desktop dark/light and narrow layouts, exercises locked shuffle and undo, and checks a native-editor-to-CLI round trip with owned-source preservation. It uses a disposable configuration and does not require an IPC socket.
 
 The audio smoke test installs the mixer and its dependency closure in an isolated
 project, exercises mock actions and both themes through native Quickshell, and

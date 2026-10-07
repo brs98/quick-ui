@@ -202,6 +202,28 @@ Item {
                         }
                     }
                 }
+                UI.Card {
+                    theme: root.theme
+                    Layout.fillWidth: true
+                    padding: 16
+                    ColumnLayout {
+                        anchors.fill: parent
+                        spacing: 10
+                        Text { text: "Use this preset"; color: root.theme.foreground; font.pixelSize: 16; font.weight: Font.DemiBold }
+                        Text {
+                            Layout.fillWidth: true
+                            text: "Run from your QuickUI checkout, then pass UI.PresetTheme to your components. Replace the project path with your shell's directory."
+                            color: root.theme.mutedForeground; font.pixelSize: 12; wrapMode: Text.Wrap
+                        }
+                        UI.TextField {
+                            theme: root.theme
+                            Layout.fillWidth: true
+                            text: "./quickui init --preset " + state.code + " --cwd /path/to/project"
+                            readOnly: true; selectByMouse: true; font.family: "monospace"
+                            Accessible.name: "Preset installation command"
+                        }
+                    }
+                }
             }
         }
     }

@@ -23,7 +23,7 @@ def main():
         config.mkdir()
         # Test reload in a disposable config, isolated from any running explorer.
         for source in ROOT.rglob("*"):
-            if not source.is_file() or source.suffix not in (".qml", ".svg"):
+            if not source.is_file() or source.suffix not in (".qml", ".svg", ".js"):
                 continue
             if any(part.startswith(".") for part in source.relative_to(ROOT).parts):
                 continue
