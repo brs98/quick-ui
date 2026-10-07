@@ -161,6 +161,7 @@ See [presets and source ownership](docs/presets.md) for code stability, JSON
 round trips, applying changes, and theme integration. Quickbook restores your design and browsing preferences after closing or reloading.
 Save named designs in the native app; codes and recipe JSON remain the portable
 sharing format. Event logs and arbitrary component argument text are not saved.
+See [saved designs and recovery](docs/saved-designs.md) for storage and conflict handling.
 
 ## Preview your Omarchy theme
 

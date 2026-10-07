@@ -24,6 +24,8 @@ or run `quickbook`. The installation contains its own source snapshot, so you ca
 remove the extracted release folder. See [installation](user-install.md) for custom
 prefixes, updating the tools, and uninstalling them.
 
+![The native component workbench](images/quickbook-components.png)
+
 ## Make a shell
 
 ```sh
