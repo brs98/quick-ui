@@ -27,6 +27,11 @@ class InstallError(Exception):
     pass
 
 
+class RecoveryError(InstallError):
+    """A rollback could not finish; its backups must survive cleanup."""
+    pass
+
+
 def checked(prefix, relative=""):
     path = prefix / relative
     for item in list(reversed(path.parents)) + [path]:
@@ -168,14 +173,18 @@ def transact(prefix, stage, uninstall=False):
                 os.replace(str(stage / relative), str(target))
                 placed.append(relative)
     except BaseException:
-        for relative in reversed(placed):
-            target = prefix / relative
-            if target.is_dir():
-                shutil.rmtree(str(target))
-            else:
-                target.unlink()
-        for relative in reversed(moved):
-            os.replace(str(backup / relative), str(prefix / relative))
+        try:
+            for relative in reversed(placed):
+                target = prefix / relative
+                if target.is_dir():
+                    shutil.rmtree(str(target))
+                else:
+                    target.unlink()
+            for relative in reversed(moved):
+                os.replace(str(backup / relative), str(prefix / relative))
+        except BaseException as error:
+            raise RecoveryError("Rollback failed; recovery files preserved at {}: {}".format(
+                stage, error)) from error
         raise
 
 
@@ -203,14 +212,21 @@ def install(source, prefix, dry_run=False, uninstall=False):
         raise InstallError("Another installer may be running: {}".format(lock))
     try:
         previous = previous_install(prefix)
-        with tempfile.TemporaryDirectory(prefix=".quick-ui-stage-", dir=str(prefix)) as directory:
-            stage = Path(directory)
+        stage = Path(tempfile.mkdtemp(prefix=".quick-ui-stage-", dir=str(prefix)))
+        preserve_stage = False
+        try:
             if not uninstall:
                 desired = stage_snapshot(stage, source, prefix, paths)
                 if previous == desired:
                     print("QuickUI is already current at {}".format(prefix))
                     return
             transact(prefix, stage, uninstall)
+        except RecoveryError:
+            preserve_stage = True
+            raise
+        finally:
+            if not preserve_stage:
+                shutil.rmtree(str(stage))
     finally:
         lock.rmdir()
     print("{} QuickUI at {}".format("Uninstalled" if uninstall else "Installed", prefix))

@@ -161,6 +161,26 @@ class UserInstallTests(unittest.TestCase):
         self.assertFalse((self.prefix / ".quick-ui-install.lock").exists())
         self.install()
 
+    def test_failed_rollback_preserves_recovery_files(self):
+        self.install()
+        original = (self.prefix / INSTALL.APP / "VERSION").read_bytes()
+        (self.source / "VERSION").write_text("0.2.1\n")
+        replace = INSTALL.os.replace
+        count = [0]
+
+        def fail_twice(source, destination):
+            count[0] += 1
+            if count[0] in (5, 6):
+                raise OSError("filesystem unavailable")
+            return replace(source, destination)
+
+        with mock.patch.object(INSTALL.os, "replace", side_effect=fail_twice):
+            with self.assertRaisesRegex(INSTALL.RecoveryError, "recovery files preserved"):
+                self.install()
+        recovery = list(self.prefix.glob(".quick-ui-stage-*"))
+        self.assertEqual(len(recovery), 1)
+        self.assertEqual((recovery[0] / ".backup" / INSTALL.APP / "VERSION").read_bytes(), original)
+
     def test_uninstall_preserves_consumer_and_state(self):
         self.install()
         state = self.directory / "home/.local/state/quickbook/session.json"
