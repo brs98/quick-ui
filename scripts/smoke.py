@@ -32,7 +32,7 @@ def main():
             shutil.copyfile(source, destination)
         runtime = temp / "runtime"
         runtime.mkdir(mode=0o700)
-        env = dict(os.environ, QT_QPA_PLATFORM="offscreen", QT_QUICK_BACKEND="software",
+        env = dict(os.environ, QUICKBOOK_NO_PERSIST="1", QT_QPA_PLATFORM="offscreen", QT_QUICK_BACKEND="software",
                    QT_FORCE_STDERR_LOGGING="1", QS_NO_RELOAD_POPUP="1",
                    XDG_RUNTIME_DIR=str(runtime))
         command = ["quickshell", "ipc", "-p", str(config), "--any-display", "call", "quickbook"]

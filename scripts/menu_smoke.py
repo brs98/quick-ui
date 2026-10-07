@@ -42,7 +42,7 @@ def main():
         shutil.copy2(ROOT / "templates/menu.qml", project / "shell.qml")
         runtime = temporary / "runtime"
         runtime.mkdir(mode=0o700)
-        env = dict(os.environ, QT_QPA_PLATFORM="offscreen", QT_QUICK_BACKEND="software",
+        env = dict(os.environ, QUICKBOOK_NO_PERSIST="1", QT_QPA_PLATFORM="offscreen", QT_QUICK_BACKEND="software",
                    QT_FORCE_STDERR_LOGGING="1", QS_NO_RELOAD_POPUP="1", QT_SCALE_FACTOR="1",
                    XDG_RUNTIME_DIR=str(runtime))
         for key in ("QML_IMPORT_PATH", "QML2_IMPORT_PATH", "QS_CONFIG_PATH", "QS_CONFIG_NAME", "QS_MANIFEST"):

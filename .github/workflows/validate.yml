@@ -1,0 +1,73 @@
+name: Validate and release
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  native:
+    runs-on: ubuntu-latest
+    container: archlinux:base
+    steps:
+      - name: Install native dependencies
+        run: pacman -Syu --noconfirm git python quickshell qt6-tools qt6-declarative gcc pkgconf ttf-dejavu desktop-file-utils
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - name: Configure isolated test environment
+        run: |
+          mkdir -p /tmp/quickui-runtime
+          chmod 700 /tmp/quickui-runtime
+          echo XDG_RUNTIME_DIR=/tmp/quickui-runtime >> "$GITHUB_ENV"
+          echo QUICKBOOK_NO_PERSIST=1 >> "$GITHUB_ENV"
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+      - name: Unit, interaction, and QML checks
+        run: ./scripts/test
+      - name: Native application and consumer checks
+        run: |
+          python3 scripts/smoke.py
+          python3 scripts/create_smoke.py
+          python3 scripts/omarchy_smoke.py
+          python3 scripts/installed_smoke.py
+          python3 scripts/audio_smoke.py
+          python3 scripts/menu_smoke.py
+          python3 scripts/dialog_smoke.py
+          python3 scripts/accessibility_smoke.py
+          python3 scripts/persistence_smoke.py
+      - name: Package source release
+        env:
+          RELEASE_TAG: ${{ startsWith(github.ref, 'refs/tags/') && github.ref_name || '' }}
+        run: |
+          if [ -n "$RELEASE_TAG" ]; then
+            python3 scripts/package.py --tag "$RELEASE_TAG"
+          else
+            python3 scripts/package.py
+          fi
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: native-checks-and-release
+          path: artifacts/
+          if-no-files-found: error
+  release:
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: native
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - uses: actions/download-artifact@v4
+        with:
+          name: native-checks-and-release
+          path: artifacts
+      - name: Publish validated release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: gh release create "$RELEASE_TAG" artifacts/release/* --verify-tag --title "QuickUI $RELEASE_TAG" --notes-file "docs/releases/${RELEASE_TAG#v}.md"

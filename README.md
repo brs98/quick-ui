@@ -4,9 +4,21 @@ QuickUI is an editable-source component library for Quickshell. Quickbook is its
 native workbench: browse the real components, change inputs and themes, try presets,
 and inspect events.
 
+![Quickbook Create preview](docs/images/quickbook-create.png)
+
+## Install Quickbook and the CLI
+
+Download the source archive from [Releases](https://github.com/brs98/quick-ui/releases/latest),
+extract it, and run `python3 scripts/install.py`. This installs `quickui`, `quickbook`,
+and a desktop launcher under `~/.local`. Ensure `~/.local/bin` is on PATH.
+A Git checkout works with the same command. Installed tools include their own
+source snapshot; your shell projects remain separate.
+
+See the [starter guide](docs/getting-started.md) and [installation details](docs/user-install.md).
+
 ## Install components into your shell
 
-Requires Git and Python 3.8+ for installation, and Quickshell with Qt 6.10+ Quick Controls
+Requires Python 3.8+ for installation (and Git when using a checkout), and Quickshell with Qt 6.10+ Quick Controls
 to run your shell. Tested on Quickshell 0.3.1 / Qt 6.11.2 on Linux/Wayland.
 
 ```sh
@@ -20,7 +32,7 @@ mkdir -p ~/my-shell
 This copies QML into `~/my-shell/ui/` and records installed components in
 `quickui.json`. The files belong to your project; edit them freely. No Quickbook,
 Omarchy, build step, network service, or registry is needed to run the installed UI.
-Keep the checkout to add more components later; you do not need it at runtime.
+Use the installed `quickui` command or retain a checkout to add components later.
 
 Inside your own window, use ordinary QML imports and share a theme:
 
@@ -46,10 +58,9 @@ and `separator`. Audio adds **five components**: `tooltip`, `level-meter`,
 `./quickui list` shows their source files and dependencies.
 
 `add` preserves recorded, customized dependencies and refuses to overwrite edited
-explicit targets or unrelated files. `--dry-run` previews installation. This is a
-local bundled registry: clone the repository and run its CLI. There is no
-package-manager install command or remote-registry fetch yet. Automated upgrades
-remain future work.
+explicit targets or unrelated files. `--dry-run` previews installation. The CLI uses a local bundled registry. `quickui diff` reviews upstream changes;
+`quickui update` safely updates pristine installed sources. Customized components
+remain yours; [merge proposals](docs/updates.md) help you reconcile changes.
 See [installer behavior](docs/installer.md), [component APIs](docs/components.md),
 and [the library contract](docs/library-contract.md).
 
@@ -147,9 +158,9 @@ geometry while allowing a shell adapter to provide its colors; standalone
 Quickbook shows the fallback palette until a host theme is supplied.
 
 See [presets and source ownership](docs/presets.md) for code stability, JSON
-round trips, applying changes, and theme integration. Copy a code or JSON before
-closing or reloading Quickbook; switching between Components and Create keeps
-your in-memory edits.
+round trips, applying changes, and theme integration. Quickbook restores your design and browsing preferences after closing or reloading.
+Save named designs in the native app; codes and recipe JSON remain the portable
+sharing format. Event logs and arbitrary component argument text are not saved.
 
 ## Preview your Omarchy theme
 
@@ -210,7 +221,7 @@ The explorer itself and its previews use the exact QML files distributed by the 
 | `Ctrl+R` | Reload the QML configuration |
 | `Ctrl+0` | Reset the active story or Create preset |
 
-Selecting a different component clears its event log and selects its first preset. Reset restores arguments and story-local state. Reloading starts a fresh explorer session, including selection and theme.
+Selecting a different component clears its event log and selects its first preset. Reset restores arguments and story-local state. Reloading restores saved selection, theme, and canvas preferences; story arguments and event logs start fresh.
 
 ## Add your component
 
@@ -308,6 +319,7 @@ python3 scripts/audio_smoke.py
 python3 scripts/menu_smoke.py
 python3 scripts/dialog_smoke.py
 python3 scripts/accessibility_smoke.py
+python3 scripts/persistence_smoke.py
 ```
 
 The first command runs launcher and installer regressions, QML lint, and Qt Quick interaction tests, including all primitive presets and both themes. The launcher tests use temporary sockets and a stub executable to verify display discovery and command forwarding without starting Qt. The smoke check starts a separate Quickshell process using the software offscreen renderer, exercises IPC and hot reload in a temporary config, and writes `artifacts/quickbook-dark.png` and `artifacts/quickbook-light.png`. It does not need an active desktop and does not affect any running Quickbook instance. The installed-source smoke test independently copies all twelve foundation components into a fresh project, edits its Theme, launches the standalone starter, and captures `artifacts/quickui-starter.png`.
@@ -346,14 +358,15 @@ stories, including icons, Field feedback, RangeSlider, and RTL audio controls.
 - `stories/*Story.qml`: adapters between real components and story inputs/events.
 - `examples/`: independent reusable QML components with no desktop service dependencies.
 
-This first version previews visual Qt Quick items. Actual `PanelWindow`/`PopupWindow` stories need a separate window harness and are not embedded in the canvas. Story discovery and control metadata are explicit; automatic introspection, persisted sessions, screenshot diffing, and web publishing are not included.
+This first version previews visual Qt Quick items. Actual `PanelWindow`/`PopupWindow` stories need a separate window harness and are not embedded in the canvas. Story discovery and control metadata are explicit; automatic introspection, screenshot diffing, and web publishing are not included.
 
 ## Current scope
 
 This is an early source-library release. Installation uses the registry bundled
 with your checkout; use a Git tag or commit to choose a consistent source revision.
-A remotely installable CLI, remote registries, reviewed update/diff handling, and
-a broader Qt/Quickshell/compositor compatibility matrix remain future work.
+Remote registries and a broader Qt/Quickshell/compositor compatibility matrix
+remain future work. Releases include installable source archives and checksums;
+GitHub Actions validates native behavior before publishing tags.
 Full screen-reader verification and additional reusable shell blocks also remain
 future work.
 

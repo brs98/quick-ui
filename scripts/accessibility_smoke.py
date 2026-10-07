@@ -18,7 +18,7 @@ def main():
         subprocess.run(["c++", "-fPIC", "-pie", str(ROOT / "tests/native/accessibility.cpp"),
                         "-o", str(binary), *flags], check=True, timeout=60)
         result = subprocess.run([str(binary), str(ROOT / "tests/fixtures/accessibility.qml")],
-                                env=dict(os.environ, QT_QPA_PLATFORM="offscreen", QT_QUICK_BACKEND="software"),
+                                env=dict(os.environ, QUICKBOOK_NO_PERSIST="1", QT_QPA_PLATFORM="offscreen", QT_QUICK_BACKEND="software"),
                                 text=True, capture_output=True, check=True, timeout=15)
         if result.stderr.strip():
             raise AssertionError(result.stderr)
