@@ -140,6 +140,19 @@
       "dependencies": [
         "theme"
       ]
+    },
+    "dialog": {
+      "file": "Dialog.qml",
+      "dependencies": [
+        "theme",
+        "button"
+      ]
+    },
+    "alert-dialog": {
+      "file": "AlertDialog.qml",
+      "dependencies": [
+        "dialog"
+      ]
     }
   }
 }
