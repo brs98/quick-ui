@@ -153,6 +153,13 @@
       "dependencies": [
         "dialog"
       ]
+    },
+    "list-item": {
+      "file": "ListItem.qml",
+      "dependencies": [
+        "theme",
+        "icon-graphic"
+      ]
     }
   }
 }
