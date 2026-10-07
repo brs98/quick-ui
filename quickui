@@ -123,6 +123,8 @@ def project_config(project, initialize):
     else:
         raise InstallError("No quickui.json found; run 'quickui init' first")
     relative = relative_path(data.get("componentsDir"), "componentsDir")
+    if relative.parts[0] == ".quickui":
+        raise InstallError("componentsDir cannot use the reserved .quickui source snapshot directory")
     installed = data.setdefault("installed", {})
     if not isinstance(installed, dict):
         raise InstallError("quickui.json installed must be an object")
@@ -154,6 +156,226 @@ def write_config(project, content, original):
         Path(temporary).unlink(missing_ok=True)
 
 
+def fingerprint(content):
+    return hashlib.sha256(content).hexdigest()
+
+
+def base_path(project, digest):
+    return checked_path(project, PurePosixPath('.quickui/bases') / digest)
+
+
+def plan_base(project, content, planned):
+    """Store verified pristine sources only; filenames are content addresses."""
+    target = base_path(project, fingerprint(content))
+    if target.exists():
+        if target.read_bytes() != content:
+            raise InstallError(f"Corrupt pristine source snapshot: {target}")
+    elif not any(path == target for path, _, _ in planned):
+        planned.append((target, content, None))
+
+
+def merge_sources(base, local, incoming):
+    """Conservative line-based diff3; unresolved hunks are proposal-only bytes."""
+    import difflib
+    original = base.splitlines(keepends=True)
+    edits = []
+    for side, content in enumerate((local, incoming)):
+        lines = content.splitlines(keepends=True)
+        for operation, start, end, first, last in difflib.SequenceMatcher(None, original, lines, autojunk=False).get_opcodes():
+            if operation != 'equal':
+                edits.append((start, end, side, lines[first:last]))
+    edits.sort(key=lambda edit: (edit[0], edit[1], edit[2]))
+    groups = []
+    for edit in edits:
+        # Insertions on replacement boundaries are deliberately conservative.
+        if groups:
+            group = groups[-1]
+            end = max(item[1] for item in group)
+            touches = edit[0] < end or (edit[0] == end and
+                       (edit[0] == edit[1] or any(item[0] == item[1] == end for item in group)))
+        else:
+            touches = False
+        if touches:
+            group.append(edit)
+        else:
+            groups.append([edit])
+
+    result, cursor, conflicts = [], 0, 0
+    for group in groups:
+        start, end = min(item[0] for item in group), max(item[1] for item in group)
+        result.extend(original[cursor:start])
+        versions = []
+        for side in (0, 1):
+            part, position = [], start
+            for first, last, owner, lines in group:
+                if owner != side:
+                    continue
+                part.extend(original[position:first])
+                part.extend(lines)
+                position = last
+            part.extend(original[position:end])
+            versions.append(b''.join(part))
+        ancestor = b''.join(original[start:end])
+        ours, theirs = versions
+        if ours == theirs:
+            result.append(ours)
+        elif ours == ancestor:
+            result.append(theirs)
+        elif theirs == ancestor:
+            result.append(ours)
+        else:
+            conflicts += 1
+            def terminated(value):
+                return value + (b'\n' if value and not value.endswith(b'\n') else b'')
+            result.append(b'<<<<<<< local\n' + terminated(ours) + b'||||||| installed base\n'
+                          + terminated(ancestor) + b'=======\n' + terminated(theirs) + b'>>>>>>> bundled\n')
+        cursor = end
+    result.extend(original[cursor:])
+    return b''.join(result), conflicts
+
+
+def review_sources(entries, args):
+    """Validate the complete selection before displaying or committing results."""
+    import difflib
+    project = Path(args.cwd).expanduser().resolve()
+    if not project.is_dir():
+        raise InstallError(f"Project directory does not exist: {project}")
+    directory, config, original_config = project_config(project, False)
+    checked_path(project, directory, directory=True)
+    installed = config['installed']
+    requested = args.components or list(installed)
+    unknown = [name for name in requested if name not in entries]
+    if unknown:
+        raise InstallError('Components absent from bundled registry: ' + ', '.join(unknown))
+    if args.command == 'update' and args.components:
+        missing = [name for name in requested if name not in installed]
+        if missing:
+            raise InstallError('Components are not installed: ' + ', '.join(missing) + '; use quickui add')
+    names = resolve(entries, requested)
+    optional_files = config.get('omarchy', {}).get('files', {}) if isinstance(config.get('omarchy'), dict) else {}
+    if not isinstance(optional_files, dict):
+        raise InstallError('Invalid optional Omarchy file records in quickui.json')
+    rows = []
+    for name in names:
+        relative = directory / entries[name]['file']
+        target = checked_path(project, relative)
+        incoming = checked_path(ROOT, PurePosixPath('registry/quickui') / entries[name]['file']).read_bytes()
+        record = installed.get(name)
+        if record and record['path'] != str(relative):
+            raise InstallError(f"Installed destination changed for {name}; restore componentsDir or move owned sources deliberately")
+        local = target.read_bytes() if target.exists() else None
+        base = None
+        if record:
+            base_file = base_path(project, record['sha256'])
+            if base_file.exists():
+                base = base_file.read_bytes()
+                if fingerprint(base) != record['sha256']:
+                    raise InstallError(f"Corrupt pristine source snapshot: {base_file}")
+        if str(relative) in optional_files:
+            status = 'integration-managed'
+        elif local is None:
+            status = 'missing' if record else 'new dependency'
+        elif not record:
+            status = 'unowned'
+        elif local == incoming:
+            status = 'current'
+        elif fingerprint(local) == record['sha256']:
+            status = 'update available'
+        elif fingerprint(incoming) == record['sha256']:
+            status = 'customized; upstream unchanged'
+        else:
+            status = 'review required'
+        rows.append(dict(name=name, relative=relative, target=target, incoming=incoming,
+                         record=record, local=local, base=base, status=status))
+
+    proposals = getattr(args, 'proposals', None)
+    proposal_plan = []
+    if proposals:
+        proposal_dir = relative_path(proposals, 'proposals directory')
+        # Never allow proposal output to alias metadata, source, or base storage.
+        if (proposal_dir.parts[0] in (CONFIG_NAME, '.quickui') or
+                proposal_dir == directory or directory in proposal_dir.parents or proposal_dir in directory.parents):
+            raise InstallError('Proposals must use a separate project-relative review directory')
+        destination = checked_path(project, proposal_dir, directory=True)
+        if destination.exists():
+            raise InstallError('Proposal directory already exists; choose a fresh directory')
+        manifest = []
+        for row in rows:
+            if row['status'] in ('current', 'integration-managed'):
+                continue
+            files = {'bundled.qml': row['incoming']}
+            if row['local'] is not None:
+                files['local.qml'] = row['local']
+            if row['base'] is not None:
+                files['base.qml'] = row['base']
+            conflicts = None
+            if row['base'] is not None and row['local'] is not None:
+                files['merged.qml'], conflicts = merge_sources(row['base'], row['local'], row['incoming'])
+            for filename, content in files.items():
+                target = checked_path(project, proposal_dir / row['name'] / filename)
+                proposal_plan.append((target, content, None))
+            manifest.append(dict(component=row['name'], path=str(row['relative']), ownership=row['status'],
+                                 baseAvailable=row['base'] is not None, conflicts=conflicts,
+                                 localSha256=fingerprint(row['local']) if row['local'] is not None else None,
+                                 bundledSha256=fingerprint(row['incoming'])))
+        note = {'schemaVersion': 1, 'files': manifest,
+                'instructions': 'Review local/base/bundled and merged.qml where available. Resolve every conflict and test in your shell. Copy approved bytes manually to the recorded path. Proposals never alter live sources or installed fingerprints. Keep .quickui/bases and quickui.json under version control.'}
+        proposal_plan.append((checked_path(project, proposal_dir / 'review.json'),
+                              (json.dumps(note, indent=2) + '\n').encode(), None))
+
+    if args.command == 'diff':
+        for row in rows:
+            print(f"{row['name']}: {row['status']} ({row['relative']}; {'base available' if row['base'] is not None else 'no stored base'})")
+            if row['status'] == 'integration-managed':
+                print('  Managed by the optional Omarchy recipe installer; use quickui omarchy install.')
+                continue
+            local = (row['local'] or b'').decode('utf-8', errors='backslashreplace').splitlines(keepends=True)
+            incoming = row['incoming'].decode('utf-8', errors='backslashreplace').splitlines(keepends=True)
+            for line in difflib.unified_diff(local, incoming, fromfile='local/' + str(row['relative']), tofile='bundled/' + str(row['relative'])):
+                print(line, end='' if line.endswith('\n') else '\n')
+        if proposal_plan:
+            if not args.dry_run:
+                commit_plan(project, proposal_plan)
+            print(f"{'Would create' if args.dry_run else 'Created'} review proposals in {proposals}; live sources unchanged.")
+        if args.dry_run:
+            print('Dry run: no files changed.')
+        return
+
+    keep_customized = getattr(args, 'keep_customized', False)
+    blocked = [row for row in rows if row['status'] == 'unowned' or
+               (row['status'] == 'review required' and not keep_customized)]
+    if blocked:
+        details = ', '.join(row['name'] + ': ' + row['status'] for row in blocked)
+        raise InstallError('Update needs review; no files changed (' + details + '). '
+                           'Run quickui diff --proposals REVIEW_DIR, review and merge customized sources manually. '
+                           'After reviewing, --keep-customized updates only pristine files and retains customized sources unchanged.')
+    planned = []
+    for row in rows:
+        status = row['status']
+        if status in ('integration-managed', 'customized; upstream unchanged', 'review required'):
+            continue
+        if row['local'] != row['incoming']:
+            planned.append((row['target'], row['incoming'], row['local']))
+        plan_base(project, row['incoming'], planned)
+        record = dict(row['record'] or {})
+        record.update(path=str(row['relative']), sha256=fingerprint(row['incoming']))
+        installed[row['name']] = record
+    if json.loads(original_config) != config:
+        planned.append((project / CONFIG_NAME, (json.dumps(config, indent=2) + '\n').encode(), original_config))
+    if not args.dry_run:
+        commit_plan(project, planned)
+    for row in rows:
+        prefix = 'Would update' if args.dry_run else 'Updated'
+        if row['status'] in ('update available', 'missing', 'new dependency'):
+            print(f"{prefix} {row['relative']}")
+        else:
+            print(f"Kept {row['relative']}: {row['status']}")
+    if not planned:
+        print('No changes.')
+    if args.dry_run:
+        print('Dry run: no files changed.')
+
+
 def install(entries, args):
     # Resolving the explicitly selected project permits a symlink to the project
     # itself; all paths inside that project must be ordinary files/directories.
@@ -165,6 +387,7 @@ def install(entries, args):
     requested = ["theme"] if args.command == "init" else args.components
     names = resolve(entries, requested)
     planned, unchanged, kept = [], [], []
+    snapshots = []
     for name in names:
         filename = entries[name]["file"]
         source = checked_path(ROOT, PurePosixPath("registry/quickui") / filename)
@@ -186,23 +409,20 @@ def install(entries, args):
             unchanged.append(target)
         else:
             planned.append((target, content))
-        config["installed"][name] = {
-            "path": str(relative), "sha256": hashlib.sha256(content).hexdigest()
-        }
+        plan_base(project, content, snapshots)
+        config["installed"][name] = dict(record or {}, path=str(relative), sha256=hashlib.sha256(content).hexdigest())
     serialized = (json.dumps(config, indent=2) + "\n").encode()
     # Preserve user formatting and timestamps if managed data did not change.
     metadata_changed = original_config is None or json.loads(original_config) != config
-    # Nothing above this line mutates the project. Every conflict is checked first.
-    for target, content in planned:
-        if not args.dry_run:
-            target.parent.mkdir(parents=True, exist_ok=True)
-            # Exclusive creation also protects a file created after validation.
-            with target.open("xb") as stream:
-                stream.write(content)
+    # Stage sources, pristine snapshots and metadata as a single transaction.
+    transaction = [(target, content, None) for target, content in planned] + snapshots
+    if metadata_changed:
+        transaction.append((project / CONFIG_NAME, serialized, original_config))
+    if not args.dry_run:
+        commit_plan(project, transaction)
+    for target, _ in planned:
         print(f"{'Would create' if args.dry_run else 'Created'} {target.relative_to(project)}")
     if metadata_changed:
-        if not args.dry_run:
-            write_config(project, serialized, original_config)
         verb = "create" if original_config is None else "update"
         print(f"{'Would ' + verb if args.dry_run else verb.capitalize() + 'd'} {CONFIG_NAME}")
     for target in unchanged:
@@ -214,13 +434,16 @@ def install(entries, args):
 
 
 def commit_plan(project, planned):
-    """Stage bytes first; roll back our own files if a later replace fails."""
+    """Stage new bytes and recovery copies before modifying any live file."""
+    import stat
     staged, changed, created_directories = [], [], []
+    retained_backups = set()
     try:
         for target, content, original in planned:
             checked_path(project, PurePosixPath(target.relative_to(project).as_posix()))
             if (target.read_bytes() if target.exists() else None) != original:
-                raise InstallError(f"File changed during preset planning: {target}")
+                raise InstallError(f"File changed during planning: {target}")
+            previous_stat = target.stat() if original is not None else None
             missing = []
             parent = target.parent
             while not parent.exists():
@@ -230,30 +453,59 @@ def commit_plan(project, planned):
                 directory.mkdir()
                 created_directories.append(directory)
             descriptor, temporary = tempfile.mkstemp(prefix=".quickui-", dir=target.parent)
-            staged.append((target, Path(temporary), content, original))
+            entry = dict(target=target, temporary=Path(temporary), content=content,
+                         original=original, backup=None)
+            staged.append(entry)
             with os.fdopen(descriptor, "wb") as stream:
                 stream.write(content)
-        for target, temporary, content, original in staged:
+            if previous_stat is not None:
+                os.chmod(temporary, stat.S_IMODE(previous_stat.st_mode))
+                descriptor, backup = tempfile.mkstemp(prefix=".quickui-backup-", dir=target.parent)
+                entry['backup'] = Path(backup)
+                with os.fdopen(descriptor, "wb") as stream:
+                    stream.write(original)
+                os.chmod(backup, stat.S_IMODE(previous_stat.st_mode))
+                os.utime(backup, ns=(previous_stat.st_atime_ns, previous_stat.st_mtime_ns))
+        for entry in staged:
+            target, temporary, original = entry['target'], entry['temporary'], entry['original']
             checked_path(project, PurePosixPath(target.relative_to(project).as_posix()))
             if (target.read_bytes() if target.exists() else None) != original:
-                raise InstallError(f"File changed during preset installation: {target}")
+                raise InstallError(f"File changed during installation: {target}")
             if original is None:
                 os.link(temporary, target)  # exclusive, atomic creation
+                changed.append(entry)
                 temporary.unlink()
             else:
                 os.replace(temporary, target)
-            changed.append((target, content, original))
-    except Exception:
-        for target, content, original in reversed(changed):
-            if not target.is_symlink() and target.is_file() and target.read_bytes() == content:
-                if original is None:
+                changed.append(entry)
+    except BaseException:
+        for entry in reversed(changed):
+            target, backup = entry['target'], entry['backup']
+            try:
+                checked_path(project, PurePosixPath(target.relative_to(project).as_posix()))
+                if not target.is_file() or target.read_bytes() != entry['content']:
+                    raise InstallError(f"File changed while rolling back: {target}")
+                if entry['original'] is None:
                     target.unlink()
                 else:
-                    target.write_bytes(original)
+                    # Never truncate a live file to restore it. Recovery bytes
+                    # already exist even if the filesystem cannot accept writes.
+                    os.replace(backup, target)
+            except BaseException:
+                if backup is not None:
+                    retained_backups.add(backup)
+                    print(f"quickui: rollback incomplete for {target}; original preserved at {backup}", file=sys.stderr)
+                else:
+                    print(f"quickui: rollback incomplete; inspect newly created {target}", file=sys.stderr)
         raise
     finally:
-        for _, temporary, _, _ in staged:
-            temporary.unlink(missing_ok=True)
+        for entry in staged:
+            for temporary in (entry['temporary'], entry['backup']):
+                if temporary is not None and temporary not in retained_backups:
+                    try:
+                        temporary.unlink(missing_ok=True)
+                    except OSError:
+                        print(f"quickui: temporary recovery file retained at {temporary}", file=sys.stderr)
         for directory in reversed(created_directories):
             try:
                 directory.rmdir()
@@ -292,6 +544,7 @@ def install_preset(entries, args, code, initialize=False):
         source = checked_path(ROOT, PurePosixPath("registry/quickui") / entries["theme"]["file"])
         theme = source.read_bytes()
         planned.append((theme_target, theme, None))
+        plan_base(project, theme, planned)
         config["installed"]["theme"] = {"path": str(theme_relative), "sha256": hashlib.sha256(theme).hexdigest()}
     if original != generated:
         planned.append((target, generated, original))
@@ -386,6 +639,7 @@ def install_omarchy(args):
     if not theme_target.exists():
         theme_content = checked_path(ROOT, PurePosixPath("registry/quickui/Theme.qml")).read_bytes()
         planned.append((theme_target, theme_content, None))
+        plan_base(project, theme_content, planned)
         config["installed"]["theme"] = {"path": str(theme_relative), "sha256": hashlib.sha256(theme_content).hexdigest()}
     config["preset"] = dict(presetlib.export(recipe["preset"]), path=str(preset_relative),
                             sha256=hashlib.sha256(preset_content).hexdigest())
@@ -429,6 +683,15 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     commands = parser.add_subparsers(dest="command", required=True)
     commands.add_parser("list", help="list bundled components and their dependencies")
+    for command in ("diff", "update"):
+        child = commands.add_parser(command, help="review local versus bundled sources" if command == "diff" else "transactionally update pristine installed sources")
+        child.add_argument("components", nargs="*", help="registry names (default: all installed), including dependencies")
+        child.add_argument("--cwd", default=".", metavar="PROJECT")
+        child.add_argument("--dry-run", action="store_true", help="validate without writing files or directories")
+        if command == "update":
+            child.add_argument("--keep-customized", action="store_true", help="after review, skip customized sources even when bundled sources changed; never overwrites them")
+        if command == "diff":
+            child.add_argument("--proposals", metavar="DIR", help="write local/base/bundled and three-way merge proposals to a fresh project-relative directory; never changes live sources")
     omarchy = commands.add_parser("omarchy", help="install an optional Omarchy theme recipe")
     omarchy_commands = omarchy.add_subparsers(dest="omarchy_command", required=True)
     omarchy_install = omarchy_commands.add_parser("install", help="copy optional adapters and compose a preset")
@@ -468,6 +731,8 @@ def main():
             for name, entry in entries.items():
                 dependencies = ", ".join(entry["dependencies"]) or "none"
                 print(f"{name:14} {entry['file']:18} dependencies: {dependencies}")
+        elif args.command in ("diff", "update"):
+            review_sources(entries, args)
         elif args.command == "init" and args.preset:
             install_preset(entries, args, args.preset, initialize=True)
         else:

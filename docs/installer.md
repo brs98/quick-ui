@@ -90,7 +90,8 @@ preserved.
 
 Customize theme properties on a shared `UI.Theme` instance, or edit the installed
 source. You own those files. Keep their included MIT license notices when
-redistributing. There is no managed runtime module or updater.
+redistributing. There is no managed runtime module. Source updates are explicit and reviewed; see
+[reviewing updates](updates.md).
 Re-adding byte-identical files is a no-op that preserves their modification times.
 Previously installed dependencies are retained even after you customize them:
 editing `ui/Theme.qml` and then running `add slider` installs Slider while keeping
@@ -100,16 +101,17 @@ Button. The CLI reports each retained customized dependency.
 An explicitly requested component with differing contents is refused, as is any
 conflicting dependency without a matching installed-origin record at its current
 path. All conflicts are checked before any write. For example, `add theme` refuses
-to replace your edited Theme. To update customized source, install into a fresh
-temporary project and review/merge the desired changes manually. The installer
+to replace your edited Theme. To update customized source, use `quickui diff --proposals reviews/upgrade`
+and review the resulting local/base/bundled copies and optional three-way proposal. The installer
 does not verify that your customized dependency still exposes the API expected by
 a new component. There is no force overwrite option.
 
 Both `init` and `add` support `--dry-run`. A dry run performs the same validation
 and conflict checks, reports planned copies, and creates no files or directories.
 All expected configuration, dependency, source, destination, and conflict checks
-happen before any write. An unexpected filesystem failure during writing can
-still leave a partial installation; fix the failure and rerun the same command.
+happen before any write. Source files, pristine hash-keyed snapshots under
+`.quickui/bases/`, and metadata are committed together with rollback on a detected
+write failure. Keep `.quickui/bases/` with your project for future merge proposals.
 
 ## Registry and path rules
 
@@ -124,7 +126,9 @@ a symlink; it is resolved to its real location before validation.
 The registry graph must contain only known dependencies and no cycles. Malformed
 JSON and duplicate JSON keys are rejected. The CLI uses only the bundled local
 registry. Select a source revision by checking out a Git tag or commit before
-installing. Remote-registry fetching and automatic source merging are future work.
+installing. Remote-registry fetching is not supported. `quickui diff` reviews this checkout,
+and `quickui update --dry-run` previews safe source upgrades. Merge proposals never
+write conflict markers into live sources; see [the update workflow](updates.md).
 
 Exit codes: `0` for success (including no-ops and valid dry runs), `1` for an
 installation/registry/filesystem error, and `2` for invalid command-line usage.
