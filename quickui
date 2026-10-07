@@ -213,27 +213,160 @@ def install(entries, args):
         print("Dry run: no files changed.")
 
 
+def commit_plan(project, planned):
+    """Stage bytes first; roll back our own files if a later replace fails."""
+    staged, changed, created_directories = [], [], []
+    try:
+        for target, content, original in planned:
+            checked_path(project, PurePosixPath(target.relative_to(project).as_posix()))
+            if (target.read_bytes() if target.exists() else None) != original:
+                raise InstallError(f"File changed during preset planning: {target}")
+            missing = []
+            parent = target.parent
+            while not parent.exists():
+                missing.append(parent)
+                parent = parent.parent
+            for directory in reversed(missing):
+                directory.mkdir()
+                created_directories.append(directory)
+            descriptor, temporary = tempfile.mkstemp(prefix=".quickui-", dir=target.parent)
+            staged.append((target, Path(temporary), content, original))
+            with os.fdopen(descriptor, "wb") as stream:
+                stream.write(content)
+        for target, temporary, content, original in staged:
+            checked_path(project, PurePosixPath(target.relative_to(project).as_posix()))
+            if (target.read_bytes() if target.exists() else None) != original:
+                raise InstallError(f"File changed during preset installation: {target}")
+            if original is None:
+                os.link(temporary, target)  # exclusive, atomic creation
+                temporary.unlink()
+            else:
+                os.replace(temporary, target)
+            changed.append((target, content, original))
+    except Exception:
+        for target, content, original in reversed(changed):
+            if not target.is_symlink() and target.is_file() and target.read_bytes() == content:
+                if original is None:
+                    target.unlink()
+                else:
+                    target.write_bytes(original)
+        raise
+    finally:
+        for _, temporary, _, _ in staged:
+            temporary.unlink(missing_ok=True)
+        for directory in reversed(created_directories):
+            try:
+                directory.rmdir()
+            except OSError:
+                pass
+
+
+def install_preset(entries, args, code, initialize=False):
+    import presetlib
+    settings = presetlib.decode(code)  # reject invalid codes before reading/writing project
+    generated = presetlib.qml_theme(code)
+    project = Path(args.cwd).expanduser().resolve()
+    if not project.is_dir():
+        raise InstallError(f"Project directory does not exist: {project}")
+    directory, config, original_config = project_config(project, initialize)
+    checked_path(project, directory, directory=True)
+    relative = directory / "PresetTheme.qml"
+    target = checked_path(project, relative)
+    record = config.get("preset")
+    if record is not None:
+        if (not isinstance(record, dict) or set(record) != {"schemaVersion", "code", "config", "path", "sha256"}
+                or type(record["schemaVersion"]) is not int or record["schemaVersion"] != 1
+                or not isinstance(record["sha256"], str) or not re.fullmatch(r"[0-9a-f]{64}", record["sha256"])):
+            raise InstallError("Invalid preset origin record in quickui.json")
+        presetlib.import_config({key: record[key] for key in ("schemaVersion", "code", "config")})
+        if relative_path(record["path"], "preset.path") != relative:
+            raise InstallError("Preset destination changed; preserve/move owned files deliberately first")
+    original = target.read_bytes() if target.exists() else None
+    if original is not None and original != generated:
+        if not record or hashlib.sha256(original).hexdigest() != record["sha256"]:
+            raise InstallError(f"Refusing to overwrite edited or unowned preset theme: {target}")
+    planned = []
+    theme_relative = directory / entries["theme"]["file"]
+    theme_target = checked_path(project, theme_relative)
+    if not theme_target.exists():
+        source = checked_path(ROOT, PurePosixPath("registry/quickui") / entries["theme"]["file"])
+        theme = source.read_bytes()
+        planned.append((theme_target, theme, None))
+        config["installed"]["theme"] = {"path": str(theme_relative), "sha256": hashlib.sha256(theme).hexdigest()}
+    if original != generated:
+        planned.append((target, generated, original))
+    config["preset"] = dict(presetlib.export(code), path=str(relative), sha256=hashlib.sha256(generated).hexdigest())
+    if original_config is None or json.loads(original_config) != config:
+        planned.append((project / CONFIG_NAME, (json.dumps(config, indent=2) + "\n").encode(), original_config))
+    if not args.dry_run:
+        commit_plan(project, planned)
+    for path, _, previous in planned:
+        action = "create" if previous is None else "update"
+        print(f"{'Would ' + action if args.dry_run else action.capitalize() + 'd'} {path.relative_to(project)}")
+    if not planned:
+        print("Preset unchanged; owned sources preserved.")
+    if args.dry_run:
+        print("Dry run: no files changed.")
+    print(f'Use: import "{directory}" as UI; UI.PresetTheme {{ id: tokens }}')
+    if settings["colorSource"] == "system":
+        print("Host colors: bind systemTheme to your host Theme object; the palette is the standalone fallback.")
+
+
+def preset_command(args):
+    import presetlib
+    if args.preset_command == "encode":
+        print(presetlib.encode(presetlib.import_config(read_json(Path(args.file).expanduser()))))
+    elif args.preset_command == "apply":
+        install_preset(read_registry(), args, args.code)
+    else:
+        exported = presetlib.export(args.code)
+        if args.preset_command == "export" or args.json:
+            print(json.dumps(exported, indent=2))
+        else:
+            print(exported["code"])
+            for key, value in exported["config"].items():
+                print(f"{key}: {value}")
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     commands = parser.add_subparsers(dest="command", required=True)
     commands.add_parser("list", help="list bundled components and their dependencies")
+    preset = commands.add_parser("preset", help="inspect, export, encode, or apply a versioned preset")
+    preset_commands = preset.add_subparsers(dest="preset_command", required=True)
+    for name in ("inspect", "export", "apply"):
+        child = preset_commands.add_parser(name)
+        child.add_argument("code")
+        if name == "inspect":
+            child.add_argument("--json", action="store_true")
+        if name == "apply":
+            child.add_argument("--cwd", default=".", metavar="PROJECT")
+            child.add_argument("--dry-run", action="store_true")
+    preset_commands.add_parser("encode").add_argument("file")
     for command, help_text in (("init", "create quickui.json and install Theme.qml"),
                                ("add", "copy components and their dependencies into your project")):
         child = commands.add_parser(command, help=help_text)
+        if command == "init":
+            child.add_argument("--preset", metavar="CODE", help="install an owned PresetTheme.qml")
         if command == "add":
             child.add_argument("components", nargs="+", help="registry names, e.g. button slider")
         child.add_argument("--cwd", default=".", metavar="PROJECT", help="existing project directory (default: current)")
         child.add_argument("--dry-run", action="store_true", help="validate and show changes without writing")
     args = parser.parse_args()
     try:
+        if args.command == "preset":
+            preset_command(args)
+            return 0
         entries = read_registry()
         if args.command == "list":
             for name, entry in entries.items():
                 dependencies = ", ".join(entry["dependencies"]) or "none"
                 print(f"{name:14} {entry['file']:18} dependencies: {dependencies}")
+        elif args.command == "init" and args.preset:
+            install_preset(entries, args, args.preset, initialize=True)
         else:
             install(entries, args)
-    except (InstallError, OSError, RecursionError) as error:
+    except (InstallError, OSError, RecursionError, ValueError) as error:
         print(f"quickui: {error}", file=sys.stderr)
         return 1
     return 0
