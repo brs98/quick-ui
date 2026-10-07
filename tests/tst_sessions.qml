@@ -38,6 +38,28 @@ Item {
             compare(other.sessionState.designs[0].name, "New ocean");
             compare(other.explorerState.events.length, 0);
         }
+        function test_savedDesignControls() {
+            const explorer = createTemporaryObject(factory, host);
+            explorer.createMode = true;
+            explorer.sessionState.ready = true;
+            const builder = explorer.presetBuilder;
+            builder.savedDesignsOpen = true;
+            waitForRendering(builder);
+            const name = findChild(builder, "savedDesignName");
+            const save = findChild(builder, "savedDesignSave");
+            verify(name); verify(save);
+            name.text = "Keyboard design";
+            save.forceActiveFocus(Qt.TabFocusReason); keyClick(Qt.Key_Space);
+            compare(explorer.sessionState.designs.length, 1);
+            name.text = "Renamed design";
+            const rename = findChild(builder, "savedDesignRename");
+            rename.forceActiveFocus(Qt.TabFocusReason); keyClick(Qt.Key_Space);
+            compare(explorer.sessionState.designs[0].name, "Renamed design");
+            builder.createState.setOption("accent", "ocean");
+            const open = findChild(builder, "savedDesignOpen");
+            open.forceActiveFocus(Qt.TabFocusReason); keyClick(Qt.Key_Space);
+            compare(builder.createState.config.accent, "lavender");
+        }
         function test_snapshotTracksBindings() {
             const explorer = createTemporaryObject(factory, host);
             const before = explorer.sessionState.snapshot;
